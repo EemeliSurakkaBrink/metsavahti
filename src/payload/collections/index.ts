@@ -1,0 +1,5 @@
+export { Alerts } from '@/payload/collections/Alerts'
+export { Declarations } from '@/payload/collections/Declarations'
+export { NotificationLog } from '@/payload/collections/NotificationLog'
+export { Users } from '@/payload/collections/Users'
+export { WatchAreas } from '@/payload/collections/WatchAreas'
