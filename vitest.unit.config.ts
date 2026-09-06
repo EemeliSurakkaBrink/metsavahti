@@ -10,6 +10,8 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/unit/**/*.test.{ts,tsx}'],
     setupFiles: ['./tests/unit/setup.ts'],
+    // Projects with different worker settings need distinct group orders when run together.
+    sequence: { groupOrder: 0 },
     // Component tests opt in with `// @vitest-environment jsdom` at the top of the file.
     testTimeout: 10_000,
   },

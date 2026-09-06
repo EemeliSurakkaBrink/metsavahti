@@ -16,6 +16,7 @@ export default defineConfig({
     globalSetup: ['./tests/integration/global-setup.ts'],
     setupFiles: ['./tests/integration/setup.ts'],
     maxWorkers: 1,
+    sequence: { groupOrder: 1 },
     isolate: false,
     testTimeout: 60_000,
     hookTimeout: 180_000,
