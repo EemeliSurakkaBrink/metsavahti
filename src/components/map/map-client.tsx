@@ -10,10 +10,7 @@ const WatchAreaMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div
-        className="h-[420px] w-full animate-pulse rounded-md bg-muted"
-        data-testid="map-loading"
-      />
+      <div className="h-105 w-full animate-pulse rounded-lg bg-muted" data-testid="map-loading" />
     ),
   },
 )

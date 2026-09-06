@@ -55,6 +55,7 @@ Each rule carries a `why:` so it can be revisited when the reason disappears.
 - MUST update docs affected by a change in the same commit (README, `src/ARCHITECTURE.md`, `docs/DECISIONS.md`). why: stale docs mislead the next session more than no docs.
 - MUST make one logical change per commit, with a conventional-commit subject and a body that explains why. why: commitlint enforces the subject; the history is read at every clock-in.
 - MUST NOT read or edit `.env`; use `.env.example` for the variable list. why: secrets.
+- MUST style with the theme tokens in `src/app/globals.css` (`bg-forest-700`, `text-ink-muted`, `rounded-lg`, `shadow-card` …) and MUST NOT use arbitrary Tailwind values (`bg-[#…]`, `h-[420px]`), raw palette colours (`text-gray-500`), inline `style` props or colour literals in `src/`; the only exceptions are the map container and email templates, which take colours from `src/lib/design-tokens.ts`. Read the artboard(s) in the feature's `design` field before building a page. why: the design system is enforced by `pnpm lint` (L1) and the tokens test; the design lives in docs/design. source: docs/design/README.md.
 
 ## Working rules
 

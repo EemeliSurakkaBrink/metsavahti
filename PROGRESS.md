@@ -5,31 +5,34 @@ Any coding agent can use it; nothing updates it automatically.
 
 ## Current Verified State
 
-- Repository root: `metsavahti/` (this directory; contains `AGENTS.md`, `feature_list.json`, `init.sh`).
+- Repository root: `metsavahti/` (this directory; contains `AGENTS.md`, `feature_list.json`, `init.sh`, `harness.config.json`).
 - Standard startup path: `./init.sh` (`FAST=1` skips the baseline; `RUN_START_COMMAND=1` starts Docker services and `pnpm dev`).
-- Standard verification path: L1 `pnpm check` · L2 `pnpm test:integration` (Docker) · L3 `pnpm test:e2e` (Docker + browsers).
-- Last verified commit: `113bcda` plus the working tree of session 002 (F-001 done; phase 2 in progress).
-- `pnpm check`: passing (2026-09-06, session 002; lint, typecheck, knip, format:check, 27 unit tests). Note: at `113bcda` L1 was red because the spec docs were unformatted; fixed in session 002.
-- L2 / L3 last run: at scaffold time (commit `9bd9f80`, CI green); not re-run in session 001 because no `src/` code changed.
-- Phase 2 of the harness is being implemented in session 002 (F-013, F-014, F-015 passing; F-016 next). `feature_list.json` now holds every product ticket (115 features); `pnpm harness:feature list` shows what is ready.
-- Current blocker: none. F-011 and F-012 are blocked on `MML_API_KEY`.
+- Standard verification path: L1 `pnpm check` · L2 `pnpm test:integration` (Docker) · L3 `pnpm test:e2e` (Docker + browsers). Per feature: `pnpm harness:verify F-NNN`.
+- Last verified commit: the F-016 commit of session 002 (see `git log`); `pnpm check` green (46 unit tests), `pnpm test:e2e` green (29 checks, 3 browsers) on 2026-09-06.
+- L2 last run: at scaffold time (`9bd9f80`, CI green); no `src/` runtime code changed in session 002 (map colours, email styles and the theme only).
+- Harness phase 2 is complete: F-013 (scripts), F-014 (loop driver + stop guard + evaluator split), F-015 (spec in `docs/product`, 115 features imported), F-016 (design tokens + lint). How it works: `docs/harness/README.md`.
+- Queue: `pnpm harness:feature list` — ready and unattended-capable now: F-010 (typed errors), F-020 (CRS module), F-030 (PostGIS migration scaffolding). Human-only ready: F-021 (WFS discovery, needs network).
+- Current blocker: none for the loop itself. `gh` is not installed (`brew install gh && gh auth login`), so the driver would push branches but could not open PRs. F-017 and F-062 are blocked on `MML_API_KEY`.
 
 ## Next Steps
 
-1. `/clock-in F-001` (or follow AGENTS.md → Clock-in): add `"noUncheckedIndexedAccess": true` to `tsconfig.json`, keep README/TECH_STACK claims truthful, `pnpm check`, `/verify-feature F-001`, `/clock-out`.
-2. Then F-002 (sign-up form + verification email). It is cross-component: plan the L2 integration test and the L3 Playwright spec before writing UI.
-3. After the first real feature session: tune `docs/harness/evaluator-rubric.md` against your own judgement and regrade `docs/harness/quality-document.md`.
+1. `brew install gh && gh auth login`; push `main` so it is in sync with `origin/main` (the driver's preflight requires it).
+2. First live loop run, watched: `pnpm harness:loop --once --feature F-020` (CRS module, unit-only, cheap). Read `.harness/runs.jsonl`, the trace and the PR; compare the evaluator's verdict with your own and add a row to the rubric's tuning log.
+3. Then `pnpm harness:loop --once` for F-010 and F-030, then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
+4. When a page ticket comes up (first is F-011 after F-016), check that the session opened the linked artboard; tighten the generator prompt if it did not.
+5. Interactive work still uses `/clock-in`, `/verify-feature`, `/clock-out`; human-only features (`manual:` steps) stay interactive.
 
 ## Session Log
 
 ### Session 002 — 2026-09-06 (phase 2: automated loop)
 
 - Goal: implement phase 2 of the harness (`docs/harness/phase-2-automated-loop.md`): machine-checkable transitions, unattended loop driver, spec reconciliation and ticket import, design-system enforcement, overview doc.
-- Completed so far: F-001 (`noUncheckedIndexedAccess`); design prototypes moved to `docs/design/`; F-013 — `scripts/validate-feature-list.ts` extended (`depends_on`, `attempts`, `ticket`, `spec`, `design`, cycle/dependency rules, read/write helpers), `scripts/harness-feature.ts`, `scripts/verify-feature.ts`, `scripts/clean-state-check.sh`, skills rewired to the scripts, checklist split into machine/judgement parts; F-014 — `scripts/harness-loop.ts` (`pnpm harness:loop`, `harness:report`), `harness.config.json`, prompt templates + evaluator JSON schema in `docs/harness/prompts/`, opt-in Stop hook `stop-guard.sh`, loop-mode blocks in `guard.sh`, evaluator agent contract, D-008; F-015 — spec moved to `docs/product/` with `docs/README.md` index, `docs/product/00-deviations.md` ledger (≈45 rows), rewritten `05-conventions.md`, reconstructed `E00-bootstrap.md`, `scripts/import-tickets.ts` (111 tickets → 115 features with `depends_on`, `spec`, `design`), `docs/design/design-map.json`, `docs/harness/README.md` overview.
-- Verification run: `pnpm check` (38 unit tests), `pnpm harness:check`, `pnpm harness:verify F-013 --allow-manual`, clean-state script exercised against an injected `.only` and `console.log` (both caught); `pnpm harness:loop --dry-run --no-docker --feature F-002` prints the full chain; `stop-guard.sh` and `guard.sh` simulated (block / allow / cap paths).
+- Completed so far: F-001 (`noUncheckedIndexedAccess`); design prototypes moved to `docs/design/`; F-013 — `scripts/validate-feature-list.ts` extended (`depends_on`, `attempts`, `ticket`, `spec`, `design`, cycle/dependency rules, read/write helpers), `scripts/harness-feature.ts`, `scripts/verify-feature.ts`, `scripts/clean-state-check.sh`, skills rewired to the scripts, checklist split into machine/judgement parts; F-014 — `scripts/harness-loop.ts` (`pnpm harness:loop`, `harness:report`), `harness.config.json`, prompt templates + evaluator JSON schema in `docs/harness/prompts/`, opt-in Stop hook `stop-guard.sh`, loop-mode blocks in `guard.sh`, evaluator agent contract, D-008; F-015 — spec moved to `docs/product/` with `docs/README.md` index, `docs/product/00-deviations.md` ledger (≈45 rows), rewritten `05-conventions.md`, reconstructed `E00-bootstrap.md`, `scripts/import-tickets.ts` (111 tickets → 115 features with `depends_on`, `spec`, `design`), `docs/design/design-map.json`, `docs/harness/README.md` overview; F-016 — design tokens as the Tailwind theme (`src/app/globals.css`, default palette removed), `src/lib/design-tokens.ts` for map + email, Figtree via `next/font`, `eslint-plugin-better-tailwindcss` rules + `react/forbid-*-props` for `style`, tokens consistency test, `docs/design/README.md`, AGENTS.md design constraint.
+- Verification run: `pnpm check` (38 unit tests), `pnpm harness:check`, `pnpm harness:verify F-013 --allow-manual`, clean-state script exercised against an injected `.only` and `console.log` (both caught); `pnpm harness:loop --dry-run --no-docker --feature F-002` prints the full chain; `stop-guard.sh` and `guard.sh` simulated (block / allow / cap paths); `pnpm lint` fails on injected `bg-[#000]`, `text-gray-500` and `style=` (4 errors) and passes after removal; `pnpm harness:verify F-016` ran L1 + L3 (29 e2e checks incl. axe).
 - Commits: `2052888`, `c686222`, then one commit per feature F-013…F-016 (see `git log`).
 - Known risk: the clean-state script compares against `origin/main`; on a local-only branch it falls back to `main`.
-- Next best step: F-016 (design system); install `gh` (`brew install gh && gh auth login`) before the first live loop run.
+- Known risk: the loop has not run live yet (no `gh`); the first run should be watched and its evaluator verdict compared with a human one. The generated verification lines are a first pass. Dark mode was removed with the token port (no design for it).
+- Next best step: see Next Steps 1–2.
 
 ### Session 001 — 2026-09-06
 

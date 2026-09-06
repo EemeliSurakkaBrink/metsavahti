@@ -303,7 +303,7 @@
       "area": "harness",
       "title": "Design system tokens and lint enforcement",
       "user_visible_behavior": "The Claude Design tokens (docs/design/tokens.js) are the app's Tailwind theme in src/app/globals.css with Figtree loaded via next/font; src/lib/design-tokens.ts feeds the map and emails; `pnpm lint` fails on arbitrary Tailwind values, raw palette colours, unknown classes and inline style props; AGENTS.md states the rule.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": [],
       "ticket": "MV-005",
       "epic": "E00",
@@ -313,7 +313,11 @@
         "L3: pnpm test:e2e (pages render with the new palette; axe contrast passes)",
         "manual: pnpm lint reports an error for a deliberate `bg-[#000]` and `text-gray-500` and passes after they are removed"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-06 pnpm check → pass (commit 291b741)",
+        "2026-09-06 pnpm test:e2e → pass (commit 291b741)",
+        "2026-09-06 manual: pnpm lint reports an error for a deliberate `bg-[#000]` and `text-gray-500` and passes after they are removed → waived via --allow-manual by eemelisurakka (commit 291b741)"
+      ],
       "attempts": 0,
       "notes": "Landing hero variant B (typografia) is the chosen hero (user decision 2026-09-06)."
     },

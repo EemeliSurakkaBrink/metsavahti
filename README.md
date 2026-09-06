@@ -34,7 +34,7 @@ A second run with identical upstream data sends nothing (idempotent).
 | Layer             | Choice                                                                                                                                                    |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                |
-| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4, shadcn/ui                                                                                   |
+| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree    |
 | Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `alerts`, `notification-log`; Payload Jobs Queue for the pipeline |
 | Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                             |
 | Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                 |

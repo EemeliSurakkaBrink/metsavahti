@@ -11,6 +11,7 @@ import {
   type StyleSpecification,
 } from 'react-map-gl/maplibre'
 
+import { mapColors } from '@/lib/design-tokens'
 import { watchAreaPolygon } from '@/lib/geo/buffer'
 
 export type MapWatchArea = {
@@ -60,29 +61,32 @@ export function WatchAreaMap({ areas }: WatchAreaMapProps) {
     : FINLAND_CENTER
 
   return (
-    <div
-      className="h-[420px] w-full overflow-hidden rounded-md border"
-      data-testid="watch-area-map"
-    >
+    <div className="h-105 w-full overflow-hidden rounded-xl border" data-testid="watch-area-map">
       <MapLibreMap
         initialViewState={initialViewState}
         mapStyle={OSM_STYLE}
+        // eslint-disable-next-line react/forbid-component-props -- react-map-gl sizes the canvas through `style`
         style={{ width: '100%', height: '100%' }}
       >
         <Source data={polygons} id="watch-areas" type="geojson">
           <Layer
             id="watch-areas-fill"
-            paint={{ 'fill-color': '#1f5f3a', 'fill-opacity': 0.15 }}
+            paint={{ 'fill-color': mapColors.watchAreaFill, 'fill-opacity': 0.15 }}
             type="fill"
           />
           <Layer
             id="watch-areas-line"
-            paint={{ 'line-color': '#1f5f3a', 'line-width': 2 }}
+            paint={{ 'line-color': mapColors.watchAreaLine, 'line-width': 2 }}
             type="line"
           />
         </Source>
         {areas.map((a) => (
-          <Marker key={a.id} latitude={a.center[1]} longitude={a.center[0]} />
+          <Marker
+            color={mapColors.marker}
+            key={a.id}
+            latitude={a.center[1]}
+            longitude={a.center[0]}
+          />
         ))}
       </MapLibreMap>
     </div>

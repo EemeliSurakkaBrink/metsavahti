@@ -12,6 +12,7 @@ import {
 } from '@react-email/components'
 import { render } from '@react-email/render'
 
+import { colors, fontFamily, radius } from '@/lib/design-tokens'
 import { hakkuutapaLabel } from '@/lib/wfs/hakkuutapa'
 
 export type AlertEmailDeclaration = {
@@ -41,8 +42,21 @@ export function AlertEmail({
       <Preview>
         {`${declarations.length} uutta tai muuttunutta metsänkäyttöilmoitusta alueella ${watchAreaName}`}
       </Preview>
-      <Body style={{ fontFamily: 'system-ui, sans-serif', backgroundColor: '#f6f7f4' }}>
-        <Container style={{ backgroundColor: '#ffffff', padding: 24, borderRadius: 8 }}>
+      <Body
+        style={{
+          fontFamily: fontFamily.sans,
+          backgroundColor: colors.paper.DEFAULT,
+          color: colors.ink.DEFAULT,
+        }}
+      >
+        <Container
+          style={{
+            backgroundColor: colors.paper.raised,
+            padding: 24,
+            borderRadius: radius.xl,
+            border: `1px solid ${colors.line.DEFAULT}`,
+          }}
+        >
           <Heading as="h2">Metsävahti: uusia ilmoituksia alueella {watchAreaName}</Heading>
           <Text>
             Vahtialueesi läheltä löytyi {declarations.length} metsänkäyttöilmoitusta, jotka ovat
@@ -61,16 +75,16 @@ export function AlertEmail({
           <Button
             href={dashboardUrl}
             style={{
-              backgroundColor: '#1f5f3a',
-              color: '#fff',
+              backgroundColor: colors.forest[700],
+              color: colors.paper.raised,
               padding: '10px 16px',
-              borderRadius: 6,
+              borderRadius: radius.lg,
             }}
           >
             Avaa Metsävahti
           </Button>
           <Hr />
-          <Text style={{ color: '#666', fontSize: 12 }}>{attribution}</Text>
+          <Text style={{ color: colors.ink.muted, fontSize: 12 }}>{attribution}</Text>
         </Container>
       </Body>
     </Html>
