@@ -8,7 +8,7 @@ Any coding agent can use it; nothing updates it automatically.
 - Repository root: `metsavahti/` (this directory; contains `AGENTS.md`, `feature_list.json`, `init.sh`, `harness.config.json`).
 - Standard startup path: `./init.sh` (`FAST=1` skips the baseline; `RUN_START_COMMAND=1` starts Docker services and `pnpm dev`).
 - Standard verification path: L1 `pnpm check` · L2 `pnpm test:integration` (Docker) · L3 `pnpm test:e2e` (Docker + browsers). Per feature: `pnpm harness:verify F-NNN`.
-- Last verified commit: the F-010 commit of session 004 (see `git log`); `pnpm check` green (86 unit tests) on 2026-09-06. `pnpm test:e2e` last green on the F-016 commit of session 002 (29 checks, 3 browsers, 2026-09-06).
+- Last verified commit: the F-010 revision commit of session 005 (see `git log`); `pnpm check` green (86 unit tests) on 2026-09-06. `pnpm test:e2e` last green on the F-016 commit of session 002 (29 checks, 3 browsers, 2026-09-06).
 - L2 last run: at scaffold time (`9bd9f80`, CI green). Session 003 changed only `src/lib/geo/crs.ts` (pure, unit-tested); `toWgs84`, the one function the integration and e2e suites import from it, kept its signature. Session 004 added `src/lib/errors.ts` (new module, no callers yet), so nothing the L2/L3 suites exercise changed.
 - Harness phase 2 is complete: F-013 (scripts), F-014 (loop driver + stop guard + evaluator split), F-015 (spec in `docs/product`, 115 features imported), F-016 (design tokens + lint). How it works: `docs/harness/README.md`.
 - Queue: `pnpm harness:feature list` — ready and unattended-capable now: F-011 (marketing layout), F-025 (geometry hashing), F-026 (bbox + clustering), F-027 (buffer preview), F-030 (PostGIS migration scaffolding), F-041 (auth layout). Human-only ready: F-021 (WFS discovery, needs network). F-010 (typed errors) is passing on branch `feat/F-010`; F-023 (WFS client) and F-047 (session helpers) become ready once it is merged.
@@ -18,11 +18,20 @@ Any coding agent can use it; nothing updates it automatically.
 
 1. `brew install gh && gh auth login`; push `main` so it is in sync with `origin/main` (the driver's preflight requires it).
 2. F-020 was the first driver-run feature (session 003, branch `feat/F-020`). Read `.harness/runs.jsonl`, the trace and the PR; compare the evaluator's verdict with your own and add a row to the rubric's tuning log. Review the F-020 branch before merging.
-3. Review and merge `feat/F-010` (session 004). Then `pnpm harness:loop --once` for F-030 and the F-020 dependants (F-025, F-026, F-027), then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
+3. Review and merge `feat/F-010` (sessions 004–005). Then `pnpm harness:loop --once` for F-030 and the F-020 dependants (F-025, F-026, F-027), then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
 4. When a page ticket comes up (first is F-011 after F-016), check that the session opened the linked artboard; tighten the generator prompt if it did not.
 5. Interactive work still uses `/clock-in`, `/verify-feature`, `/clock-out`; human-only features (`manual:` steps) stay interactive.
 
 ## Session Log
+
+### Session 005 — 2026-09-06 (driver-run: F-010 evaluator revision)
+
+- Goal: F-010 attempt 2 of 2 — address the evaluator's Revise verdict on session 004 (`HARNESS_LOOP=1`).
+- Completed: the only finding scored below 2 was Maintainability: the `lib/errors.ts` row of the module table in `src/ARCHITECTURE.md` contained an unescaped `|` inside `{ ok, data | error }`, which split the row into four cells. The row now says `{ ok, data }` or `{ ok, error }`, so no pipe is needed at all and every row of the table has three cells (checked with `awk -F'|'`). Prettier realigned the table's column widths, which is why the diff touches every row. No code changed.
+- Choices made without a human: the evaluator's message was cut off after the Maintainability row, so the visible findings were the only ones addressed; Correctness, Verification, Scope discipline and Reliability were already scored 2. The feature was already `passing`, so `pnpm harness:feature activate` was not applicable (it only accepts `not_started`); `pnpm harness:verify` accepts a passing feature and was used to refresh the evidence.
+- Verification run: `pnpm harness:verify F-010` → L1 `pnpm check` (86 unit tests) and the unit file pass; two evidence lines added in `feature_list.json`; `scripts/clean-state-check.sh --allow-state-dirty` green apart from the uncommitted docs change before this commit.
+- Known risk: none. If the evaluator's truncated verdict contained further findings, they are not visible in the retry context; the driver should pass the full verdict.
+- Next best step: see Next Steps 3.
 
 ### Session 004 — 2026-09-06 (driver-run: F-010 typed errors)
 
