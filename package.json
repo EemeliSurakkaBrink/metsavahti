@@ -49,6 +49,7 @@
     "harness:clean-state": "bash scripts/clean-state-check.sh",
     "harness:loop": "tsx scripts/harness-loop.ts",
     "harness:report": "tsx scripts/harness-loop.ts --report",
+    "harness:import-tickets": "tsx scripts/import-tickets.ts",
     "prepare": "husky"
   },
   "dependencies": {

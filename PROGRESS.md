@@ -11,7 +11,7 @@ Any coding agent can use it; nothing updates it automatically.
 - Last verified commit: `113bcda` plus the working tree of session 002 (F-001 done; phase 2 in progress).
 - `pnpm check`: passing (2026-09-06, session 002; lint, typecheck, knip, format:check, 27 unit tests). Note: at `113bcda` L1 was red because the spec docs were unformatted; fixed in session 002.
 - L2 / L3 last run: at scaffold time (commit `9bd9f80`, CI green); not re-run in session 001 because no `src/` code changed.
-- F-001 (`noUncheckedIndexedAccess`) is passing. Phase 2 of the harness (automated loop) is the active work; see `docs/harness/phase-2-automated-loop.md` and the F-013…F-016 entries.
+- Phase 2 of the harness is being implemented in session 002 (F-013, F-014, F-015 passing; F-016 next). `feature_list.json` now holds every product ticket (115 features); `pnpm harness:feature list` shows what is ready.
 - Current blocker: none. F-011 and F-012 are blocked on `MML_API_KEY`.
 
 ## Next Steps
@@ -25,11 +25,11 @@ Any coding agent can use it; nothing updates it automatically.
 ### Session 002 — 2026-09-06 (phase 2: automated loop)
 
 - Goal: implement phase 2 of the harness (`docs/harness/phase-2-automated-loop.md`): machine-checkable transitions, unattended loop driver, spec reconciliation and ticket import, design-system enforcement, overview doc.
-- Completed so far: F-001 (`noUncheckedIndexedAccess`); design prototypes moved to `docs/design/`; F-013 — `scripts/validate-feature-list.ts` extended (`depends_on`, `attempts`, `ticket`, `spec`, `design`, cycle/dependency rules, read/write helpers), `scripts/harness-feature.ts`, `scripts/verify-feature.ts`, `scripts/clean-state-check.sh`, skills rewired to the scripts, checklist split into machine/judgement parts; F-014 — `scripts/harness-loop.ts` (`pnpm harness:loop`, `harness:report`), `harness.config.json`, prompt templates + evaluator JSON schema in `docs/harness/prompts/`, opt-in Stop hook `stop-guard.sh`, loop-mode blocks in `guard.sh`, evaluator agent contract, D-008.
+- Completed so far: F-001 (`noUncheckedIndexedAccess`); design prototypes moved to `docs/design/`; F-013 — `scripts/validate-feature-list.ts` extended (`depends_on`, `attempts`, `ticket`, `spec`, `design`, cycle/dependency rules, read/write helpers), `scripts/harness-feature.ts`, `scripts/verify-feature.ts`, `scripts/clean-state-check.sh`, skills rewired to the scripts, checklist split into machine/judgement parts; F-014 — `scripts/harness-loop.ts` (`pnpm harness:loop`, `harness:report`), `harness.config.json`, prompt templates + evaluator JSON schema in `docs/harness/prompts/`, opt-in Stop hook `stop-guard.sh`, loop-mode blocks in `guard.sh`, evaluator agent contract, D-008; F-015 — spec moved to `docs/product/` with `docs/README.md` index, `docs/product/00-deviations.md` ledger (≈45 rows), rewritten `05-conventions.md`, reconstructed `E00-bootstrap.md`, `scripts/import-tickets.ts` (111 tickets → 115 features with `depends_on`, `spec`, `design`), `docs/design/design-map.json`, `docs/harness/README.md` overview.
 - Verification run: `pnpm check` (38 unit tests), `pnpm harness:check`, `pnpm harness:verify F-013 --allow-manual`, clean-state script exercised against an injected `.only` and `console.log` (both caught); `pnpm harness:loop --dry-run --no-docker --feature F-002` prints the full chain; `stop-guard.sh` and `guard.sh` simulated (block / allow / cap paths).
 - Commits: `2052888`, `c686222`, then one commit per feature F-013…F-016 (see `git log`).
 - Known risk: the clean-state script compares against `origin/main`; on a local-only branch it falls back to `main`.
-- Next best step: F-015 (spec reconciliation + ticket import), then F-016 (design system), then the overview doc; install `gh` (`brew install gh && gh auth login`) before the first live loop run.
+- Next best step: F-016 (design system); install `gh` (`brew install gh && gh auth login`) before the first live loop run.
 
 ### Session 001 — 2026-09-06
 
