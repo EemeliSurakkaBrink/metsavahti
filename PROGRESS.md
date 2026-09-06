@@ -8,21 +8,40 @@ Any coding agent can use it; nothing updates it automatically.
 - Repository root: `metsavahti/` (this directory; contains `AGENTS.md`, `feature_list.json`, `init.sh`, `harness.config.json`).
 - Standard startup path: `./init.sh` (`FAST=1` skips the baseline; `RUN_START_COMMAND=1` starts Docker services and `pnpm dev`).
 - Standard verification path: L1 `pnpm check` · L2 `pnpm test:integration` (Docker) · L3 `pnpm test:e2e` (Docker + browsers). Per feature: `pnpm harness:verify F-NNN`.
-- Last verified commit: the F-020 commit of session 003 (see `git log`); `pnpm check` green (65 unit tests) on 2026-09-06. `pnpm test:e2e` last green on the F-016 commit of session 002 (29 checks, 3 browsers, 2026-09-06).
-- L2 last run: at scaffold time (`9bd9f80`, CI green). Session 003 changed only `src/lib/geo/crs.ts` (pure, unit-tested); `toWgs84`, the one function the integration and e2e suites import from it, kept its signature.
+- Last verified commit: the F-010 revision commit of session 005 (see `git log`); `pnpm check` green (86 unit tests) on 2026-09-06. `pnpm test:e2e` last green on the F-016 commit of session 002 (29 checks, 3 browsers, 2026-09-06).
+- L2 last run: at scaffold time (`9bd9f80`, CI green). Session 003 changed only `src/lib/geo/crs.ts` (pure, unit-tested); `toWgs84`, the one function the integration and e2e suites import from it, kept its signature. Session 004 added `src/lib/errors.ts` (new module, no callers yet), so nothing the L2/L3 suites exercise changed.
 - Harness phase 2 is complete: F-013 (scripts), F-014 (loop driver + stop guard + evaluator split), F-015 (spec in `docs/product`, 115 features imported), F-016 (design tokens + lint). How it works: `docs/harness/README.md`.
-- Queue: `pnpm harness:feature list` — ready and unattended-capable now: F-010 (typed errors), F-011 (marketing layout), F-025 (geometry hashing), F-026 (bbox + clustering), F-027 (buffer preview), F-030 (PostGIS migration scaffolding), F-041 (auth layout). Human-only ready: F-021 (WFS discovery, needs network).
+- Queue: `pnpm harness:feature list` — ready and unattended-capable now: F-011 (marketing layout), F-025 (geometry hashing), F-026 (bbox + clustering), F-027 (buffer preview), F-030 (PostGIS migration scaffolding), F-041 (auth layout). Human-only ready: F-021 (WFS discovery, needs network). F-010 (typed errors) is passing on branch `feat/F-010`; F-023 (WFS client) and F-047 (session helpers) become ready once it is merged.
 - Current blocker: none for the loop itself. `gh` is not installed (`brew install gh && gh auth login`), so the driver would push branches but could not open PRs. F-017 and F-062 are blocked on `MML_API_KEY`.
 
 ## Next Steps
 
 1. `brew install gh && gh auth login`; push `main` so it is in sync with `origin/main` (the driver's preflight requires it).
 2. F-020 was the first driver-run feature (session 003, branch `feat/F-020`). Read `.harness/runs.jsonl`, the trace and the PR; compare the evaluator's verdict with your own and add a row to the rubric's tuning log. Review the F-020 branch before merging.
-3. Then `pnpm harness:loop --once` for F-010, F-030 and the F-020 dependants (F-025, F-026, F-027), then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
+3. Review and merge `feat/F-010` (sessions 004–005). Then `pnpm harness:loop --once` for F-030 and the F-020 dependants (F-025, F-026, F-027), then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
 4. When a page ticket comes up (first is F-011 after F-016), check that the session opened the linked artboard; tighten the generator prompt if it did not.
 5. Interactive work still uses `/clock-in`, `/verify-feature`, `/clock-out`; human-only features (`manual:` steps) stay interactive.
 
 ## Session Log
+
+### Session 005 — 2026-09-06 (driver-run: F-010 evaluator revision)
+
+- Goal: F-010 attempt 2 of 2 — address the evaluator's Revise verdict on session 004 (`HARNESS_LOOP=1`).
+- Completed: the only finding scored below 2 was Maintainability: the `lib/errors.ts` row of the module table in `src/ARCHITECTURE.md` contained an unescaped `|` inside `{ ok, data | error }`, which split the row into four cells. The row now says `{ ok, data }` or `{ ok, error }`, so no pipe is needed at all and every row of the table has three cells (checked with `awk -F'|'`). Prettier realigned the table's column widths, which is why the diff touches every row. No code changed.
+- Choices made without a human: the evaluator's message was cut off after the Maintainability row, so the visible findings were the only ones addressed; Correctness, Verification, Scope discipline and Reliability were already scored 2. The feature was already `passing`, so `pnpm harness:feature activate` was not applicable (it only accepts `not_started`); `pnpm harness:verify` accepts a passing feature and was used to refresh the evidence.
+- Verification run: `pnpm harness:verify F-010` → L1 `pnpm check` (86 unit tests) and the unit file pass; two evidence lines added in `feature_list.json`; `scripts/clean-state-check.sh --allow-state-dirty` green apart from the uncommitted docs change before this commit.
+- Known risk: none. If the evaluator's truncated verdict contained further findings, they are not visible in the retry context; the driver should pass the full verdict.
+- Next best step: see Next Steps 3.
+
+### Session 004 — 2026-09-06 (driver-run: F-010 typed errors)
+
+- Goal: F-010 — `src/lib/errors.ts` with `AppError` subclasses and `actionResult<T>()` for Server Actions, one error → HTTP mapping; unit-only feature, driver-run (`HARNESS_LOOP=1`, attempt 1 of 2).
+- Completed: `AppError` (`code`, `status`, `expose`, `cause`) with `NotFound` 404, `Forbidden` 403, `RateLimited` 429 (`retryAfterSeconds`, rounded up) and `ExternalServiceError` 502 (`service`); `toActionError()` is the single mapping (AppError → its status + client shape, anything else → 500 `internal`; ≥ 500 logged with cause, 4xx not logged); `actionResult(fn)` returns `{ ok: true, data } | { ok: false, error: { code, message, retryAfterSeconds? } }`; `toErrorResponse(err)` is the Route Handler form (JSON `{ ok: false, error }`, `Retry-After` on 429). Both exits call Next's `unstable_rethrow`, so `redirect()` / `notFound()` still work inside a wrapped action, also when hidden in a `cause` chain. New `tests/unit/infra/typed-errors-and-action-result-wrapper.test.ts` (21 tests). `src/ARCHITECTURE.md` and the README layout list the module.
+- Choices made without a human: client messages are Finnish and generic per code (`publicMessages`); `NotFound`/`Forbidden`/`RateLimited` expose their message by default, `ExternalServiceError` and unknown errors never do (the real message is logged). The mapping takes an optional injected logger so the tests stay silent; production callers use the default. `WfsError` in `src/lib/wfs/client.ts` was left as is — MV-023 (F-023) owns switching it to `ExternalServiceError`. No existing route handler was migrated to `toErrorResponse()` (none throws typed errors yet); the two API routes keep their ad-hoc `Response.json` until a ticket touches them. Nothing deviates from the spec, so no ledger row.
+- Verification run: `pnpm harness:verify F-010` → L1 `pnpm check` (86 unit tests) and the unit file pass; evidence recorded in `feature_list.json`; `scripts/clean-state-check.sh --allow-state-dirty` green apart from the expected uncommitted-work items before this commit.
+- Observation for the loop: the `clock-out` skill is marked `disable-model-invocation`, so a driver-run session cannot call `/clock-out` through the Skill tool; this session followed the AGENTS.md clock-out steps by hand. Either allow model invocation for that skill or change the driver prompt to say so.
+- Known risk: none for the feature. The in-session evaluator was skipped (the driver runs it in a second session).
+- Next best step: see Next Steps 2–3.
 
 ### Session 003 — 2026-09-06 (driver-run: F-020 CRS module)
 
