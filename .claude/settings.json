@@ -16,7 +16,10 @@
       "Bash(git diff*)",
       "Bash(git show*)",
       "Bash(docker ps*)",
-      "Bash(docker info*)"
+      "Bash(docker info*)",
+      "Bash(pnpm harness:*)",
+      "Bash(scripts/clean-state-check.sh*)",
+      "Bash(./scripts/clean-state-check.sh*)"
     ],
     "deny": [
       "Read(./.env)",

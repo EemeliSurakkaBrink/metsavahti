@@ -20,6 +20,7 @@
       "title": "Agent harness bootstrap",
       "user_visible_behavior": "A fresh coding-agent session can answer what the repo does, how to start it, how to verify it, what is unfinished and what to do next, using only AGENTS.md, PROGRESS.md and this file.",
       "status": "passing",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L1: pnpm harness:check",
@@ -32,6 +33,7 @@
         "2026-09-06 FAST=1 ./init.sh → exit 0, tooling checks and start commands printed",
         "2026-09-06 manual: Next's writeAgentFiles() run against AGENTS.md → unchanged (marker block regenerated in place at the bottom)"
       ],
+      "attempts": 0,
       "notes": "Course: walkinglabs/learn-harness-engineering (quick start + resources). Claude Code wiring lives in .claude/."
     },
     {
@@ -41,6 +43,7 @@
       "title": "Enable noUncheckedIndexedAccess",
       "user_visible_behavior": "tsconfig.json matches the README/TECH_STACK claim (`strict` + `noUncheckedIndexedAccess`); indexed access is typed as possibly undefined everywhere.",
       "status": "passing",
+      "depends_on": [],
       "verification": [
         "L1: pnpm typecheck",
         "L1: pnpm check",
@@ -51,6 +54,7 @@
         "2026-09-06 pnpm check → pass: lint, typecheck, knip, format:check, 27 unit tests (working tree on 113bcda)",
         "2026-09-06 manual: README.md tech-stack row and docs/TECH_STACK.md §1 both list noUncheckedIndexedAccess → agree with tsconfig.json"
       ],
+      "attempts": 0,
       "notes": "Checked 2026-09-06: `pnpm exec tsc --noEmit --noUncheckedIndexedAccess` reports 0 errors, so this is a config + docs change only. Good first dry-run of the clock-in → verify → clock-out loop."
     },
     {
@@ -60,12 +64,14 @@
       "title": "Sign-up page sends a verification email",
       "user_visible_behavior": "A visitor fills the sign-up form at /signup, an unverified user is created and a verification email arrives (Mailpit locally).",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/auth-signup.int.test.ts (user created with _verified=false; Mailpit API shows the verification message)",
         "L3: pnpm test:e2e -- tests/e2e/signup.spec.ts (submit form → success state → Mailpit message exists)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Users collection already has auth with verify enabled; the frontend form is missing. Cross-component (frontend + Payload) → L3 required."
     },
     {
@@ -75,11 +81,13 @@
       "title": "Verification link activates the account",
       "user_visible_behavior": "Opening the link from the verification email marks the user verified and the user can log in at /login.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L3: pnpm test:e2e -- tests/e2e/signup.spec.ts (extract link via Mailpit API → open → login succeeds → /dashboard)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Depends on F-002."
     },
     {
@@ -89,12 +97,14 @@
       "title": "Create a watch area from the dashboard",
       "user_visible_behavior": "A logged-in user fills name, centre (lat/lng) and radius on /dashboard and the new watch area appears in their list and on the map.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/access-control.int.test.ts (area owned by the creating user; geom_3067 populated)",
         "L3: pnpm test:e2e -- tests/e2e/dashboard.spec.ts (submit form → area listed → circle drawn)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Today areas are created via /admin or the REST API. Component tests (@testing-library/react) can start here if the form warrants them."
     },
     {
@@ -104,11 +114,13 @@
       "title": "Pick the watch-area centre by clicking the map",
       "user_visible_behavior": "Clicking the dashboard map fills the centre fields of the watch-area form and moves the preview circle.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L3: pnpm test:e2e -- --project chromium tests/e2e/dashboard.spec.ts (click map → centre inputs update)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Depends on F-004. WebKit map interaction is flaky in CI; chromium-only is acceptable for this step."
     },
     {
@@ -118,12 +130,14 @@
       "title": "Alert list on the dashboard",
       "user_visible_behavior": "The dashboard lists the user's alerts (new/changed, declaration id, hakkuutapa label, date) newest first, with the Metsäkeskus attribution line.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/jobs-pipeline.int.test.ts (alerts exist after a sync run)",
         "L3: pnpm test:e2e -- tests/e2e/dashboard.spec.ts (after POST /api/jobs/run against the WFS mock the alert list renders; attribution visible; axe clean)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Server component reading the alerts collection with access control (owner only)."
     },
     {
@@ -133,11 +147,13 @@
       "title": "Matched declarations overlay on the map",
       "user_visible_behavior": "Declarations that intersect a watch area are drawn as polygons on the dashboard map (EPSG:3067 → WGS84).",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm test:unit -- tests/unit/geo (3067 → 4326 conversion of a MultiPolygon)",
         "L3: pnpm test:e2e -- tests/e2e/dashboard.spec.ts (GeoJSON source present after a sync run)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Depends on F-006. Spatial SQL for the lookup goes in src/lib/geo/spatial-queries.ts only."
     },
     {
@@ -147,11 +163,13 @@
       "title": "Attribute-level change detection",
       "user_visible_behavior": "A declaration whose attributes (hakkuutapa, area, dates) change without a geometry change produces a `changed` alert; identical data still produces nothing.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm test:unit -- tests/unit/wfs (attr_hash stable across runs and changes when an attribute changes)",
         "L2: pnpm test:integration -- tests/integration/jobs-pipeline.int.test.ts (changed attributes → changed alert; second identical run → no alert)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Add attr_hash next to geom_hash on declarations; needs a migration via pnpm db:migrate:create."
     },
     {
@@ -161,11 +179,13 @@
       "title": "Hakkuutapa labels verified against the Metsäkeskus code list",
       "user_visible_behavior": "Every hakkuutapa code returned by the WFS maps to the official Finnish label; unknown codes fall back to the code itself and are logged.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm test:unit -- tests/unit/wfs/hakkuutapa.test.ts",
         "manual: pnpm test:live passes and reports no unknown codes against the live layer"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Source of truth: Metsäkeskus code list (link it in src/lib/wfs/hakkuutapa.ts)."
     },
     {
@@ -175,11 +195,13 @@
       "title": "Rate limiting for public endpoints",
       "user_visible_behavior": "Repeated unauthenticated requests to public API routes get HTTP 429 after the configured limit; normal use is unaffected.",
       "status": "not_started",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/rate-limit.int.test.ts (N+1th request → 429; window resets)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Postgres-based limiter preferred over Upstash to avoid a new external service (docs/TECH_STACK.md §1)."
     },
     {
@@ -189,11 +211,13 @@
       "title": "Address search via a Geocoder interface",
       "user_visible_behavior": "A user types an address on the dashboard and the map centres on it.",
       "status": "blocked",
+      "depends_on": [],
       "verification": [
         "L1: pnpm test:unit -- tests/unit/geocoding (msw-mocked MML responses)",
         "L3: pnpm test:e2e -- tests/e2e/dashboard.spec.ts (search → map centre updates; MML stubbed at the network edge)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Blocked: needs MML_API_KEY (slot exists in .env.example). Implement behind a Geocoder interface so the provider can change."
     },
     {
@@ -203,12 +227,86 @@
       "title": "MML background map",
       "user_visible_behavior": "The dashboard map uses the Maanmittauslaitos taustakartta instead of OSM raster tiles.",
       "status": "blocked",
+      "depends_on": [],
       "verification": [
         "L1: pnpm check",
         "L3: pnpm test:e2e -- tests/e2e/dashboard.spec.ts (tile requests go to the MML endpoint; stubbed in E2E)"
       ],
       "evidence": [],
+      "attempts": 0,
       "notes": "Blocked: needs MML_API_KEY. Keep OSM as the fallback when the key is unset."
+    },
+    {
+      "id": "F-013",
+      "priority": 13,
+      "area": "harness",
+      "title": "Machine-checkable feature transitions",
+      "user_visible_behavior": "Feature state changes, verification and the clock-out gate are scripts with exit codes: `pnpm harness:feature` (next/activate/block/attempt), `pnpm harness:verify <id>` (runs L1→L3 in order, records evidence, fails closed on manual steps) and `scripts/clean-state-check.sh`; feature_list.json carries depends_on, attempts, ticket, spec and design fields and the validator rejects unknown or cyclic dependencies.",
+      "status": "passing",
+      "depends_on": [],
+      "verification": [
+        "L1: pnpm check",
+        "L1: pnpm harness:check",
+        "manual: scripts/clean-state-check.sh exits 0 on a clean tree and 1 when a .only test or a stray console.log is added"
+      ],
+      "evidence": [
+        "2026-09-06 pnpm check → pass (commit c686222)",
+        "2026-09-06 pnpm harness:check → pass (commit c686222)",
+        "2026-09-06 manual: scripts/clean-state-check.sh exits 0 on a clean tree and 1 when a .only test or a stray console.log is added → waived via --allow-manual by eemelisurakka (commit c686222)"
+      ],
+      "attempts": 0,
+      "notes": "Phase 2 (docs/harness/phase-2-automated-loop.md) requirement 1."
+    },
+    {
+      "id": "F-014",
+      "priority": 14,
+      "area": "harness",
+      "title": "Unattended loop driver with stop guard and evaluator split",
+      "user_visible_behavior": "`pnpm harness:loop` picks the next ready feature, creates a worktree and branch feat/F-NNN, runs a generator `claude -p` session under the caps in harness.config.json, re-checks the result deterministically, runs the fresh-context evaluator, opens a PR with gh and records the run in .harness/runs.jsonl; an opt-in Stop hook (HARNESS_STOP_GUARD=1) blocks a driver-run session from stopping in a dirty state.",
+      "status": "not_started",
+      "depends_on": ["F-013"],
+      "verification": [
+        "L1: pnpm check",
+        "manual: pnpm harness:loop --dry-run prints the worktree commands and the exact claude invocations without running them",
+        "manual: .claude/hooks/stop-guard.sh blocks with simulated Stop input when HARNESS_STOP_GUARD=1 and the tree is dirty, and allows when stop_hook_active is true or the variable is unset"
+      ],
+      "evidence": [],
+      "attempts": 0,
+      "notes": "Phase 2 requirements 2–6. Decisions: local driver, auto permission mode with --permission-prompts none, PR per feature, balanced caps (D-008)."
+    },
+    {
+      "id": "F-015",
+      "priority": 15,
+      "area": "harness",
+      "title": "Product spec reconciliation and ticket import",
+      "user_visible_behavior": "The product plan lives in docs/product (moved from docs/project/docs), is indexed from docs/README.md and AGENTS.md, has a single deviations ledger where it conflicts with recorded decisions, and every MV ticket exists in feature_list.json as F-<number> with depends_on, spec and design links generated by `pnpm harness:import-tickets`.",
+      "status": "not_started",
+      "depends_on": ["F-013"],
+      "verification": [
+        "L1: pnpm check",
+        "L1: pnpm harness:check",
+        "manual: every link in docs/README.md and docs/product/00-deviations.md resolves; the generated feature entries were reviewed"
+      ],
+      "evidence": [],
+      "attempts": 0,
+      "notes": "Spec wins for product behaviour, ADRs win for architecture (user decision 2026-09-06)."
+    },
+    {
+      "id": "F-016",
+      "priority": 16,
+      "area": "harness",
+      "title": "Design system tokens and lint enforcement",
+      "user_visible_behavior": "The Claude Design tokens (docs/design/tokens.js) are the app's Tailwind theme in src/app/globals.css with Figtree loaded via next/font; src/lib/design-tokens.ts feeds the map and emails; `pnpm lint` fails on arbitrary Tailwind values, raw palette colours, unknown classes and inline style props; AGENTS.md states the rule.",
+      "status": "not_started",
+      "depends_on": [],
+      "verification": [
+        "L1: pnpm check",
+        "L3: pnpm test:e2e (pages render with the new palette; axe contrast passes)",
+        "manual: pnpm lint reports an error for a deliberate `bg-[#000]` and `text-gray-500` and passes after they are removed"
+      ],
+      "evidence": [],
+      "attempts": 0,
+      "notes": "Landing hero variant B (typografia) is the chosen hero (user decision 2026-09-06)."
     }
   ]
 }

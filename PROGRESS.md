@@ -22,6 +22,15 @@ Any coding agent can use it; nothing updates it automatically.
 
 ## Session Log
 
+### Session 002 — 2026-09-06 (phase 2: automated loop)
+
+- Goal: implement phase 2 of the harness (`docs/harness/phase-2-automated-loop.md`): machine-checkable transitions, unattended loop driver, spec reconciliation and ticket import, design-system enforcement, overview doc.
+- Completed so far: F-001 (`noUncheckedIndexedAccess`); design prototypes moved to `docs/design/`; F-013 — `scripts/validate-feature-list.ts` extended (`depends_on`, `attempts`, `ticket`, `spec`, `design`, cycle/dependency rules, read/write helpers), `scripts/harness-feature.ts`, `scripts/verify-feature.ts`, `scripts/clean-state-check.sh`, skills rewired to the scripts, checklist split into machine/judgement parts.
+- Verification run: `pnpm check` (38 unit tests), `pnpm harness:check`, `pnpm harness:verify F-013 --allow-manual`, clean-state script exercised against an injected `.only` and `console.log` (both caught).
+- Commits: `2052888`, `c686222`, then one commit per feature F-013…F-016 (see `git log`).
+- Known risk: the clean-state script compares against `origin/main`; on a local-only branch it falls back to `main`.
+- Next best step: F-014 (driver, stop guard, evaluator split).
+
 ### Session 001 — 2026-09-06
 
 - Goal: bootstrap the agent harness (course: learn-harness-engineering, quick start + resource library) for Claude Code.
