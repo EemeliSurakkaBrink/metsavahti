@@ -10,5 +10,6 @@
   "ignore": ["src/payload-types.ts", "src/components/ui/**", "src/lib/utils.ts"],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": ["pino-pretty", "clsx", "tailwind-merge", "lucide-react"],
-  "payload": false
+  "payload": false,
+  "ignoreBinaries": ["osascript"]
 }

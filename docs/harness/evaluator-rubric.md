@@ -28,12 +28,22 @@ any 0 → Block.
 - Required fixes:
 - Next review trigger:
 
+## Machine output (loop driver)
+
+The driver (`pnpm harness:loop`) runs the evaluator as a separate `claude -p --agent evaluator`
+session with `--json-schema docs/harness/prompts/evaluator-schema.json` and acts on the result
+without a human: Accept → push + PR, Revise → one bounded retry with the findings appended to
+the generator prompt, Block → the feature is set `blocked` and the branch is pushed for a human.
+The scores use the keys `correctness`, `verification`, `scope`, `reliability`, `maintainability`,
+`handoff`. A missing or unparsable verdict counts as Revise.
+
 ## Tuning log
 
 Out of the box an agent is a poor self-judge: it finds issues, then talks itself into
 approving. Compare the evaluator's scores with your own on real sessions and tighten the
 "2 = pass when" column where they diverge. Plan for 3–5 rounds; record each change here.
 
-| Date       | Change to the rubric | Why |
-| ---------- | -------------------- | --- |
-| 2026-09-06 | Initial version      | —   |
+| Date       | Change to the rubric                                  | Why                                                                                                                                                               |
+| ---------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-06 | Initial version                                       | —                                                                                                                                                                 |
+| 2026-09-06 | Machine output section; verdict schema for the driver | Phase 2: the evaluator must be consumable without a human (D-008). Record one row per driver run for the first 3–5 features, comparing the verdict with your own. |

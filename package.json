@@ -2,7 +2,7 @@
   "name": "metsavahti",
   "version": "0.1.0",
   "private": true,
-  "description": "Metsävahti – watches Metsäkeskus forest use declarations (metsänkäyttöilmoitukset) around your area and notifies you of new or changed declarations nearby.",
+  "description": "Mets\u00e4vahti \u2013 watches Mets\u00e4keskus forest use declarations (mets\u00e4nk\u00e4ytt\u00f6ilmoitukset) around your area and notifies you of new or changed declarations nearby.",
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@10.15.0",
@@ -47,6 +47,8 @@
     "harness:feature": "tsx scripts/harness-feature.ts",
     "harness:verify": "tsx scripts/verify-feature.ts",
     "harness:clean-state": "bash scripts/clean-state-check.sh",
+    "harness:loop": "tsx scripts/harness-loop.ts",
+    "harness:report": "tsx scripts/harness-loop.ts --report",
     "prepare": "husky"
   },
   "dependencies": {

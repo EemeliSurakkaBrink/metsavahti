@@ -263,14 +263,18 @@
       "area": "harness",
       "title": "Unattended loop driver with stop guard and evaluator split",
       "user_visible_behavior": "`pnpm harness:loop` picks the next ready feature, creates a worktree and branch feat/F-NNN, runs a generator `claude -p` session under the caps in harness.config.json, re-checks the result deterministically, runs the fresh-context evaluator, opens a PR with gh and records the run in .harness/runs.jsonl; an opt-in Stop hook (HARNESS_STOP_GUARD=1) blocks a driver-run session from stopping in a dirty state.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-013"],
       "verification": [
         "L1: pnpm check",
         "manual: pnpm harness:loop --dry-run prints the worktree commands and the exact claude invocations without running them",
         "manual: .claude/hooks/stop-guard.sh blocks with simulated Stop input when HARNESS_STOP_GUARD=1 and the tree is dirty, and allows when stop_hook_active is true or the variable is unset"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-06 pnpm check → pass (commit 1ba9b9f)",
+        "2026-09-06 manual: pnpm harness:loop --dry-run prints the worktree commands and the exact claude invocations without running them → waived via --allow-manual by eemelisurakka (commit 1ba9b9f)",
+        "2026-09-06 manual: .claude/hooks/stop-guard.sh blocks with simulated Stop input when HARNESS_STOP_GUARD=1 and the tree is dirty, and allows when stop_hook_active is true or the variable is unset → waived via --allow-manual by eemelisurakka (commit 1ba9b9f)"
+      ],
       "attempts": 0,
       "notes": "Phase 2 requirements 2–6. Decisions: local driver, auto permission mode with --permission-prompts none, PR per feature, balanced caps (D-008)."
     },

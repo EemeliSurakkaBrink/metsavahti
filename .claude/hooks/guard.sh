@@ -46,6 +46,12 @@ case "$tool" in
     if has "$cmd" "${sep}rm -[a-zA-Z]*(rf|fr)" && ! has "$cmd" '/tmp/|\.next|coverage|playwright-report|test-results|node_modules'; then
       block "rm -rf outside build/temp directories; ask the user"
     fi
+    if [ "${HARNESS_LOOP:-0}" = "1" ]; then
+      # Driver-run session (docs/DECISIONS.md D-008): the driver owns Docker, pushes and worktrees.
+      has "$cmd" "${sep}pnpm (run )?db:(up|down)|${sep}docker compose (up|down|stop|rm)" && block "Docker services are managed by the loop driver; they are already running"
+      has "$cmd" "${sep}git push" && block "the loop driver pushes the branch and opens the PR; commit only"
+      has "$cmd" "${sep}git (checkout|switch) (main|master)|${sep}git worktree (add|remove|prune)" && block "stay on this feature branch; the loop driver manages worktrees"
+    fi
     if has "$cmd" "${sep}git commit"; then
       out="$(cd "$root" && pnpm --silent harness:check 2>&1)" || block "feature_list.json is invalid; fix it before committing: ${out}"
     fi

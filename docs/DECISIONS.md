@@ -52,3 +52,15 @@ Format: **Context** (what forced a choice) · **Decision** · **Consequences**.
   - Resource templates live in `docs/harness/`. No Makefile, no `templates/` directory, no blocking `Stop` hook (it fires after every reply and would nag during normal work); the contributed `audit-harness.sh` from the course greps for those names and will report them as recommended gaps.
   - Claude Code wiring in `.claude/`: shared `settings.json` (permissions + hooks), hooks `session-start.sh`, `guard.sh`, `format.sh`, skills `clock-in`, `clock-out`, `verify-feature`, subagent `evaluator`.
 - Consequences: one manual for every agent; the loop (read state → one feature → verify → write state) is enforced by tooling rather than by prose; audit-script parity is a conscious non-goal.
+
+## D-008 · Driver-run sessions: local loop, auto permissions, PR per feature, opt-in Stop hook (2026-09-06)
+
+- Context: phase 2 of the harness (`docs/harness/phase-2-automated-loop.md`) makes sessions start unattended. D-007 rejected a Stop hook because it would nag during interactive work; an unattended session has nobody to nag and needs a hard stop condition.
+- Decision:
+  - The driver is a local script (`scripts/harness-loop.ts`, `pnpm harness:loop`) run on the developer's machine with the existing Claude Code login and host Docker; no CI or cloud runner.
+  - Sessions run `claude -p --permission-mode auto --permission-prompts none` with an explicit `--allowedTools` list from `harness.config.json`. Allow rules resolve before the classifier, so the pnpm/git path is deterministic; the deny list and `guard.sh` still apply; `bypassPermissions` is not used because Docker and the dev database live on the host.
+  - One git worktree and branch `feat/F-NNN` per feature, cut from `main`; the result is pushed and a PR is opened with `gh`. By default the driver waits for the merge before starting a dependent feature (`merge: "wait"`; `--auto-merge` arms `gh pr merge --auto --squash`).
+  - Caps per session: 2 attempts per feature (one evaluator-driven retry), 200 turns, 15 USD, 60 minutes; the loop stops after 2 consecutive failed features. `manual:` verification steps are never waived unattended.
+  - A generator/evaluator split: the evaluator runs as a separate `claude -p --agent evaluator` session on a different model with a JSON verdict schema.
+  - The Stop hook `.claude/hooks/stop-guard.sh` is registered but inert unless `HARNESS_STOP_GUARD=1` (set by the driver); it blocks at most three times per session. This amends D-007.
+- Consequences: `.harness/` (traces, run log, counters) is gitignored; `guard.sh` additionally blocks `pnpm db:up/down`, `git push`, `git checkout main` and worktree commands when `HARNESS_LOOP=1`; only one feature runs at a time because L3 uses fixed ports and `.next-e2e`; `gh` must be installed and logged in for PRs (without it the branch is pushed and the PR is opened by hand).
