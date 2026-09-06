@@ -19,6 +19,8 @@ export default tseslint.config(
       'src/payload/migrations/*.ts',
       '!src/payload/migrations/index.ts',
       'next-env.d.ts',
+      // Claude Design prototypes (generated runtime + artboards), see docs/design/README.md
+      'docs/design/**',
     ],
   },
   ...nextCoreWebVitals,

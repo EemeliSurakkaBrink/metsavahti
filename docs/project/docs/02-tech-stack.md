@@ -8,31 +8,31 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 
 ## 1. Core stack
 
-| Layer | Choice | Notes |
-|---|---|---|
-| Runtime | Node.js 22 LTS | Pin in `.nvmrc` and `engines` |
-| Package manager | pnpm 9 | `packageManager` field in package.json, Corepack enabled |
-| Language | TypeScript 5, `strict: true`, `noUncheckedIndexedAccess: true` | |
-| Framework | Next.js 15 (App Router, React 19, Server Actions, Route Handlers) | |
-| Backend / CMS | Payload CMS v3 (embedded in Next.js) | Collections: `users`, `watch-areas`, `declarations` (cached kuviot), `alerts`, `notification-log`. Built-in auth for users. |
-| Database | PostgreSQL 16 + PostGIS 3.4 | `@payloadcms/db-postgres` (Drizzle under the hood). Geometry columns handled outside Payload's field model — see §3. |
-| ORM for spatial queries | Drizzle ORM (already a Payload dependency) with raw `sql` tags for PostGIS | Keep spatial SQL in one module `src/lib/geo/spatial-queries.ts` |
-| Validation / schemas | Zod | External data (WFS responses), form input, env vars |
-| Env handling | `@t3-oss/env-nextjs` + Zod | Fail fast on missing env |
-| Styling | Tailwind CSS 4 + shadcn/ui | |
-| Forms | react-hook-form + zod resolver | |
-| Maps | MapLibre GL JS + `react-map-gl` | Background: OpenStreetMap raster for MVP, MML taustakartta later (needs API key). Overlay: Metsäkeskus WMS layer + own GeoJSON of matched kuviot. |
-| Geo utilities | `proj4` (EPSG:3067 ↔ EPSG:4326), `@turf/turf` (buffer, booleanIntersects, distance, area) | Register EPSG:3067 definition once in `src/lib/geo/crs.ts` |
-| HTTP client | native `fetch` + `p-retry` | WFS calls: timeouts, retry with backoff |
-| XML fallback | `fast-xml-parser` | Only if WFS `outputFormat=application/json` is unavailable for a layer |
-| Background jobs | Payload Jobs Queue (`payload.jobs`) | Tasks: `fetch-declarations`, `match-watch-areas`, `send-alerts`. Triggered by cron endpoint `POST /api/jobs/run` secured with `CRON_SECRET`. |
-| Scheduling | Vercel Cron (or DigitalOcean cron on the droplet) | Run 2×/day ~30 min after Metsäkeskus updates (09:30, 21:30 EET/EEST) |
-| Email | Resend + `@payloadcms/email-resend`, templates with React Email | Local dev: Mailpit (SMTP capture) via nodemailer adapter |
-| Auth | Payload local auth (email + password), email verification enabled | Magic link / passkeys later |
-| Logging | pino + pino-pretty (dev) | Structured logs with job run ids |
-| Error tracking | Sentry (`@sentry/nextjs`) | |
-| Rate limiting | `@upstash/ratelimit` or simple Postgres-based limiter | Protect public geocoding/search endpoints |
-| Geocoding (address → coordinates) | MML Geocoding API (free, API key) or Digitransit/Pelias | Abstract behind `Geocoder` interface |
+| Layer                             | Choice                                                                                    | Notes                                                                                                                                             |
+| --------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime                           | Node.js 22 LTS                                                                            | Pin in `.nvmrc` and `engines`                                                                                                                     |
+| Package manager                   | pnpm 9                                                                                    | `packageManager` field in package.json, Corepack enabled                                                                                          |
+| Language                          | TypeScript 5, `strict: true`, `noUncheckedIndexedAccess: true`                            |                                                                                                                                                   |
+| Framework                         | Next.js 15 (App Router, React 19, Server Actions, Route Handlers)                         |                                                                                                                                                   |
+| Backend / CMS                     | Payload CMS v3 (embedded in Next.js)                                                      | Collections: `users`, `watch-areas`, `declarations` (cached kuviot), `alerts`, `notification-log`. Built-in auth for users.                       |
+| Database                          | PostgreSQL 16 + PostGIS 3.4                                                               | `@payloadcms/db-postgres` (Drizzle under the hood). Geometry columns handled outside Payload's field model — see §3.                              |
+| ORM for spatial queries           | Drizzle ORM (already a Payload dependency) with raw `sql` tags for PostGIS                | Keep spatial SQL in one module `src/lib/geo/spatial-queries.ts`                                                                                   |
+| Validation / schemas              | Zod                                                                                       | External data (WFS responses), form input, env vars                                                                                               |
+| Env handling                      | `@t3-oss/env-nextjs` + Zod                                                                | Fail fast on missing env                                                                                                                          |
+| Styling                           | Tailwind CSS 4 + shadcn/ui                                                                |                                                                                                                                                   |
+| Forms                             | react-hook-form + zod resolver                                                            |                                                                                                                                                   |
+| Maps                              | MapLibre GL JS + `react-map-gl`                                                           | Background: OpenStreetMap raster for MVP, MML taustakartta later (needs API key). Overlay: Metsäkeskus WMS layer + own GeoJSON of matched kuviot. |
+| Geo utilities                     | `proj4` (EPSG:3067 ↔ EPSG:4326), `@turf/turf` (buffer, booleanIntersects, distance, area) | Register EPSG:3067 definition once in `src/lib/geo/crs.ts`                                                                                        |
+| HTTP client                       | native `fetch` + `p-retry`                                                                | WFS calls: timeouts, retry with backoff                                                                                                           |
+| XML fallback                      | `fast-xml-parser`                                                                         | Only if WFS `outputFormat=application/json` is unavailable for a layer                                                                            |
+| Background jobs                   | Payload Jobs Queue (`payload.jobs`)                                                       | Tasks: `fetch-declarations`, `match-watch-areas`, `send-alerts`. Triggered by cron endpoint `POST /api/jobs/run` secured with `CRON_SECRET`.      |
+| Scheduling                        | Vercel Cron (or DigitalOcean cron on the droplet)                                         | Run 2×/day ~30 min after Metsäkeskus updates (09:30, 21:30 EET/EEST)                                                                              |
+| Email                             | Resend + `@payloadcms/email-resend`, templates with React Email                           | Local dev: Mailpit (SMTP capture) via nodemailer adapter                                                                                          |
+| Auth                              | Payload local auth (email + password), email verification enabled                         | Magic link / passkeys later                                                                                                                       |
+| Logging                           | pino + pino-pretty (dev)                                                                  | Structured logs with job run ids                                                                                                                  |
+| Error tracking                    | Sentry (`@sentry/nextjs`)                                                                 |                                                                                                                                                   |
+| Rate limiting                     | `@upstash/ratelimit` or simple Postgres-based limiter                                     | Protect public geocoding/search endpoints                                                                                                         |
+| Geocoding (address → coordinates) | MML Geocoding API (free, API key) or Digitransit/Pelias                                   | Abstract behind `Geocoder` interface                                                                                                              |
 
 ## 2. Code quality tooling
 
@@ -53,6 +53,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 ## 4. Testing strategy
 
 ### 4.1 Unit tests — Vitest
+
 - `vitest` + `@vitest/coverage-v8`, environment `node` by default, `jsdom` for component tests.
 - `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`.
 - `msw` (Mock Service Worker) for mocking WFS / geocoder HTTP in unit tests.
@@ -60,6 +61,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 - Fixtures: `tests/fixtures/wfs/*.json` recorded from the real WFS (script `pnpm fixtures:record`). Snapshot tests on parsed output.
 
 ### 4.2 Feature / integration tests — Vitest + Testcontainers
+
 - `@testcontainers/postgresql` using image `postgis/postgis:16-3.4` — real PostGIS per test file (or one shared container per run via `globalSetup`).
 - Boot Payload with `getPayload({ config })` against the container DB; run migrations; use the Payload Local API to seed users/watch areas.
 - `msw/node` server to stub WFS and Resend.
@@ -67,6 +69,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 - Separate Vitest project: `vitest.config.ts` with `projects: ['vitest.unit.ts', 'vitest.integration.ts']`; integration tagged so `pnpm test:unit` stays fast.
 
 ### 4.3 End-to-end tests — Playwright
+
 - `@playwright/test`, Chromium + WebKit + Mobile Chrome projects.
 - `webServer` config starts `next dev`/`next start` against a dedicated `metsavahti_e2e` PostGIS DB (docker-compose service), migrated and seeded by a global setup script.
 - Mailpit REST API (`http://localhost:8025/api/v1/messages`) to assert email delivery and extract verification/magic links.
@@ -75,9 +78,11 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 - Visual regression optional: Playwright `toHaveScreenshot` on the map view with a fixed style.
 
 ### 4.4 Contract / live smoke tests (opt-in)
+
 - `pnpm test:live` runs a small Vitest suite against the real Metsäkeskus WFS (`GetCapabilities`, one `GetFeature` with BBOX) and validates the response against the Zod schema. Runs in CI nightly only (`if: github.event_name == 'schedule'`). Alerts you when Metsäkeskus changes the data model.
 
 ### 4.5 Load / misc
+
 - `autocannon` script for the job endpoint and public pages (not in CI by default).
 - `zod` schemas double as runtime contract; `typescript` `tsc --noEmit` in CI.
 
