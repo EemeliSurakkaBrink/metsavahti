@@ -1,7 +1,7 @@
 import { bbox as turfBbox, buffer as turfBuffer, point as turfPoint } from '@turf/turf'
 import type { Feature, Polygon } from 'geojson'
 
-import { type EastNorth, type LonLat, toEtrs89Tm35fin } from '@/lib/geo/crs'
+import { type EastNorth, type LonLat, to3067 } from '@/lib/geo/crs'
 
 /** [minX, minY, maxX, maxY] */
 export type Bbox = [number, number, number, number]
@@ -23,7 +23,7 @@ export function watchAreaBbox4326(center: LonLat, radiusM: number): Bbox {
  * Computed directly in the projected CRS, so it is exact.
  */
 export function watchAreaBbox3067(center: LonLat, radiusM: number): Bbox {
-  const [e, n]: EastNorth = toEtrs89Tm35fin(center)
+  const [e, n]: EastNorth = to3067(center)
   return [e - radiusM, n - radiusM, e + radiusM, n + radiusM]
 }
 

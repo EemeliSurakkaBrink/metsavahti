@@ -11,7 +11,7 @@ database or points at port 5432.
 - Location: `tests/unit/**/*.test.{ts,tsx}`. Component/email tests opt into
   jsdom with `// @vitest-environment jsdom` at the top of the file.
 - No database, no network: `helpers/msw.ts` errors on any unhandled request.
-- Covers CRS transforms, buffers/bboxes, WFS URL building + retry policy, Zod
+- Covers CRS transforms (5 control points, round-trip < 1 mm) and GeoJSON reprojection, buffers/bboxes, WFS URL building + retry policy, Zod
   schema against the recorded fixture (snapshot), geometry hashing, hakkuutapa
   labels, attribution text, cron-secret comparison, email rendering, the DB guard.
 

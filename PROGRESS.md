@@ -8,21 +8,31 @@ Any coding agent can use it; nothing updates it automatically.
 - Repository root: `metsavahti/` (this directory; contains `AGENTS.md`, `feature_list.json`, `init.sh`, `harness.config.json`).
 - Standard startup path: `./init.sh` (`FAST=1` skips the baseline; `RUN_START_COMMAND=1` starts Docker services and `pnpm dev`).
 - Standard verification path: L1 `pnpm check` · L2 `pnpm test:integration` (Docker) · L3 `pnpm test:e2e` (Docker + browsers). Per feature: `pnpm harness:verify F-NNN`.
-- Last verified commit: the F-016 commit of session 002 (see `git log`); `pnpm check` green (46 unit tests), `pnpm test:e2e` green (29 checks, 3 browsers) on 2026-09-06.
-- L2 last run: at scaffold time (`9bd9f80`, CI green); no `src/` runtime code changed in session 002 (map colours, email styles and the theme only).
+- Last verified commit: the F-020 commit of session 003 (see `git log`); `pnpm check` green (65 unit tests) on 2026-09-06. `pnpm test:e2e` last green on the F-016 commit of session 002 (29 checks, 3 browsers, 2026-09-06).
+- L2 last run: at scaffold time (`9bd9f80`, CI green). Session 003 changed only `src/lib/geo/crs.ts` (pure, unit-tested); `toWgs84`, the one function the integration and e2e suites import from it, kept its signature.
 - Harness phase 2 is complete: F-013 (scripts), F-014 (loop driver + stop guard + evaluator split), F-015 (spec in `docs/product`, 115 features imported), F-016 (design tokens + lint). How it works: `docs/harness/README.md`.
-- Queue: `pnpm harness:feature list` — ready and unattended-capable now: F-010 (typed errors), F-020 (CRS module), F-030 (PostGIS migration scaffolding). Human-only ready: F-021 (WFS discovery, needs network).
+- Queue: `pnpm harness:feature list` — ready and unattended-capable now: F-010 (typed errors), F-011 (marketing layout), F-025 (geometry hashing), F-026 (bbox + clustering), F-027 (buffer preview), F-030 (PostGIS migration scaffolding), F-041 (auth layout). Human-only ready: F-021 (WFS discovery, needs network).
 - Current blocker: none for the loop itself. `gh` is not installed (`brew install gh && gh auth login`), so the driver would push branches but could not open PRs. F-017 and F-062 are blocked on `MML_API_KEY`.
 
 ## Next Steps
 
 1. `brew install gh && gh auth login`; push `main` so it is in sync with `origin/main` (the driver's preflight requires it).
-2. First live loop run, watched: `pnpm harness:loop --once --feature F-020` (CRS module, unit-only, cheap). Read `.harness/runs.jsonl`, the trace and the PR; compare the evaluator's verdict with your own and add a row to the rubric's tuning log.
-3. Then `pnpm harness:loop --once` for F-010 and F-030, then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
+2. F-020 was the first driver-run feature (session 003, branch `feat/F-020`). Read `.harness/runs.jsonl`, the trace and the PR; compare the evaluator's verdict with your own and add a row to the rubric's tuning log. Review the F-020 branch before merging.
+3. Then `pnpm harness:loop --once` for F-010, F-030 and the F-020 dependants (F-025, F-026, F-027), then let it loop. Review the generated `verification[]` lines of a feature before it runs (they were derived from the tickets' Tests lines).
 4. When a page ticket comes up (first is F-011 after F-016), check that the session opened the linked artboard; tighten the generator prompt if it did not.
 5. Interactive work still uses `/clock-in`, `/verify-feature`, `/clock-out`; human-only features (`manual:` steps) stay interactive.
 
 ## Session Log
+
+### Session 003 — 2026-09-06 (driver-run: F-020 CRS module)
+
+- Goal: F-020 — `src/lib/geo/crs.ts` with `to3067`, `toWgs84` and GeoJSON reprojection helpers; unit-only feature, first unattended loop session (`HARNESS_LOOP=1`, attempt 1 of 2).
+- Completed: `toEtrs89Tm35fin` renamed to `to3067` (spec name; callers in `buffer.ts` and its test updated); `Crs` type, `reprojectGeometry` (all seven GeoJSON geometry types, recursive for collections, extra ordinates pass through, stale `bbox` dropped, input not mutated) and `reprojectFeature` (keeps `id`/`properties`). New `tests/unit/wfs/crs-module.test.ts` (the path the feature's verification line names): five control points (Helsinki, Joensuu, Rovaniemi, Vaasa, Utsjoki) with forward references and both round-trip directions under 1 mm, Finland bounds, reprojection cases. The old `tests/unit/geo/crs.test.ts` was folded into it so the CRS module has one test file.
+- Choices made without a human: kept tuple arguments instead of the spec's positional `(x, y)` (ledger row R14 in `00-deviations.md`); the test lives under `tests/unit/wfs/` because the imported verification line names that path, although the module is in `src/lib/geo/` — move both together if that ever bothers you. The ETRS-TM35FIN reference coordinates in the test were computed with proj4 in this session, so they guard against definition changes rather than independently certify accuracy; the round-trip assertions are the acceptance criterion from the ticket.
+- Verification run: `pnpm harness:verify F-020` → L1 `pnpm check` (65 unit tests) and the unit file both pass; evidence recorded in `feature_list.json`; `scripts/clean-state-check.sh --allow-state-dirty` green apart from the expected uncommitted-work items before this commit.
+- Observation for the loop: `pnpm test:unit -- <file>` forwards the file after a second `--`, so the per-file verification step runs the whole unit project (still cheap, ~2 s). The guard hook also blocks any shell command whose text merely contains the runner's name (e.g. `cat vitest.config.ts`); split such commands.
+- Known risk: none for the feature. The in-session evaluator was skipped (the driver runs it in a second session).
+- Next best step: see Next Steps 2–3.
 
 ### Session 002 — 2026-09-06 (phase 2: automated loop)
 

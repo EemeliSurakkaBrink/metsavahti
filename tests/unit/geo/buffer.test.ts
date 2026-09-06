@@ -7,7 +7,7 @@ import {
   watchAreaBbox4326,
   watchAreaPolygon,
 } from '@/lib/geo/buffer'
-import { toEtrs89Tm35fin } from '@/lib/geo/crs'
+import { to3067 } from '@/lib/geo/crs'
 
 const center: [number, number] = [25.0, 62.0]
 
@@ -28,7 +28,7 @@ describe('buffer', () => {
   })
 
   it('bbox (EPSG:3067) is exactly radius metres around the projected center', () => {
-    const [e, n] = toEtrs89Tm35fin(center)
+    const [e, n] = to3067(center)
     const [minE, minN, maxE, maxN] = watchAreaBbox3067(center, 250)
     expect(minE).toBeCloseTo(e - 250, 6)
     expect(maxE).toBeCloseTo(e + 250, 6)

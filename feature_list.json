@@ -343,7 +343,7 @@
       "area": "wfs",
       "title": "CRS module",
       "user_visible_behavior": "`crs.ts` registering EPSG:3067 in proj4; `to3067`, `toWgs84`, GeoJSON reprojection helpers (`reprojectFeature`).",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-003"],
       "ticket": "MV-020",
       "epic": "E01",
@@ -352,7 +352,10 @@
         "L1: pnpm check",
         "L1: pnpm test:unit -- tests/unit/wfs/crs-module.test.ts (unit.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-06 pnpm check → pass (working tree on dd85ca2)",
+        "2026-09-06 pnpm test:unit -- tests/unit/wfs/crs-module.test.ts → pass (working tree on dd85ca2)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit. Acceptance: round-trip error < 1 mm for 5 known control points (Helsinki, Joensuu, Rovaniemi, Vaasa, Utsjoki)."
     },
