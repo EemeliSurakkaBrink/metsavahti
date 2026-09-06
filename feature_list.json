@@ -40,13 +40,17 @@
       "area": "infra",
       "title": "Enable noUncheckedIndexedAccess",
       "user_visible_behavior": "tsconfig.json matches the README/TECH_STACK claim (`strict` + `noUncheckedIndexedAccess`); indexed access is typed as possibly undefined everywhere.",
-      "status": "in_progress",
+      "status": "passing",
       "verification": [
         "L1: pnpm typecheck",
         "L1: pnpm check",
         "manual: README.md tech-stack row and docs/TECH_STACK.md §1 agree with tsconfig.json"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-06 pnpm typecheck → pass (working tree on 113bcda, noUncheckedIndexedAccess enabled, 0 errors)",
+        "2026-09-06 pnpm check → pass: lint, typecheck, knip, format:check, 27 unit tests (working tree on 113bcda)",
+        "2026-09-06 manual: README.md tech-stack row and docs/TECH_STACK.md §1 both list noUncheckedIndexedAccess → agree with tsconfig.json"
+      ],
       "notes": "Checked 2026-09-06: `pnpm exec tsc --noEmit --noUncheckedIndexedAccess` reports 0 errors, so this is a config + docs change only. Good first dry-run of the clock-in → verify → clock-out loop."
     },
     {

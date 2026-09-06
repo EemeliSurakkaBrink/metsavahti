@@ -41,3 +41,6 @@ yarn-error.log*
 
 # claude code — per-user overrides
 .claude/settings.local.json
+
+# harness — driver traces, run log and stop-hook counters (phase 2)
+.harness/

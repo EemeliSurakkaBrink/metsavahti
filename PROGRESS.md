@@ -8,10 +8,10 @@ Any coding agent can use it; nothing updates it automatically.
 - Repository root: `metsavahti/` (this directory; contains `AGENTS.md`, `feature_list.json`, `init.sh`).
 - Standard startup path: `./init.sh` (`FAST=1` skips the baseline; `RUN_START_COMMAND=1` starts Docker services and `pnpm dev`).
 - Standard verification path: L1 `pnpm check` · L2 `pnpm test:integration` (Docker) · L3 `pnpm test:e2e` (Docker + browsers).
-- Last verified commit: `9bd9f80` plus the harness working tree (committed as the next commit, "chore(harness): …").
-- `pnpm check`: passing (2026-09-06; lint, typecheck, knip, format:check, 27 unit tests).
+- Last verified commit: `113bcda` plus the working tree of session 002 (F-001 done; phase 2 in progress).
+- `pnpm check`: passing (2026-09-06, session 002; lint, typecheck, knip, format:check, 27 unit tests). Note: at `113bcda` L1 was red because the spec docs were unformatted; fixed in session 002.
 - L2 / L3 last run: at scaffold time (commit `9bd9f80`, CI green); not re-run in session 001 because no `src/` code changed.
-- Current highest-priority unfinished feature: F-001 — Enable `noUncheckedIndexedAccess` (config + docs; 0 type errors today).
+- F-001 (`noUncheckedIndexedAccess`) is passing. Phase 2 of the harness (automated loop) is the active work; see `docs/harness/phase-2-automated-loop.md` and the F-013…F-016 entries.
 - Current blocker: none. F-011 and F-012 are blocked on `MML_API_KEY`.
 
 ## Next Steps
