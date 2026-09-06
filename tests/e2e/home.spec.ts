@@ -9,6 +9,8 @@ test.describe('landing page', () => {
       /Sisältää Suomen metsäkeskuksen Metsänkäyttöilmoitukset-aineistoa \d{2}\/\d{4}/,
     )
     await expect(page.getByRole('link', { name: 'Kirjaudu sisään' })).toBeVisible()
+    // Design system: Figtree is loaded through next/font (docs/design/README.md).
+    await expect(page.locator('body')).toHaveCSS('font-family', /Figtree/)
   })
 
   test('has no serious accessibility violations', async ({ page }) => {

@@ -17,7 +17,13 @@ const feature = (verification: string[]): Feature => ({
   notes: '',
 })
 
-const quiet = { log: () => undefined, date: '2026-09-06', commit: 'abc1234', user: 'tester' }
+const quiet = {
+  log: () => undefined,
+  date: '2026-09-06',
+  commit: 'abc1234',
+  user: 'tester',
+  treeDirty: false,
+}
 
 describe('parseStep', () => {
   it('splits the layer, the command and a trailing description', () => {
@@ -77,6 +83,22 @@ describe('verifyFeature', () => {
     expect(f.evidence[1]).toMatch(
       /manual: README row matches tsconfig → waived via --allow-manual by tester/,
     )
+  })
+
+  it('records the observation for manual steps and names a dirty tree honestly', () => {
+    const f = feature(['L2: pnpm test:integration', 'manual: look at the page'])
+    const outcome = verifyFeature(f, {
+      ...quiet,
+      treeDirty: true,
+      dockerAvailable: () => true,
+      run: () => 0,
+      manualObserved: 'page renders in Figtree',
+    })
+    expect(outcome.ok).toBe(true)
+    expect(f.evidence).toEqual([
+      '2026-09-06 pnpm test:integration → pass (working tree on abc1234, Docker available)',
+      '2026-09-06 manual: look at the page → observed by tester: page renders in Figtree (working tree on abc1234)',
+    ])
   })
 
   it('refuses to run L2/L3 without Docker instead of skipping them', () => {

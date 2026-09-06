@@ -2,8 +2,6 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@custom-variant dark (&:is(.dark *));
-
 /*
  * Metsävahti design tokens (docs/design/tokens.js, rules in docs/design/README.md).
  * The default Tailwind palette is removed so that only these colours exist as utilities;

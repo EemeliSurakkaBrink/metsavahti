@@ -8,7 +8,9 @@
  *
  * Entry format: `L1: <command> (optional description)`. The command is everything before a
  * trailing parenthesised description. `manual:` entries fail closed unless `--allow-manual`
- * is given, in which case they are recorded as waived by the current user.
+ * is given, in which case they are recorded as waived by the current user; `--manual-observed
+ * "<what you saw>"` records the observation instead. Evidence names `commit <sha>` when the tree
+ * is clean and `working tree on <sha>` when it is not, so the hash is never misleading.
  */
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
@@ -56,7 +58,11 @@ export interface StepResult {
 
 export interface VerifyOptions {
   allowManual?: boolean
+  /** What the human observed for the manual steps; implies allowManual. */
+  manualObserved?: string
   dryRun?: boolean
+  /** Whether the working tree has uncommitted changes; injected by tests. */
+  treeDirty?: boolean
   /** Runs a shell command and returns its exit code; injected by tests. */
   run?: (command: string) => number
   /** Reports whether Docker is available (needed for L2/L3); injected by tests. */
@@ -86,6 +92,11 @@ function defaultDockerAvailable(): boolean {
   return spawnSync('docker', ['info'], { stdio: 'ignore' }).status === 0
 }
 
+function treeIsDirty(): boolean {
+  const out = spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8' })
+  return out.status === 0 && out.stdout.trim() !== ''
+}
+
 function headCommit(): string {
   const out = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' })
   return out.status === 0 ? out.stdout.trim() : 'unknown'
@@ -101,12 +112,15 @@ export function verifyFeature(feature: Feature, options: VerifyOptions = {}): Ve
   const log = options.log ?? ((line: string) => console.log(line))
   const date = options.date ?? today()
   const commit = options.commit ?? headCommit()
+  const dirty = options.treeDirty ?? treeIsDirty()
+  const where = dirty ? `working tree on ${commit}` : `commit ${commit}`
+  const allowManual = options.allowManual || Boolean(options.manualObserved)
   const user = options.user ?? process.env.USER ?? 'unknown'
   const steps = feature.verification.map(parseStep)
   const results: StepResult[] = steps.map((step) => ({ step, status: 'not_run' }))
 
   const manual = steps.filter((s) => s.layer === 'manual')
-  if (manual.length > 0 && !options.allowManual) {
+  if (manual.length > 0 && !allowManual) {
     return {
       ok: false,
       results,
@@ -132,11 +146,18 @@ export function verifyFeature(feature: Feature, options: VerifyOptions = {}): Ve
     const result = results[index]
     if (!result) continue
     if (step.layer === 'manual') {
-      log(`[manual] ${step.description} → waived (--allow-manual by ${user})`)
       result.status = 'waived'
-      evidence.push(
-        `${date} manual: ${step.description} → waived via --allow-manual by ${user} (commit ${commit})`,
-      )
+      if (options.manualObserved) {
+        log(`[manual] ${step.description} → observed by ${user}: ${options.manualObserved}`)
+        evidence.push(
+          `${date} manual: ${step.description} → observed by ${user}: ${options.manualObserved} (${where})`,
+        )
+      } else {
+        log(`[manual] ${step.description} → waived (--allow-manual by ${user})`)
+        evidence.push(
+          `${date} manual: ${step.description} → waived via --allow-manual by ${user} (${where})`,
+        )
+      }
       continue
     }
     if (options.dryRun) {
@@ -159,7 +180,8 @@ export function verifyFeature(feature: Feature, options: VerifyOptions = {}): Ve
     }
     result.status = 'pass'
     log(`[${step.layer}] pass (${seconds}s)`)
-    evidence.push(`${date} ${step.command} → pass (commit ${commit})`)
+    const docker = step.layer === 'L1' ? '' : ', Docker available'
+    evidence.push(`${date} ${step.command} → pass (${where}${docker})`)
   }
 
   if (options.dryRun) {
@@ -191,13 +213,16 @@ function main(argv: string[]): void {
     allowPositionals: true,
     options: {
       'allow-manual': { type: 'boolean', default: false },
+      'manual-observed': { type: 'string' },
       'dry-run': { type: 'boolean', default: false },
       file: { type: 'string' },
     },
   })
   const [id] = positionals
   if (!id) {
-    console.error('usage: pnpm harness:verify <F-NNN> [--allow-manual] [--dry-run]')
+    console.error(
+      'usage: pnpm harness:verify <F-NNN> [--allow-manual | --manual-observed "…"] [--dry-run]',
+    )
     process.exit(1)
   }
   const file = values.file ? path.resolve(values.file) : undefined
@@ -219,6 +244,7 @@ function main(argv: string[]): void {
 
   const outcome = verifyFeature(feature, {
     allowManual: values['allow-manual'],
+    manualObserved: values['manual-observed'],
     dryRun: values['dry-run'],
   })
   console.log(`\n${report(outcome)}`)

@@ -64,3 +64,14 @@ Format: **Context** (what forced a choice) · **Decision** · **Consequences**.
   - A generator/evaluator split: the evaluator runs as a separate `claude -p --agent evaluator` session on a different model with a JSON verdict schema.
   - The Stop hook `.claude/hooks/stop-guard.sh` is registered but inert unless `HARNESS_STOP_GUARD=1` (set by the driver); it blocks at most three times per session. This amends D-007.
 - Consequences: `.harness/` (traces, run log, counters) is gitignored; `guard.sh` additionally blocks `pnpm db:up/down`, `git push`, `git checkout main` and worktree commands when `HARNESS_LOOP=1`; only one feature runs at a time because L3 uses fixed ports and `.next-e2e`; `gh` must be installed and logged in for PRs (without it the branch is pushed and the PR is opened by hand).
+
+## D-009 · Design tokens are the whole Tailwind theme; the default palette is removed (2026-09-06)
+
+- Context: the Claude Design tokens (`docs/design/tokens.js`) had to become enforceable, not advisory; agents otherwise reach for `bg-[#…]` and Tailwind's own palette.
+- Decision:
+  - `src/app/globals.css` declares the tokens in `@theme` and starts with `--color-*: initial`, so the default Tailwind palette does not exist; `text-gray-500` is an unknown class. shadcn's semantic names (`bg-primary`, `text-muted-foreground` …) are aliased onto the tokens so the generated `components/ui/*` keep working.
+  - The radius scale is remapped, not copied: tokens.js `sm 6 / DEFAULT 10 / lg 14 / xl 20` becomes `rounded-sm 6 / rounded-md 8 / rounded-lg 10 / rounded-xl 14 / rounded-2xl 20`, because shadcn components already use `rounded-lg` for the default radius; `md: 8px` is added for compact buttons.
+  - `src/lib/design-tokens.ts` mirrors the values for code that cannot use classes (MapLibre paint, React Email); `tests/unit/design/tokens.test.ts` fails when the two drift or when a colour literal appears elsewhere in `src/`.
+  - Enforcement in L1: `eslint-plugin-better-tailwindcss` (`no-unknown-classes`, `no-conflicting-classes`, `no-duplicate-classes`, `no-restricted-classes` for arbitrary values and palette colours) and `react/forbid-dom-props` / `forbid-component-props` for `style`, with exceptions only for the map container and email templates.
+  - No dark theme: the design has none, so the shadcn `.dark` block, the `dark` variant and `dark:` classes are removed (00-deviations R13).
+- Consequences: new colours are added to both token sources in the same commit; a page ticket reads its artboard from `design-map.json` before coding; reintroducing dark mode needs a design first.

@@ -314,9 +314,9 @@
         "manual: pnpm lint reports an error for a deliberate `bg-[#000]` and `text-gray-500` and passes after they are removed"
       ],
       "evidence": [
-        "2026-09-06 pnpm check → pass (commit 291b741)",
-        "2026-09-06 pnpm test:e2e → pass (commit 291b741)",
-        "2026-09-06 manual: pnpm lint reports an error for a deliberate `bg-[#000]` and `text-gray-500` and passes after they are removed → waived via --allow-manual by eemelisurakka (commit 291b741)"
+        "2026-09-06 pnpm check → pass (working tree on 662ce81)",
+        "2026-09-06 pnpm test:e2e → pass (working tree on 662ce81, Docker available)",
+        "2026-09-06 manual: pnpm lint reports an error for a deliberate `bg-[#000]` and `text-gray-500` and passes after they are removed → observed by eemelisurakka: injected bg-[#000], text-gray-500 and style= in attribution.tsx → 4 lint errors (no-restricted-classes ×2, no-unknown-classes, react/forbid-dom-props); 0 after revert (working tree on 662ce81)"
       ],
       "attempts": 0,
       "notes": "Landing hero variant B (typografia) is the chosen hero (user decision 2026-09-06)."

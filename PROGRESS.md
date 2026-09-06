@@ -31,6 +31,7 @@ Any coding agent can use it; nothing updates it automatically.
 - Verification run: `pnpm check` (38 unit tests), `pnpm harness:check`, `pnpm harness:verify F-013 --allow-manual`, clean-state script exercised against an injected `.only` and `console.log` (both caught); `pnpm harness:loop --dry-run --no-docker --feature F-002` prints the full chain; `stop-guard.sh` and `guard.sh` simulated (block / allow / cap paths); `pnpm lint` fails on injected `bg-[#000]`, `text-gray-500` and `style=` (4 errors) and passes after removal; `pnpm harness:verify F-016` ran L1 + L3 (29 e2e checks incl. axe).
 - Commits: `2052888`, `c686222`, then one commit per feature F-013…F-016 (see `git log`).
 - Known risk: the clean-state script compares against `origin/main`; on a local-only branch it falls back to `main`.
+- Evaluator: first live run of the `evaluator` subagent on the F-016 commit returned Revise (evidence wording, missing ARCHITECTURE/DECISIONS rows, dead `dark:` classes); all findings fixed in the follow-up commit and logged in the rubric's tuning log.
 - Known risk: the loop has not run live yet (no `gh`); the first run should be watched and its evaluator verdict compared with a human one. The generated verification lines are a first pass. Dark mode was removed with the token port (no design for it).
 - Next best step: see Next Steps 1–2.
 
