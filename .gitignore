@@ -6,6 +6,7 @@ node_modules/
 # next.js
 /.next/
 /.next-e2e/
+/.next-check/
 /out/
 next-env.d.ts
 *.tsbuildinfo
@@ -37,3 +38,6 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 .idea/
+
+# claude code — per-user overrides
+.claude/settings.local.json

@@ -13,7 +13,7 @@
 > | Playwright             | **1.63**           | —                                                                                                                       |
 > | `custom.scss` in admin | `custom.css`       | Avoids a Sass toolchain.                                                                                                |
 >
-> The original spec follows unchanged.
+> The original spec follows unchanged. Ongoing decisions live in [DECISIONS.md](./DECISIONS.md).
 
 Purpose: web service that watches Metsäkeskus metsänkäyttöilmoitukset (forest use declarations) around a user-defined area and notifies the user when a new or changed declaration appears nearby.
 
