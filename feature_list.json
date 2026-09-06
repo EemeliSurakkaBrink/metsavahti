@@ -177,7 +177,7 @@
       "area": "infra",
       "title": "Typed errors and action result wrapper",
       "user_visible_behavior": "`src/lib/errors.ts` with `AppError` subclasses (`NotFound`, `Forbidden`, `RateLimited`, `ExternalServiceError`) and `actionResult<T>()` returning `{ ok, data | error }` for Server Actions; one mapping from error to HTTP response.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-001"],
       "ticket": "MV-010",
       "epic": "E00",
@@ -186,7 +186,10 @@
         "L1: pnpm check",
         "L1: pnpm test:unit -- tests/unit/infra/typed-errors-and-action-result-wrapper.test.ts (unit for the wrapper and the mapping.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-06 pnpm check → pass (working tree on d93367b)",
+        "2026-09-06 pnpm test:unit -- tests/unit/infra/typed-errors-and-action-result-wrapper.test.ts → pass (working tree on d93367b)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit for the wrapper and the mapping."
     },
