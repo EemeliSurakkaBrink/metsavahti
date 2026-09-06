@@ -219,7 +219,9 @@
       ],
       "evidence": [
         "2026-09-06 pnpm check → pass (working tree on 5e5fa86)",
-        "2026-09-06 pnpm test:e2e -- tests/e2e/marketing-layout-and-system-pages.spec.ts → pass (working tree on 5e5fa86, Docker available)"
+        "2026-09-06 pnpm test:e2e -- tests/e2e/marketing-layout-and-system-pages.spec.ts → pass (working tree on 5e5fa86, Docker available)",
+        "2026-09-06 pnpm check → pass (working tree on ad1ab64)",
+        "2026-09-06 pnpm test:e2e -- tests/e2e/marketing-layout-and-system-pages.spec.ts → pass (working tree on ad1ab64, Docker available)"
       ],
       "attempts": 1,
       "notes": "Tests (ticket): E2E smoke for 404 and the layout; axe. Attempt 1 failed 2026-09-06: evaluator: Revise"

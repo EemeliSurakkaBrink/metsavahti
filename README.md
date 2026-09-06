@@ -147,7 +147,7 @@ See [tests/README.md](tests/README.md) for details. In short:
 
 ```
 src/
-  app/(frontend)/         root document + error boundaries; (marketing)/ landing, login, 404, /huolto, /liikaa-pyyntoja; (app)/dashboard
+  app/(frontend)/         root document + error boundaries; (marketing)/ landing, login, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); (app)/dashboard
   app/(payload)/          generated Payload admin + REST/GraphQL routes
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)

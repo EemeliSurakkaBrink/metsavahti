@@ -104,9 +104,32 @@ test.describe('system pages', () => {
     await expect(page).toHaveTitle('Huoltotauko · Metsävahti')
     await expect(page.getByTestId('system-code')).toHaveText('HUOLTO')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Metsävahti on huoltotauolla')
+    await expect(page.getByRole('main')).toContainText('Palaamme noin klo 07.00.')
     await expect(page.getByRole('link', { name: 'Yritä uudelleen' })).toHaveAttribute('href', '/')
     await expect(page.getByTestId('attribution')).toContainText(attributionPattern)
     await expectNoA11yViolations(page)
+  })
+
+  test('a page that throws renders the error boundary with a Sentry event id', async ({ page }) => {
+    // /virhe throws on purpose (ENABLE_ERROR_TEST_ROUTE=1 in .env.test), which renders the
+    // root error.tsx. global-error.tsx shares ErrorState and SiteFrame with it, so the same
+    // UI is covered; it only differs by rendering its own <html> and <body>.
+    const response = await page.goto('/virhe')
+    expect(response?.status()).toBe(500)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Jotain meni pieleen')
+    await expect(page.getByTestId('system-code')).toHaveText('500')
+    await expect(page.getByRole('main')).toContainText('Palvelussa tapahtui virhe.')
+    // Without a DSN the SDK still returns a locally generated 32-hex event id.
+    await expect(page.getByText(/^Virhetunnus: [0-9a-f]{32}$/)).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Etusivulle' })).toHaveAttribute('href', '/')
+    await expect(page.getByRole('contentinfo').getByTestId('attribution')).toContainText(
+      attributionPattern,
+    )
+    await expectNoA11yViolations(page)
+
+    // Retrying re-renders the route, which throws again and lands back on the boundary.
+    await page.getByRole('button', { name: 'Yritä uudelleen' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Jotain meni pieleen')
   })
 
   test('/liikaa-pyyntoja shows the rate-limit page and goes back on retry', async ({ page }) => {
