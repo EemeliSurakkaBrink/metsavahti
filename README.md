@@ -147,7 +147,7 @@ See [tests/README.md](tests/README.md) for details. In short:
 
 ```
 src/
-  app/(frontend)/         landing, login, (app)/dashboard
+  app/(frontend)/         root document + error boundaries; (marketing)/ landing, login, 404, /huolto, /liikaa-pyyntoja; (app)/dashboard
   app/(payload)/          generated Payload admin + REST/GraphQL routes
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)
@@ -163,7 +163,7 @@ src/
   lib/wfs                 client.ts, schemas.ts, parse.ts, hakkuutapa.ts
   lib/jobs                fetch-declarations, match-watch-areas, send-alerts
   lib/notifications       React Email alert template
-  components/             attribution, map (MapLibre), shadcn ui/
+  components/             site header/footer/frame, system pages, attribution, map (MapLibre), shadcn ui/
 tests/
   unit/  integration/  e2e/  live/  helpers/  fixtures/wfs/
 scripts/                  seed.ts, run-jobs.ts, record-fixtures.ts

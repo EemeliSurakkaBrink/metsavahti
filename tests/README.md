@@ -41,7 +41,8 @@ database or points at port 5432.
   watch area through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
 - Specs: landing page + attribution + axe, login validation, dashboard
-  redirect/auth/map, health and jobs API (runs the sync against the mock).
+  redirect/auth/map, marketing layout + system pages (header/footer, 404 status,
+  `/huolto`, `/liikaa-pyyntoja`, axe), health and jobs API (runs the sync against the mock).
 
 ## Live contract — `pnpm test:live`
 
