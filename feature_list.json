@@ -40,7 +40,7 @@
       "area": "infra",
       "title": "Enable noUncheckedIndexedAccess",
       "user_visible_behavior": "tsconfig.json matches the README/TECH_STACK claim (`strict` + `noUncheckedIndexedAccess`); indexed access is typed as possibly undefined everywhere.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "L1: pnpm typecheck",
         "L1: pnpm check",
