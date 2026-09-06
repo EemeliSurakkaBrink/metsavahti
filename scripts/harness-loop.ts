@@ -31,6 +31,8 @@ import { z } from 'zod'
 
 import {
   FEATURE_LIST_PATH,
+  isHumanOnly,
+  isReady,
   nextReadyFeature,
   readFeatureList,
   today,
@@ -904,9 +906,16 @@ async function main() {
     if (opts.feature) {
       feature = list.features.find((f) => f.id === opts.feature)
       if (!feature) throw new Error(`unknown feature ${opts.feature}`)
-      const ready = nextReadyFeature({ ...list, features: [feature] }, { includeHumanOnly: false })
-      if (!ready)
-        throw new Error(`${opts.feature} is not ready (status, dependencies or manual steps)`)
+      if (!isReady(feature, list)) {
+        const byId = new Map(list.features.map((f) => [f.id, f]))
+        const waiting = feature.depends_on.filter((d) => byId.get(d)?.status !== 'passing')
+        throw new Error(
+          `${opts.feature} is not ready: status ${feature.status}` +
+            (waiting.length ? `, waiting on ${waiting.join(', ')}` : ''),
+        )
+      }
+      if (isHumanOnly(feature))
+        throw new Error(`${opts.feature} has manual verification steps; run it interactively`)
     } else {
       feature = nextReadyFeature(list, { exclude: [...inFlight, ...attempted] })
     }
