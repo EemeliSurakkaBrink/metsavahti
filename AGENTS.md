@@ -17,11 +17,11 @@ Before touching code:
 
 1. `pwd` — confirm you are in the repository root.
 2. Read [PROGRESS.md](PROGRESS.md) — Current Verified State and Next Steps.
-3. Read [feature_list.json](feature_list.json) — pick the highest-priority `not_started` feature.
+3. `pnpm harness:feature next --include-manual` — the highest-priority `not_started` feature whose `depends_on` are all `passing` ([feature_list.json](feature_list.json)). `pnpm harness:feature show F-NNN` prints its spec and design links; read them before coding.
 4. `git log --oneline -5` — what changed most recently.
 5. `./init.sh` — installs, checks tooling and runs the L1 baseline (`FAST=1` skips it).
 6. If the baseline is red, fix that first. Never stack feature work on a broken start.
-7. Set the chosen feature to `in_progress` (WIP=1) and work only on it.
+7. `pnpm harness:feature activate F-NNN` (WIP=1, dependency check) and work only on it.
 
 Claude Code: `/clock-in` runs these steps; the SessionStart hook prints the state summary.
 
@@ -37,6 +37,7 @@ Claude Code: `/clock-in` runs these steps; the SessionStart hook prints the stat
 - L3 is required when a change crosses component boundaries (frontend + Payload/API/jobs).
 - The repository is in a consistent state when `pnpm check` exits 0. `pnpm check:full` adds L2 and a build.
 - `pnpm harness:check` validates `feature_list.json`; it also runs from `pnpm test:unit` and lint-staged.
+- `pnpm harness:verify F-NNN` runs a feature's layers in order and records evidence; `manual:` steps fail closed. `scripts/clean-state-check.sh` is the machine-checkable clock-out gate.
 - Details per suite: [tests/README.md](tests/README.md).
 
 ## Constraints
@@ -58,12 +59,13 @@ Each rule carries a `why:` so it can be revisited when the reason disappears.
 ## Working rules
 
 - WIP=1: only one feature may be `in_progress`. Finish it (`passing`) or mark it `blocked` with a note before activating the next.
-- State machine: `not_started → in_progress → passing`, or `→ blocked` with the reason in `notes`. No skipping states; never set `passing` by hand without evidence.
+- State machine: `not_started → in_progress → passing`, or `→ blocked` with the reason in `notes`. Change status only through `pnpm harness:feature` / `pnpm harness:verify`; never set `passing` by hand without evidence.
+- Dependencies live in `depends_on`; a feature is ready when every dependency is `passing`. Tickets in `docs/product/tickets` map 1:1 to features (`ticket`, `spec`, `design` fields).
 - Granularity: a feature must be completable in one session. If it cannot, split it in `feature_list.json` before starting.
 - Scope: stay inside the selected feature; a narrow supporting fix is fine, a second feature is not.
 - Completion means evidence, not confidence: run the listed layers and record `YYYY-MM-DD <command> → pass (commit <hash>)` in `evidence`.
 - Context anxiety: if you are running low on context, do not rush to finish. Stop, update `PROGRESS.md`, commit a clean checkpoint, and leave the next step written down.
-- Escalate instead of guessing: unclear requirements → `docs/TECH_STACK.md` then ask; architecture decisions → `src/ARCHITECTURE.md` + `docs/DECISIONS.md` then ask; repeated failures → record in `PROGRESS.md` and flag for review.
+- Escalate instead of guessing: unclear requirements → the feature's `spec` in `docs/product/` and [docs/product/00-deviations.md](docs/product/00-deviations.md), then ask; stack questions → `docs/TECH_STACK.md`; architecture decisions → `src/ARCHITECTURE.md` + `docs/DECISIONS.md` then ask; repeated failures → record in `PROGRESS.md` and flag for review. In a driver-run session (`HARNESS_LOOP=1`) nobody can answer: pick the simplest reading, record it, or block the feature.
 
 ## Definition of done
 
@@ -78,8 +80,8 @@ A feature is done only when all of these are true:
 
 ## Clock-out (session end)
 
-1. Walk [docs/harness/clean-state-checklist.md](docs/harness/clean-state-checklist.md).
-2. Update `PROGRESS.md` and `feature_list.json`; `pnpm harness:check`.
+1. `scripts/clean-state-check.sh --allow-state-dirty`, then the judgement items of [docs/harness/clean-state-checklist.md](docs/harness/clean-state-checklist.md).
+2. Update `PROGRESS.md`; `feature_list.json` is already updated by `pnpm harness:verify` (or `pnpm harness:feature block`); `pnpm harness:check`.
 3. `pnpm check` (plus the feature's L2/L3).
 4. Optional: score the diff with [docs/harness/evaluator-rubric.md](docs/harness/evaluator-rubric.md) (Claude Code: `evaluator` subagent). Revise before committing if any category is below 2.
 5. Commit; for long sessions also fill [docs/harness/session-handoff.md](docs/harness/session-handoff.md).
@@ -89,9 +91,15 @@ Cleanup is dual-mode: immediate at every clock-out, plus a periodic (monthly) sw
 
 Claude Code: `/clock-out` walks these steps; `/verify-feature F-NNN` runs a feature's layers and records evidence.
 
+## Driver-run sessions
+
+`pnpm harness:loop` runs the same loop unattended: one fresh session per ready feature in its own worktree, `pnpm harness:verify` as the gate, a fresh-context evaluator, then a PR. Inside such a session `HARNESS_LOOP=1` is set, questions cannot be asked, `manual:` steps are never waived and the driver (not the session) pushes. Everything about it: [docs/harness/README.md](docs/harness/README.md).
+
 ## State artefacts and further reading
 
-- State: [PROGRESS.md](PROGRESS.md) · [feature_list.json](feature_list.json) · [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/harness/](docs/harness/) (handoff, checklist, rubric, quality document).
+- Index of all documentation: [docs/README.md](docs/README.md).
+- State: [PROGRESS.md](PROGRESS.md) · [feature_list.json](feature_list.json) · [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/harness/](docs/harness/) (README, prompts, handoff, checklist, rubric, quality document).
+- Product: [docs/product/](docs/product/) (spec, tickets, [deviations ledger](docs/product/00-deviations.md)) · [docs/design/](docs/design/) (artboards, tokens, design map).
 - Project: [README.md](README.md) · [docs/TECH_STACK.md](docs/TECH_STACK.md) · [src/ARCHITECTURE.md](src/ARCHITECTURE.md) · [tests/README.md](tests/README.md).
 - Tools: Claude Code permissions, hooks, skills and the evaluator subagent are described in [CLAUDE.md](CLAUDE.md) and live in `.claude/`.
 

@@ -54,7 +54,7 @@ Respect `prefers-reduced-motion`; cutting-type colours verified with simulated d
 
 ### MV-120 Production DB provisioning doc + migration in CI
 
-Managed PostGIS (Neon/Supabase/DO) decision recorded; `pnpm db:migrate` run in deploy step; backup schedule documented. **Depends on:** E02
+Managed PostGIS (Neon/Supabase/DO) decision recorded; migrations run on boot via `prodMigrations` (D-004, 00-deviations S12) with `pnpm db:migrate` documented for hosts that need an explicit deploy step; backup schedule documented. **Depends on:** E02
 
 ### MV-121 Vercel project + preview environments
 

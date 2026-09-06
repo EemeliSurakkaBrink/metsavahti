@@ -10,9 +10,9 @@ Owner of `payload.config.ts` collections and all migrations. Merge in order.
 
 **Goal:** Fields per `01 §3.1`, `verify: true`, `forgotPassword`, `maxLoginAttempts 5`, `lockTime 10m`, `useSessions`, roles `user|admin`, access self-only. **Tests:** integration: user cannot read another user; admin can. **Depends on:** MV-030
 
-### MV-032 `watch_areas` collection + geom trigger
+### MV-032 `watch_areas` collection + geometry column
 
-**Goal:** Fields per `01 §3.2`; migration `0002_watch_areas_geom` adding `geom_3067`, trigger function `watch_areas_set_geom()` on insert/update of center/radius, GIST index. Validation: radius 100–5000, plan limit enforced in `beforeValidate` hook using `config/plans.ts`. **Tests:** integration: insert → geom not null, `ST_Area` ≈ πr² (±2 %); update radius → geom changes; 3rd area on free plan rejected. **Depends on:** MV-031
+**Goal:** Fields per `01 §3.2`; `geom_3067` stays the generated column from migration `0001` (D-003, 00-deviations D1 — no trigger); add the GIST index if missing and rename `notifyByEmail` → `notificationsEnabled` in a migration (00-deviations D4). Validation: radius 100–5000, plan limit enforced in `beforeValidate` hook using `config/plans.ts`. **Tests:** integration: insert → geom not null, `ST_Area` ≈ πr² (±2 %); update radius → geom changes; 3rd area on free plan rejected. **Depends on:** MV-031
 
 ### MV-033 `declarations` + `declaration_revisions`
 

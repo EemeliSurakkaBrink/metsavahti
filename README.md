@@ -113,6 +113,8 @@ Safeguards:
 | `pnpm lint` / `format` / `typecheck` / `knip`                        | quality gates (also run by Husky on commit and in CI)                                              |
 | `pnpm check` / `check:full`                                          | L1 verification (lint, typecheck, knip, format:check, unit); `check:full` adds integration + build |
 | `pnpm harness:check`                                                 | validate `feature_list.json` (WIP=1, evidence, layer labels)                                       |
+| `pnpm harness:feature` / `harness:verify` / `harness:clean-state`    | feature state transitions, the verification gate, the clock-out gate                               |
+| `pnpm harness:loop` / `harness:report` / `harness:import-tickets`    | unattended feature loop, its run log, ticket → feature import                                      |
 
 ## Working with coding agents
 
@@ -125,6 +127,10 @@ definition of done, clock-out), [PROGRESS.md](PROGRESS.md) the session log,
 checklist, the evaluator rubric and the quality snapshot live in [docs/harness/](docs/harness/).
 Claude Code users get permissions, hooks and the `/clock-in`, `/verify-feature` and
 `/clock-out` skills from `.claude/` (see [CLAUDE.md](CLAUDE.md)).
+`pnpm harness:loop` runs the loop unattended (one worktree, one session and one PR per
+feature; see [docs/harness/README.md](docs/harness/README.md)). The product spec and its
+tickets live in [docs/product/](docs/product/), the designs in [docs/design/](docs/design/);
+[docs/README.md](docs/README.md) is the index of everything under `docs/`.
 
 ## Testing
 
@@ -175,9 +181,11 @@ docker-compose.yml        db (5432), db_test (5433), mailpit (1025/8025)
 
 ## Roadmap (not yet built)
 
-- Sign-up flow in the frontend (verification email via Mailpit/Resend) and
-  watch-area creation directly on the map (today: via `/admin` or the REST API).
-- Alert list on the dashboard and matched-declaration overlay on the map.
+The full plan is the ticket list in [docs/product/](docs/product/) (epics E00–E12, imported
+into `feature_list.json`); routes will move to their Finnish names (`/kirjaudu`,
+`/vahtialueet`, `/ilmoitukset`) as those tickets land — see
+[docs/product/00-deviations.md](docs/product/00-deviations.md).
+
 - Attribute-level change detection (currently geometry only) and hakkuutapa
   label verification against the Metsäkeskus code list.
 - Geocoding (MML), rate limiting for public endpoints, MML background map.

@@ -1,3 +1,5 @@
+> Implemented in session 002 (F-013…F-016). The living description is [README.md](README.md); this brief is kept as the planning input.
+
 # Phase 2 brief — fully automated feature loop
 
 Input for the next planning session. Phase 1 (commit `091168f`) made the loop _agent-followed_:

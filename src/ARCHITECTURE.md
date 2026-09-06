@@ -3,6 +3,9 @@
 Module map for `src/`. Each line states the boundary rule that the module owns; the
 MUST/MUST NOT constraints in [AGENTS.md](../AGENTS.md) cite this file as their source.
 The product-level picture (pipeline, environments, scripts) is in the [README](../README.md).
+The target product (routes, collections, emails) is specified in [docs/product/](../docs/product/);
+where that spec and this file disagree, [docs/product/00-deviations.md](../docs/product/00-deviations.md)
+says which wins. Rows below marked "(moves)" change when the owning ticket lands.
 
 ## Request and job flow
 
@@ -18,26 +21,26 @@ cron ───── app/api/jobs/run ── payload.jobs.queue ──┤── 
 
 ## Modules and their rules
 
-| Module                           | Owns                                                                 | Rule                                                                                                                     |
-| -------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `payload.config.ts`              | Wiring: adapters, collections, jobs, email                           | Configuration only. No business logic.                                                                                   |
-| `payload/collections/*`          | Data shape, admin labels (Finnish), hooks, access per collection     | Collections define shape; they do not fetch upstream data or send email.                                                 |
-| `payload/access/*`               | Reusable access-control predicates                                   | Every collection uses these helpers; no inline ownership checks elsewhere.                                               |
-| `payload/jobs/*`                 | Task and workflow definitions, cron access (`canRunJobs`)            | Thin wrappers: they build a `JobContext` and call `lib/jobs`. No logic here.                                             |
-| `payload/schema/postgis.ts`      | `afterSchemaInit` registration of `geom_3067` and `geom` columns     | Keeps Drizzle aware of PostGIS columns so `migrate:create` never emits `DROP COLUMN`.                                    |
-| `payload/migrations/*`           | Committed SQL schema history                                         | Created with `pnpm db:migrate:create`; hand edits only for PostGIS statements. `push: false` everywhere.                 |
-| `lib/env.ts`                     | Validated environment (t3-env + Zod)                                 | The only place that reads `process.env`. Everything else imports `env` from `@/lib/env`.                                 |
-| `lib/geo/crs.ts`, `buffer.ts`    | EPSG:3067 ↔ 4326, buffers and bboxes (pure)                          | Pure functions, unit-tested, no I/O.                                                                                     |
-| `lib/geo/spatial-queries.ts`     | Every PostGIS SQL statement                                          | All spatial SQL lives here. Other modules call its functions; they never write `ST_*` themselves.                        |
-| `lib/wfs/*`                      | Metsäkeskus WFS client, Zod schemas, parsing, hakkuutapa labels      | Only module that talks to the upstream WFS. Schemas are the runtime contract; `pnpm test:live` guards drift.             |
-| `lib/jobs/*`                     | The pipeline steps: fetch → match → send                             | Business logic, injected `JobContext` (payload, logger, wfs, now). Testable without Payload's queue.                     |
-| `lib/notifications/*`            | React Email templates                                                | Every email carries the Metsäkeskus attribution line (`lib/attribution.ts`).                                             |
-| `lib/logger.ts`                  | pino logger                                                          | Use `logger` (or a child) instead of `console.*` in `src/`.                                                              |
-| `app/(frontend)/*`               | Landing, login, dashboard (Server Components + small client islands) | UI text in Finnish. Attribution visible on every page.                                                                   |
-| `app/(payload)/*`                | Generated Payload admin and REST/GraphQL routes                      | Generated: `admin/importMap.js`, `admin/[[...segments]]/*`, `api/*`. Only `custom.css` and `layout.tsx` are hand-edited. |
-| `app/api/health`, `api/jobs/run` | Liveness + PostGIS check; cron entrypoint (Bearer `CRON_SECRET`)     | Route handlers stay thin and delegate to `lib/*` / `payload.jobs`.                                                       |
-| `components/*`                   | Attribution, MapLibre map, shadcn `ui/*`                             | `components/ui/*` is generated by shadcn (knip ignores it).                                                              |
-| `payload-types.ts`               | Generated types                                                      | Never hand-edited; run `pnpm generate:types` after changing a collection.                                                |
+| Module                                                                       | Owns                                                                 | Rule                                                                                                                     |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `payload.config.ts`                                                          | Wiring: adapters, collections, jobs, email                           | Configuration only. No business logic.                                                                                   |
+| `payload/collections/*`                                                      | Data shape, admin labels (Finnish), hooks, access per collection     | Collections define shape; they do not fetch upstream data or send email.                                                 |
+| `payload/access/*`                                                           | Reusable access-control predicates                                   | Every collection uses these helpers; no inline ownership checks elsewhere.                                               |
+| `payload/jobs/*`                                                             | Task and workflow definitions, cron access (`canRunJobs`)            | Thin wrappers: they build a `JobContext` and call `lib/jobs`. No logic here.                                             |
+| `payload/schema/postgis.ts`                                                  | `afterSchemaInit` registration of `geom_3067` and `geom` columns     | Keeps Drizzle aware of PostGIS columns so `migrate:create` never emits `DROP COLUMN`.                                    |
+| `payload/migrations/*`                                                       | Committed SQL schema history                                         | Created with `pnpm db:migrate:create`; hand edits only for PostGIS statements. `push: false` everywhere.                 |
+| `lib/env.ts`                                                                 | Validated environment (t3-env + Zod)                                 | The only place that reads `process.env`. Everything else imports `env` from `@/lib/env`.                                 |
+| `lib/geo/crs.ts`, `buffer.ts`                                                | EPSG:3067 ↔ 4326, buffers and bboxes (pure)                          | Pure functions, unit-tested, no I/O.                                                                                     |
+| `lib/geo/spatial-queries.ts`                                                 | Every PostGIS SQL statement                                          | All spatial SQL lives here. Other modules call its functions; they never write `ST_*` themselves.                        |
+| `lib/wfs/*`                                                                  | Metsäkeskus WFS client, Zod schemas, parsing, hakkuutapa labels      | Only module that talks to the upstream WFS. Schemas are the runtime contract; `pnpm test:live` guards drift.             |
+| `lib/jobs/*`                                                                 | The pipeline steps: fetch → match → send                             | Business logic, injected `JobContext` (payload, logger, wfs, now). Testable without Payload's queue.                     |
+| `lib/notifications/*` (moves to `emails/`, MV-040)                           | React Email templates                                                | Every email carries the Metsäkeskus attribution line (`lib/attribution.ts`).                                             |
+| `lib/logger.ts`                                                              | pino logger                                                          | Use `logger` (or a child) instead of `console.*` in `src/`.                                                              |
+| `app/(frontend)/*` (splits into `(marketing)`, `(auth)`, `(app)`, `(legal)`) | Landing, login, dashboard (Server Components + small client islands) | UI text in Finnish, inline until `src/i18n/fi.ts` exists (MV-041). Attribution visible on every page.                    |
+| `app/(payload)/*`                                                            | Generated Payload admin and REST/GraphQL routes                      | Generated: `admin/importMap.js`, `admin/[[...segments]]/*`, `api/*`. Only `custom.css` and `layout.tsx` are hand-edited. |
+| `app/api/health`, `api/jobs/run`                                             | Liveness + PostGIS check; cron entrypoint (Bearer `CRON_SECRET`)     | Route handlers stay thin and delegate to `lib/*` / `payload.jobs`.                                                       |
+| `components/*`                                                               | Attribution, MapLibre map, shadcn `ui/*`                             | `components/ui/*` is generated by shadcn (knip ignores it).                                                              |
+| `payload-types.ts`                                                           | Generated types                                                      | Never hand-edited; run `pnpm generate:types` after changing a collection.                                                |
 
 ## Cross-cutting invariants
 

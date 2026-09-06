@@ -13,7 +13,22 @@
 > | Playwright             | **1.63**           | —                                                                                                                       |
 > | `custom.scss` in admin | `custom.css`       | Avoids a Sass toolchain.                                                                                                |
 >
-> The original spec follows unchanged. Ongoing decisions live in [DECISIONS.md](./DECISIONS.md).
+> Planned by the product spec ([product/](./product/)) but not installed yet — add the row's
+> reason here when the owning ticket lands:
+>
+> | Planned                                                                                              | Owning ticket                | Notes                               |
+> | ---------------------------------------------------------------------------------------------------- | ---------------------------- | ----------------------------------- |
+> | Postgres rate limiter (`rate_limit_buckets`)                                                         | MV-048                       | No Upstash (00-deviations S4).      |
+> | Geocoder (MML) behind `Geocoder` interface                                                           | MV-062                       | Needs `MML_API_KEY`; mock in tests. |
+> | `MAP_TILE_URL` + MML taustakartta                                                                    | MV-060, F-017                | OSM raster until the key exists.    |
+> | S3-compatible export storage                                                                         | MV-035                       | Local disk in dev/test.             |
+> | Resend bounce webhook                                                                                | MV-123                       | `POST /api/webhooks/resend`.        |
+> | Consent-gated analytics (Plausible/Umami)                                                            | MV-126                       | Optional.                           |
+> | `fast-xml-parser`, `wkx`, `jose`, `zxcvbn`, `@resvg/resvg-js`, `@lhci/cli`, `@testing-library/react` | first ticket that needs each | 00-deviations S14.                  |
+>
+> The original spec follows unchanged. Ongoing decisions live in [DECISIONS.md](./DECISIONS.md);
+> the deviations between the product spec and this repository are listed in
+> [product/00-deviations.md](./product/00-deviations.md).
 
 Purpose: web service that watches Metsäkeskus metsänkäyttöilmoitukset (forest use declarations) around a user-defined area and notifies the user when a new or changed declaration appears nearby.
 
