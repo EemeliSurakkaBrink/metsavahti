@@ -341,11 +341,19 @@ describe('watch_area_declarations + alerts', () => {
     const db = await drizzle()
     const args = { db } as unknown as MigrateUpArgs
 
+    // Set the state this test depends on itself, so it does not rely on the update test above.
+    await payload.update({
+      collection: 'alerts',
+      id: ownerAlert.id,
+      data: { changeType: 'geometry_changed', notifiedAt: '2026-03-02T08:00:00.000Z' },
+      overrideAccess: true,
+    })
+
     await migration.down(args)
     const { rows: oldShape } = await db.execute<{ kind: string; status: string }>(sql`
       SELECT kind::text AS kind, status::text AS status FROM alerts WHERE id = ${ownerAlert.id}
     `)
-    // The admin set changeType = geometry_changed above; notifiedAt maps back to sent.
+    // geometry_changed maps back to kind = changed; a set notifiedAt maps back to status = sent.
     expect(oldShape[0]).toEqual({ kind: 'changed', status: 'sent' })
 
     // An alert written by the pre-MV-034 pipeline: kind/status/sent_at/geom_hash/distance_m.

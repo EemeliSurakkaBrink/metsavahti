@@ -26,6 +26,8 @@ test.describe('dashboard (logged in)', () => {
     await page.goto('/dashboard')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Vahtialueesi')
     await expect(page.getByText(E2E_USER.email)).toBeVisible()
+    // The pending-alert count is a Payload count on `alerts.notifiedAt` (MV-034); the seed has none.
+    await expect(page.getByText('odottavia hälytyksiä: 0')).toBeVisible()
     await expect(page.getByTestId('watch-area-list')).toContainText(E2E_WATCH_AREA.name)
     await expect(page.getByTestId('watch-area-map')).toBeVisible()
     await expectNoA11yViolations(page)
