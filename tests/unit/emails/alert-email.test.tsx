@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 
-import { renderAlertEmail } from '@/lib/notifications/alert-email'
+import { renderAlertEmail } from '@/emails/AlertEmail'
 
 describe('alert email', () => {
   it('renders html and plain text with declarations and attribution', async () => {
     const { html, text } = await renderAlertEmail({
       watchAreaName: 'Mökki',
-      dashboardUrl: 'https://metsavahti.test/dashboard',
+      baseUrl: 'https://metsavahti.test',
       attribution: 'Sisältää Suomen metsäkeskuksen Metsänkäyttöilmoitukset-aineistoa 09/2026',
       declarations: [
         {

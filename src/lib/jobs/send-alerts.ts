@@ -1,7 +1,7 @@
+import { type AlertEmailDeclaration, renderAlertEmail } from '@/emails/AlertEmail'
 import { metsakeskusAttribution } from '@/lib/attribution'
 import { env } from '@/lib/env'
 import type { JobContext } from '@/lib/jobs/context'
-import { type AlertEmailDeclaration, renderAlertEmail } from '@/lib/notifications/alert-email'
 import { emailProvider } from '@/lib/notifications/provider'
 import { alertSnapshot } from '@/payload/collections/Alerts'
 import type { Alert, Declaration, User, WatchArea } from '@/payload-types'
@@ -69,7 +69,7 @@ export async function sendAlerts(ctx: JobContext, jobRunId: string): Promise<Sen
     const { html, text } = await renderAlertEmail({
       watchAreaName: watchArea.name,
       declarations,
-      dashboardUrl: `${env.NEXT_PUBLIC_SERVER_URL}/dashboard`,
+      baseUrl: env.NEXT_PUBLIC_SERVER_URL,
       attribution: metsakeskusAttribution(now()),
     })
 
