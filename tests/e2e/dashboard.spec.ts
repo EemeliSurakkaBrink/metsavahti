@@ -11,7 +11,7 @@ test.describe('dashboard (anonymous)', () => {
   test('logging in through the form lands on the dashboard', async ({ page }) => {
     await page.goto('/login')
     await page.getByLabel('Sähköposti').fill(E2E_USER.email)
-    await page.getByLabel('Salasana').fill(E2E_USER.password)
+    await page.getByLabel('Salasana', { exact: true }).fill(E2E_USER.password)
     await page.getByRole('button', { name: 'Kirjaudu' }).click()
     await expect(page).toHaveURL(/\/dashboard$/)
     await expect(page.getByTestId('watch-area-list')).toContainText(E2E_WATCH_AREA.name)

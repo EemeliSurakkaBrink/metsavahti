@@ -9,12 +9,15 @@ database or points at port 5432.
 
 - Config: `vitest.unit.config.ts` (project `unit`, `environment: node`).
 - Location: `tests/unit/**/*.test.{ts,tsx}`. Component/email tests opt into
-  jsdom with `// @vitest-environment jsdom` at the top of the file.
+  jsdom with `// @vitest-environment jsdom` at the top of the file and use
+  `@testing-library/react` + `user-event` (`auth/auth-layout-and-shared-form-components.test.tsx`
+  is the pattern: `render`, `screen`, `waitFor` for the lazily loaded scorer, `cleanup` in `afterEach`).
 - No database, no network: `helpers/msw.ts` errors on any unhandled request.
 - Covers CRS transforms (5 control points, round-trip < 1 mm) and GeoJSON reprojection, buffers/bboxes, WFS URL building + retry policy, Zod
   schema against the recorded fixture (snapshot), geometry hashing, hakkuutapa
   labels, attribution text, cron-secret comparison, email rendering (`EmailLayout` snapshot, alert
-  template, adapter selection by env), the DB guard.
+  template, adapter selection by env), the auth layout and form components (`PasswordInput`
+  toggle + zxcvbn meter, `FormError`, `FormSuccess`, `scorePassword` thresholds), the DB guard.
 
 ## Integration — `pnpm test:integration`
 

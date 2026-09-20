@@ -16,14 +16,14 @@
 > Planned by the product spec ([product/](./product/)) but not installed yet — add the row's
 > reason here when the owning ticket lands:
 >
-> | Planned                                                                                       | Owning ticket                | Notes                               |
-> | --------------------------------------------------------------------------------------------- | ---------------------------- | ----------------------------------- |
-> | Postgres rate limiter (`rate_limit_buckets`)                                                  | MV-048                       | No Upstash (00-deviations S4).      |
-> | Geocoder (MML) behind `Geocoder` interface                                                    | MV-062                       | Needs `MML_API_KEY`; mock in tests. |
-> | `MAP_TILE_URL` + MML taustakartta                                                             | MV-060, F-017                | OSM raster until the key exists.    |
-> | Resend bounce webhook                                                                         | MV-123                       | `POST /api/webhooks/resend`.        |
-> | Consent-gated analytics (Plausible/Umami)                                                     | MV-126                       | Optional.                           |
-> | `fast-xml-parser`, `jose`, `zxcvbn`, `@resvg/resvg-js`, `@lhci/cli`, `@testing-library/react` | first ticket that needs each | 00-deviations S14.                  |
+> | Planned                                                   | Owning ticket                | Notes                                                                                        |
+> | --------------------------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- |
+> | Postgres rate limiter (`rate_limit_buckets`)              | MV-048                       | No Upstash (00-deviations S4).                                                               |
+> | Geocoder (MML) behind `Geocoder` interface                | MV-062                       | Needs `MML_API_KEY`; mock in tests.                                                          |
+> | `MAP_TILE_URL` + MML taustakartta                         | MV-060, F-017                | OSM raster until the key exists.                                                             |
+> | Resend bounce webhook                                     | MV-123                       | `POST /api/webhooks/resend`.                                                                 |
+> | Consent-gated analytics (Plausible/Umami)                 | MV-126                       | Optional.                                                                                    |
+> | `fast-xml-parser`, `jose`, `@resvg/resvg-js`, `@lhci/cli` | first ticket that needs each | 00-deviations S14; `zxcvbn` and `@testing-library/react` + `user-event` arrived with MV-041. |
 >
 > The original spec follows unchanged. Ongoing decisions live in [DECISIONS.md](./DECISIONS.md);
 > the deviations between the product spec and this repository are listed in
@@ -60,6 +60,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 | Rich text (MV-036)                | `@payloadcms/richtext-lexical` as the single Payload editor (`legal_documents.body`)                                            | Stored as Lexical JSON in `jsonb`; MV-091 renders it with the package's React renderer                                                                               |
 | File storage (MV-035)             | `@payloadcms/storage-s3` for the `exports` upload collection when `S3_BUCKET` is set                                            | Dev/test: local disk under `EXPORTS_DIR` (D-013)                                                                                                                     |
 | Auth                              | Payload local auth (email + password), email verification enabled                                                               | Magic link / passkeys later                                                                                                                                          |
+| Password strength (MV-041)        | `zxcvbn` 4 behind `src/lib/auth/password-strength.ts`                                                                           | Score ≥ 3 and ≥ 10 characters (E03); the client loads it lazily from `PasswordInput`                                                                                 |
 | Logging                           | pino + pino-pretty (dev)                                                                                                        | Structured logs with job run ids                                                                                                                                     |
 | Error tracking                    | Sentry (`@sentry/nextjs`)                                                                                                       |                                                                                                                                                                      |
 | Rate limiting                     | `@upstash/ratelimit` or simple Postgres-based limiter                                                                           | Protect public geocoding/search endpoints                                                                                                                            |

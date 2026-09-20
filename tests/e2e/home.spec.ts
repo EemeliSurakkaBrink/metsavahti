@@ -23,7 +23,7 @@ test.describe('landing page', () => {
     await page.getByRole('button', { name: 'Kirjaudu' }).click()
     await expect(page.getByText('Anna kelvollinen sähköpostiosoite')).toBeVisible()
     await page.getByLabel('Sähköposti').fill('nobody@metsavahti.test')
-    await page.getByLabel('Salasana').fill('wrong')
+    await page.getByLabel('Salasana', { exact: true }).fill('wrong')
     await page.getByRole('button', { name: 'Kirjaudu' }).click()
     // Next.js adds its own role=alert route announcer, so scope to our message.
     await expect(page.getByRole('alert').filter({ hasText: 'Kirjautuminen' })).toContainText(
