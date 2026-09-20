@@ -14,13 +14,21 @@ import { render } from '@react-email/render'
 
 import { colors, fontFamily, radius } from '@/lib/design-tokens'
 import { hakkuutapaLabel } from '@/lib/wfs/hakkuutapa'
+import type { AlertChangeType } from '@/payload/collections/Alerts'
+
+const CHANGE_LABEL: Record<AlertChangeType, string> = {
+  new: '',
+  geometry_changed: ' (rajaus muuttunut)',
+  attributes_changed: ' (tiedot muuttuneet)',
+  removed: ' (poistunut aineistosta)',
+}
 
 export type AlertEmailDeclaration = {
   declarationNumber: string
   hakkuutapa: number | null
   areaHa: number | null
   distanceM: number
-  kind: 'new' | 'changed'
+  changeType: AlertChangeType
 }
 
 export type AlertEmailProps = {
@@ -68,7 +76,7 @@ export function AlertEmail({
                 <strong>{d.declarationNumber}</strong> · {hakkuutapaLabel(d.hakkuutapa)}
                 {d.areaHa != null ? ` · ${d.areaHa.toFixed(2)} ha` : ''} · {Math.round(d.distanceM)}{' '}
                 m vahtialueesta
-                {d.kind === 'changed' ? ' (muuttunut)' : ''}
+                {CHANGE_LABEL[d.changeType]}
               </Text>
             ))}
           </Section>

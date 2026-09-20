@@ -12,6 +12,7 @@ import {
   Declarations,
   NotificationLog,
   Users,
+  WatchAreaDeclarations,
   WatchAreas,
 } from '@/payload/collections'
 import { canRunJobs } from '@/payload/jobs/access'
@@ -50,7 +51,15 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: ' · Metsävahti' },
   },
-  collections: [Users, WatchAreas, Declarations, DeclarationRevisions, Alerts, NotificationLog],
+  collections: [
+    Users,
+    WatchAreas,
+    Declarations,
+    DeclarationRevisions,
+    WatchAreaDeclarations,
+    Alerts,
+    NotificationLog,
+  ],
   secret: env.PAYLOAD_SECRET,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({

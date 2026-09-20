@@ -644,7 +644,7 @@
       "area": "data-model",
       "title": "watch_area_declarations and alerts",
       "user_visible_behavior": "Per `01 §3.4–3.5`; unique (watch_area, declaration); alerts owner read + `readAt` update only; indexes on (user, createdAt desc), (user, notifiedAt).",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-032", "F-033"],
       "ticket": "MV-034",
       "epic": "E02",
@@ -653,7 +653,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/watch-area-declarations-and-alerts.int.test.ts (integration access control.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 31340e6)",
+        "2026-09-20 pnpm test:integration -- tests/integration/watch-area-declarations-and-alerts.int.test.ts → pass (working tree on 31340e6, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration access control."
     },

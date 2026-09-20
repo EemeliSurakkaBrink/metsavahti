@@ -21,28 +21,30 @@ emails you when a **new or changed declaration** lands inside that circle.
                                                  │
  cron 09:30 / 21:30 ──► POST /api/jobs/run ──► sync-declarations workflow
                                                  ├─ fetch-declarations   WFS bbox query per area → declarations (+ geom, hashes, revisions)
-                                                 ├─ match-watch-areas    ST_Intersects(declarations.geom, watch_areas.geom_3067) → alerts
+                                                 ├─ match-watch-areas    ST_Intersects(declarations.geom, watch_areas.geom_3067) → watch-area-declarations (seen hashes) → alerts
                                                  └─ send-alerts          one email per (user, area) → notification-log
 ```
 
-Change detection is geometry-based: a declaration whose `geom_hash` changes since
-the last alert produces a **changed** alert; an unseen one produces a **new** alert.
-A second run with identical upstream data sends nothing (idempotent).
+Change detection is geometry-based: `watch-area-declarations` stores the hashes last seen per
+(watch area, declaration); a pair without a row produces a **new** alert, a pair whose `geom_hash`
+differs from the stored one produces a **geometry_changed** alert. A second run with identical
+upstream data sends nothing (idempotent). Alerts carry a `snapshot` of the declaration at alert
+time; `notifiedAt` marks delivery and owners can only set `readAt`.
 
 ## Tech stack
 
-| Layer             | Choice                                                                                                                                                                             |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                         |
-| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                             |
-| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `alerts`, `notification-log`; Payload Jobs Queue for the pipeline |
-| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                      |
-| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                          |
-| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                              |
-| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                             |
-| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                               |
-| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                            |
-| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                              |
+| Layer             | Choice                                                                                                                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                    |
+| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                        |
+| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`; Payload Jobs Queue for the pipeline |
+| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                 |
+| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                     |
+| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                         |
+| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                        |
+| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                          |
+| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                       |
+| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                         |
 
 The full spec, including deviations from the original plan, is in
 [docs/TECH_STACK.md](docs/TECH_STACK.md).
@@ -152,7 +154,7 @@ src/
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)
   payload.config.ts       Payload config (postgres adapter, email, jobs)
-  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, Alerts, NotificationLog
+  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog
   payload/access          access-control helpers
   payload/jobs            task + workflow definitions, cron access
   payload/schema          afterSchemaInit hook registering PostGIS columns

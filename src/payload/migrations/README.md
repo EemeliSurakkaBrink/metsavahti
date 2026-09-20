@@ -71,6 +71,8 @@ interactively whether the new column is a rename, and in a non-interactive sessi
 no TTY) the command hangs. Generate two diffs instead — first add the new field while keeping the
 old one, then remove the old one — and merge them by hand into one file whose `up` uses
 `ALTER TABLE … RENAME COLUMN` (keeps the data) and whose `down` renames it back; keep the last
-`*.json` snapshot and delete the intermediate one (`20260920_141524_watch_areas_fields` and
-`20260920_143554_declarations_geom`, which renames six columns and adds a table, are the examples). Without a `.env` in the loop, run it as `pnpm exec dotenv -e .env.test -- pnpm db:migrate:create <name>`;
+`*.json` snapshot and delete the intermediate one (`20260920_141524_watch_areas_fields`,
+`20260920_143554_declarations_geom`, which renames six columns and adds a table, and
+`20260920_145929_watch_area_declarations_alerts`, which converts the alert columns with `UPDATE`s and
+seeds a new table from existing rows, are the examples). Without a `.env` in the loop, run it as `pnpm exec dotenv -e .env.test -- pnpm db:migrate:create <name>`;
 it only diffs the snapshot.

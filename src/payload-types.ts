@@ -71,6 +71,7 @@ export interface Config {
     'watch-areas': WatchArea;
     declarations: Declaration;
     'declaration-revisions': DeclarationRevision;
+    'watch-area-declarations': WatchAreaDeclaration;
     alerts: Alert;
     'notification-log': NotificationLog;
     'payload-kv': PayloadKv;
@@ -85,6 +86,7 @@ export interface Config {
     'watch-areas': WatchAreasSelect<false> | WatchAreasSelect<true>;
     declarations: DeclarationsSelect<false> | DeclarationsSelect<true>;
     'declaration-revisions': DeclarationRevisionsSelect<false> | DeclarationRevisionsSelect<true>;
+    'watch-area-declarations': WatchAreaDeclarationsSelect<false> | WatchAreaDeclarationsSelect<true>;
     alerts: AlertsSelect<false> | AlertsSelect<true>;
     'notification-log': NotificationLogSelect<false> | NotificationLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -278,6 +280,31 @@ export interface DeclarationRevision {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "watch-area-declarations".
+ */
+export interface WatchAreaDeclaration {
+  id: number;
+  watchArea: number | WatchArea;
+  declaration: number | Declaration;
+  firstMatchedAt: string;
+  lastMatchedAt: string;
+  /**
+   * Geometrian tiiviste viimeisellä osumalla.
+   */
+  lastSeenGeomHash: string;
+  /**
+   * Attribuuttien tiiviste viimeisellä osumalla.
+   */
+  lastSeenAttrHash: string;
+  /**
+   * 0, kun keskipiste on kuvion sisällä.
+   */
+  distanceM: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "alerts".
  */
 export interface Alert {
@@ -285,14 +312,24 @@ export interface Alert {
   user: number | User;
   watchArea: number | WatchArea;
   declaration: number | Declaration;
-  kind: 'new' | 'changed';
-  distanceM?: number | null;
+  changeType: 'new' | 'geometry_changed' | 'attributes_changed' | 'removed';
   /**
-   * Geometrian tiiviste hälytyshetkellä (muutosten tunnistus)
+   * Sähköposti lähetetty.
    */
-  geomHash: string;
-  status: 'pending' | 'sent' | 'failed';
-  sentAt?: string | null;
+  notifiedAt?: string | null;
+  /**
+   * cuttingTypeLabel, areaHa, distanceM, receivedAt hälytyshetkellä (syöte ei muutu, vaikka ilmoitus muuttuisi).
+   */
+  snapshot:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  readAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -446,6 +483,10 @@ export interface PayloadLockedDocument {
         value: number | DeclarationRevision;
       } | null)
     | ({
+        relationTo: 'watch-area-declarations';
+        value: number | WatchAreaDeclaration;
+      } | null)
+    | ({
         relationTo: 'alerts';
         value: number | Alert;
       } | null)
@@ -588,17 +629,31 @@ export interface DeclarationRevisionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "watch-area-declarations_select".
+ */
+export interface WatchAreaDeclarationsSelect<T extends boolean = true> {
+  watchArea?: T;
+  declaration?: T;
+  firstMatchedAt?: T;
+  lastMatchedAt?: T;
+  lastSeenGeomHash?: T;
+  lastSeenAttrHash?: T;
+  distanceM?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "alerts_select".
  */
 export interface AlertsSelect<T extends boolean = true> {
   user?: T;
   watchArea?: T;
   declaration?: T;
-  kind?: T;
-  distanceM?: T;
-  geomHash?: T;
-  status?: T;
-  sentAt?: T;
+  changeType?: T;
+  notifiedAt?: T;
+  snapshot?: T;
+  readAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

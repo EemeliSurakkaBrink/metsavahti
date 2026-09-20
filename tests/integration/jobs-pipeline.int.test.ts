@@ -81,8 +81,23 @@ describe('sync-declarations pipeline', () => {
 
     const alerts = await payload.find({ collection: 'alerts', overrideAccess: true, depth: 1 })
     expect(alerts.totalDocs).toBe(fixture.features.length)
-    expect(new Set(alerts.docs.map((a) => a.kind))).toEqual(new Set(['new']))
-    expect(alerts.docs.every((a) => a.status === 'sent')).toBe(true)
+    expect(new Set(alerts.docs.map((a) => a.changeType))).toEqual(new Set(['new']))
+    expect(alerts.docs.every((a) => typeof a.notifiedAt === 'string')).toBe(true)
+    expect(alerts.docs.every((a) => (a.snapshot as { distanceM: number }).distanceM >= 0)).toBe(
+      true,
+    )
+    // `01 §3.4`: one join row per (watch area, declaration) pair carries the seen hashes.
+    const joins = await payload.find({
+      collection: 'watch-area-declarations',
+      overrideAccess: true,
+      depth: 1,
+    })
+    expect(joins.totalDocs).toBe(fixture.features.length)
+    expect(
+      joins.docs.every(
+        (j) => j.lastSeenGeomHash === (j.declaration as { geomHash: string }).geomHash,
+      ),
+    ).toBe(true)
     expect(alerts.docs.every((a) => (a.watchArea as { name: string }).name === 'Lähellä')).toBe(
       true,
     )
@@ -106,6 +121,10 @@ describe('sync-declarations pipeline', () => {
     const payload = await runPipeline()
 
     expect(
+      (await payload.count({ collection: 'watch-area-declarations', overrideAccess: true }))
+        .totalDocs,
+    ).toBe(fixture.features.length)
+    expect(
       (await payload.count({ collection: 'declarations', overrideAccess: true })).totalDocs,
     ).toBe(fixture.features.length)
     expect((await payload.count({ collection: 'alerts', overrideAccess: true })).totalDocs).toBe(
@@ -118,7 +137,7 @@ describe('sync-declarations pipeline', () => {
     ).toBe(0)
   })
 
-  it('a changed geometry triggers a "changed" alert and a new email', async () => {
+  it('a changed geometry triggers a "geometry_changed" alert and a new email', async () => {
     const changed = structuredClone(fixture)
     const ring = changed.features[0]!.geometry.coordinates[0] as number[][]
     // Shift the first vertex by 5 m (and the closing vertex, to keep the ring valid).
@@ -129,7 +148,12 @@ describe('sync-declarations pipeline', () => {
 
     const alerts = await payload.find({ collection: 'alerts', overrideAccess: true, sort: 'id' })
     expect(alerts.totalDocs).toBe(fixture.features.length + 1)
-    expect(alerts.docs.at(-1)!.kind).toBe('changed')
+    expect(alerts.docs.at(-1)!.changeType).toBe('geometry_changed')
+    // The join row is updated in place, not duplicated.
+    expect(
+      (await payload.count({ collection: 'watch-area-declarations', overrideAccess: true }))
+        .totalDocs,
+    ).toBe(fixture.features.length)
     await mailpit.waitForMessages(2)
     expect(await alertEmails()).toHaveLength(2)
 

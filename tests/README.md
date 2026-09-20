@@ -36,8 +36,13 @@ database or points at port 5432.
   the `declarations` + `declaration-revisions` collections (`01 §3.3` columns and indexes,
   generated `centroid` inside the MultiPolygon, raw insert via `helpers/declarations.ts`,
   unique `source_id` violation, derived `cuttingTypeLabel` / `validUntil`, admin read-only),
+  the `watch-area-declarations` + `alerts` collections (`01 §3.4–3.5` columns, unique
+  (watch_area, declaration), cascading FKs, `(user, created_at DESC)` / `(user, notified_at)` indexes,
+  admin read-only join rows, owner-only alert read, `readAt`-only owner update, no owner create/delete,
+  and a `down` → `up` round-trip of the MV-034 migration converting pre-MV-034 alerts),
   the full `sync-declarations` pipeline (new → idempotent → changed
-  geometry with a `declaration-revisions` row, emails asserted through the Mailpit API), and the cron endpoint.
+  geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
+  emails asserted through the Mailpit API), and the cron endpoint.
 
 ## E2E — `pnpm test:e2e` (`test:e2e:ui` for the inspector)
 

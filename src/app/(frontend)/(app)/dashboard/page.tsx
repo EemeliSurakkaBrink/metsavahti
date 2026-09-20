@@ -27,7 +27,7 @@ export default async function DashboardPage() {
       collection: 'alerts',
       user,
       overrideAccess: false,
-      where: { status: { equals: 'pending' } },
+      where: { notifiedAt: { exists: false } },
     }),
   ])
 
