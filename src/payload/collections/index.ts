@@ -1,4 +1,5 @@
 export { Alerts } from '@/payload/collections/Alerts'
+export { DeclarationRevisions } from '@/payload/collections/DeclarationRevisions'
 export { Declarations } from '@/payload/collections/Declarations'
 export { NotificationLog } from '@/payload/collections/NotificationLog'
 export { Users } from '@/payload/collections/Users'

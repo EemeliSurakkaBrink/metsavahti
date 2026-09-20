@@ -622,7 +622,7 @@
       "area": "data-model",
       "title": "declarations + declaration_revisions",
       "user_visible_behavior": "Per `01 §3.3`; migration `0003_declarations_geom` (`geom`, `centroid`, GIST, unique `source_id`, index on `valid_until`, `removed_at`). Admin read-only.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-030"],
       "ticket": "MV-033",
       "epic": "E02",
@@ -631,7 +631,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/declarations-declaration-revisions.int.test.ts (integration: insert via raw helper; unique violation.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 0a630fe)",
+        "2026-09-20 pnpm test:integration -- tests/integration/declarations-declaration-revisions.int.test.ts → pass (working tree on 0a630fe, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: insert via raw helper; unique violation."
     },

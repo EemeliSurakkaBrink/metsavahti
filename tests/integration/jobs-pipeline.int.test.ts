@@ -112,6 +112,10 @@ describe('sync-declarations pipeline', () => {
       fixture.features.length,
     )
     expect(await alertEmails()).toHaveLength(1)
+    expect(
+      (await payload.count({ collection: 'declaration-revisions', overrideAccess: true }))
+        .totalDocs,
+    ).toBe(0)
   })
 
   it('a changed geometry triggers a "changed" alert and a new email', async () => {
@@ -128,5 +132,22 @@ describe('sync-declarations pipeline', () => {
     expect(alerts.docs.at(-1)!.kind).toBe('changed')
     await mailpit.waitForMessages(2)
     expect(await alertEmails()).toHaveLength(2)
+
+    // `01 §3.3`: the previous hashes of the changed declaration are kept as a revision.
+    const revisions = await payload.find({
+      collection: 'declaration-revisions',
+      overrideAccess: true,
+      depth: 1,
+    })
+    expect(revisions.totalDocs).toBe(1)
+    const revision = revisions.docs[0]!
+    const declaration = revision.declaration as {
+      sourceId: string
+      geomHash: string
+      attrHash: string
+    }
+    expect(declaration.sourceId).toBe(fixture.features[0]!.id)
+    expect(revision.prevGeomHash).not.toBe(declaration.geomHash)
+    expect(revision.prevAttrHash).toBe(declaration.attrHash)
   })
 })

@@ -6,7 +6,14 @@ import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 
 import { env } from '@/lib/env'
-import { Alerts, Declarations, NotificationLog, Users, WatchAreas } from '@/payload/collections'
+import {
+  Alerts,
+  DeclarationRevisions,
+  Declarations,
+  NotificationLog,
+  Users,
+  WatchAreas,
+} from '@/payload/collections'
 import { canRunJobs } from '@/payload/jobs/access'
 import { tasks } from '@/payload/jobs/tasks'
 import { workflows } from '@/payload/jobs/workflows'
@@ -43,7 +50,7 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: ' · Metsävahti' },
   },
-  collections: [Users, WatchAreas, Declarations, Alerts, NotificationLog],
+  collections: [Users, WatchAreas, Declarations, DeclarationRevisions, Alerts, NotificationLog],
   secret: env.PAYLOAD_SECRET,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({

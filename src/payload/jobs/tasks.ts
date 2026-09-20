@@ -10,7 +10,13 @@ const count = (name: string) => ({ name, type: 'number' as const, required: true
 export const fetchDeclarationsTask: TaskConfig<'fetch-declarations'> = {
   slug: 'fetch-declarations',
   retries: 2,
-  outputSchema: [count('watchAreas'), count('fetched'), count('created'), count('updated')],
+  outputSchema: [
+    count('watchAreas'),
+    count('fetched'),
+    count('created'),
+    count('updated'),
+    count('revisions'),
+  ],
   handler: async ({ job, req }) => {
     const output = await fetchDeclarations(createJobContext(req.payload, job.id))
     return { output }

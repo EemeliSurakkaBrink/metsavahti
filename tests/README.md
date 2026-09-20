@@ -33,8 +33,11 @@ database or points at port 5432.
   the `watch-areas` collection (generated `geom_3067` area ≈ πr², geometry follows a radius
   update, `01 §3.2` fields and the `notify_by_email` rename, radius bounds, free-plan limit of 2
   areas on create and on ownership change),
+  the `declarations` + `declaration-revisions` collections (`01 §3.3` columns and indexes,
+  generated `centroid` inside the MultiPolygon, raw insert via `helpers/declarations.ts`,
+  unique `source_id` violation, derived `cuttingTypeLabel` / `validUntil`, admin read-only),
   the full `sync-declarations` pipeline (new → idempotent → changed
-  geometry, emails asserted through the Mailpit API), and the cron endpoint.
+  geometry with a `declaration-revisions` row, emails asserted through the Mailpit API), and the cron endpoint.
 
 ## E2E — `pnpm test:e2e` (`test:e2e:ui` for the inspector)
 
