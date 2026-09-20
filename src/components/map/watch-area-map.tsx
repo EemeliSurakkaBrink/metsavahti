@@ -12,7 +12,7 @@ import {
 } from 'react-map-gl/maplibre'
 
 import { mapColors } from '@/lib/design-tokens'
-import { watchAreaPolygon } from '@/lib/geo/buffer'
+import { previewCircle } from '@/lib/geo/buffer'
 
 export type MapWatchArea = {
   id: number
@@ -47,7 +47,7 @@ export function WatchAreaMap({ areas }: WatchAreaMapProps) {
     () => ({
       type: 'FeatureCollection',
       features: areas.map((a) => ({
-        ...watchAreaPolygon(a.center, a.radiusM),
+        ...previewCircle(a.center, a.radiusM),
         id: a.id,
         properties: { name: a.name },
       })),
