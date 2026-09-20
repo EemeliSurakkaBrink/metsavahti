@@ -69,7 +69,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 - ESLint 9 flat config with `@next/eslint-plugin-next`, `typescript-eslint`, `eslint-plugin-playwright`, `eslint-plugin-vitest`
 - Prettier + `prettier-plugin-tailwindcss`
 - Husky + lint-staged (lint, format, `tsc --noEmit` on staged files)
-- Commitlint (conventional commits)
+- Commitlint (conventional commits); the `commit-msg` hook also rejects AI attribution footers and trailers
 - `knip` for dead code / unused deps
 - `syncpack` optional if it turns into a monorepo
 
