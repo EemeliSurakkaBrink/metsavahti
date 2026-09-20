@@ -3,6 +3,7 @@ import { randomInt } from 'node:crypto'
 import type { Page } from '@playwright/test'
 
 import { createMailpitClient } from '../helpers/mailpit'
+import { waitForForm } from './accounts'
 import { expectNoA11yViolations } from './a11y'
 import { expect, test } from './fixtures'
 
@@ -45,6 +46,7 @@ test.describe('registration', () => {
 
   test('validates the form inline before anything is sent', async ({ page }) => {
     await page.goto('/rekisteroidy')
+    await waitForForm(page)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Luo tili')
     await page.getByRole('button', { name: 'Luo tili' }).click()
     await expect(page.getByText('Anna kelvollinen sähköpostiosoite')).toBeVisible()
@@ -75,6 +77,7 @@ test.describe('registration', () => {
 
     await useOwnAddress(page)
     await page.goto('/rekisteroidy')
+    await waitForForm(page)
     await fillForm(page, email, PASSWORD)
     await page.getByLabel('Saa lähettää palveluun liittyviä uutisia.').check()
     await page.getByRole('button', { name: 'Luo tili' }).click()
@@ -95,6 +98,7 @@ test.describe('registration', () => {
     // Registering the same address again is indistinguishable from the first time: the same
     // redirect, no second email, so the form never reveals who has an account.
     await page.goto('/rekisteroidy')
+    await waitForForm(page)
     await fillForm(page, email, 'toinen-salasana-2026')
     await page.getByRole('button', { name: 'Luo tili' }).click()
     await expect(page).toHaveURL(/\/vahvista-sahkoposti\?email=/)
@@ -116,6 +120,7 @@ test.describe('registration', () => {
     const email = `limit-${browserName}-${Date.now()}@metsavahti.test`
     await useOwnAddress(page)
     await page.goto('/rekisteroidy')
+    await waitForForm(page)
     // A weak password passes the browser schema and is refused by the server, so every
     // submission is a counted call that creates nothing.
     await fillForm(page, email, WEAK_PASSWORD)

@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { FormError } from '@/components/forms/form-error'
 import { FormSuccess } from '@/components/forms/form-success'
 import { PasswordInput } from '@/components/forms/password-input'
+import { useHydrated } from '@/components/forms/use-hydrated'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -73,6 +74,7 @@ function deniedMessage(denied: LoginDenied): string {
  * calls the same `resendVerification` action as `/vahvista-sahkoposti`.
  */
 export function LoginForm({ next }: { next: string }) {
+  const hydrated = useHydrated()
   const [banner, setBanner] = useState<Banner | null>(null)
   const [resending, setResending] = useState(false)
   const {
@@ -113,7 +115,12 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   return (
-    <form className="flex flex-col gap-4.5" noValidate onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="flex flex-col gap-4.5"
+      data-hydrated={hydrated ? '' : undefined}
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <input type="hidden" {...register('next')} />
       {banner?.kind === 'resent' ? <FormSuccess>{copy.resent}</FormSuccess> : null}
       {banner?.kind === 'error' ? <FormError>{banner.message}</FormError> : null}

@@ -21,6 +21,7 @@ export const fi = {
       register: 'Luo tili',
       resend: 'Lähetä vahvistuslinkki uudelleen',
       resent: 'Vahvistuslinkki lähetetty uudelleen.',
+      passwordReset: 'Salasana vaihdettu. Kirjaudu uudella salasanalla.',
       errors: {
         emailInvalid: 'Anna kelvollinen sähköpostiosoite',
         passwordMissing: 'Salasana puuttuu',
@@ -56,6 +57,35 @@ export const fi = {
         passwordTooWeak: 'Salasana on liian heikko. Käytä pidempää tai vaihtelevampaa salasanaa.',
         passwordMismatch: 'Salasanat eivät täsmää.',
         termsRequired: 'Hyväksy käyttöehdot ja tietosuojaseloste jatkaaksesi',
+      },
+    },
+    forgotPassword: {
+      title: 'Unohtunut salasana',
+      body: 'Kirjoita tilisi sähköpostiosoite. Lähetämme linkin uuden salasanan asettamiseen.',
+      email: 'Sähköposti',
+      submit: 'Lähetä ohjeet',
+      sent: 'Jos osoite on rekisteröity, lähetimme ohjeet salasanan vaihtamiseen sähköpostiin.',
+      backToLogin: 'Takaisin kirjautumiseen',
+      errors: {
+        emailInvalid: 'Anna kelvollinen sähköpostiosoite',
+      },
+    },
+    resetPassword: {
+      title: 'Aseta uusi salasana',
+      password: 'Uusi salasana',
+      confirmPassword: 'Salasana uudelleen',
+      submit: 'Tallenna ja kirjaudu',
+      invalid: {
+        title: 'Linkki on vanhentunut tai jo käytetty',
+        body: 'Salasanan vaihtolinkki on voimassa tunnin ja toimii vain kerran. Pyydä uusi linkki, niin lähetämme sen sähköpostiisi.',
+        request: 'Pyydä uusi linkki',
+        login: 'Takaisin kirjautumiseen',
+      },
+      errors: {
+        tokenMissing: 'Linkki on puutteellinen',
+        passwordTooShort: 'Salasanan on oltava vähintään 10 merkkiä',
+        passwordTooWeak: 'Salasana on liian heikko. Käytä pidempää tai vaihtelevampaa salasanaa.',
+        passwordMismatch: 'Salasanat eivät täsmää.',
       },
     },
     verifyEmail: {
@@ -101,6 +131,16 @@ export const fi = {
       cta: 'Vahvista sähköposti',
       note: 'Jos et luonut tiliä Metsävahtiin, voit jättää tämän viestin huomiotta. Tili poistetaan automaattisesti 7 päivän kuluessa, jos osoitetta ei vahvisteta.',
       footerWhy: 'Saat tämän viestin, koska tällä osoitteella luotiin tili Metsävahtiin.',
+    },
+    resetPassword: {
+      subject: 'Salasanan palautus',
+      preview: 'Aseta uusi salasana – linkki voimassa 1 tunnin',
+      badge: 'Turvallisuus',
+      heading: 'Salasanan palautus',
+      lead: 'Saimme pyynnön vaihtaa tilisi salasana. Aseta uusi salasana painikkeesta. Linkki on voimassa tunnin ja toimii vain kerran.',
+      cta: 'Aseta uusi salasana',
+      note: 'Jos et pyytänyt salasanan vaihtoa, salasanasi ei ole vaihtunut eikä sinun tarvitse tehdä mitään. Halutessasi voit kirjata ulos muut laitteet tilin turvallisuusasetuksista.',
+      footerWhy: 'Saat tämän viestin, koska salasanan palautusta pyydettiin tilillesi.',
     },
   },
   forms: {
