@@ -6,6 +6,7 @@ import {
   registerAccount,
   useOwnAddress,
   verificationLinks,
+  waitForForm,
 } from './accounts'
 import { expectNoA11yViolations } from './a11y'
 import { expect, test } from './fixtures'
@@ -14,6 +15,7 @@ const DAY = 24 * 60 * 60
 const MAX_LOGIN_ATTEMPTS = 5
 
 async function fillLogin(page: Page, email: string, password: string): Promise<void> {
+  await waitForForm(page)
   await page.getByLabel('Sähköposti').fill(email)
   await page.getByLabel('Salasana', { exact: true }).fill(password)
 }

@@ -30,6 +30,10 @@ database or points at port 5432.
   limit; `readSessionToken` against tokens signed with Payload's `jwtSign`, the cookie parser and
   `findUnverifiedSessionUser` with `findByID` stubbed; `email-verification-pages.resend-button.test.tsx`:
   the button's countdown under fake timers and how a short server refusal becomes the countdown),
+  forgot / reset password (`auth/forgot-reset-password.test.ts`: the two schemas, the `ResetPassword`
+  template, the `requestPasswordReset` action with the helper spied: same answer for a registered and an
+  unknown address, unusable address refused, 5/h/IP; the `resetPassword` action: field errors, weak,
+  `invalid`, redirect to `/kirjaudu?reset=1`),
 
 ## Integration — `pnpm test:integration`
 
@@ -76,6 +80,11 @@ database or points at port 5432.
   Mailpit works and the old one does not, unknown/verified addresses send nothing; the session guard
   names a logged-in account whose `_verified` was reset while `payload.auth()` already returns no
   user; a `down` → `up` round-trip of the MV-043 migration),
+  forgot / reset password (`forgot-reset-password.int.test.ts`: `requestPasswordReset` writes a 40-hex
+  token with a one-hour expiry and the Mailpit message carries the `/uusi-salasana?token=` link, an
+  unknown address and a repeat within 60 s send nothing; `resetUserPassword` changes the password, the
+  session from before the reset is refused by `payload.auth()`, the old password by `loginUser()`, the
+  lockout is cleared, the token works once; expired, made-up and weak are refused without a change),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
   emails asserted through the Mailpit API), and the cron endpoint.
@@ -87,6 +96,9 @@ database or points at port 5432.
 - Playwright starts two servers: the WFS mock (`e2e/mocks/wfs-server.ts`, Hono on 3200) and the app on **3100** (`next dev` locally, `next start` in CI, both with
   `NEXT_DIST_DIR=.next-e2e`). `reuseExistingServer` is on locally, so keep them
   running between iterations for fast reruns.
+- The auth forms carry `data-hydrated` once react-hook-form has mounted (`useHydrated()`); `waitForForm()` in
+  `e2e/accounts.ts` waits for it before filling, because RHF resets the inputs on mount and a value typed
+  before hydration is lost (webkit under load).
 - Project order: `db-setup` (guard → migrate → truncate → seed first user, a
   watch area and the four placeholder legal documents through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
@@ -94,7 +106,13 @@ database or points at port 5432.
   verified account per test through `e2e/accounts.ts`: `@smoke` `/kirjaudu` → `/dashboard` (1-day cookie) →
   `Kirjaudu ulos` → `/kirjauduttu-ulos` → the session is gone server-side; remember-me gives a 30-day cookie and
   `?next=` follows same-origin paths only; invalid, unverified (+ inline resend → second Mailpit link) and locked
-  after five wrong passwords; `/kirjaudu-ulos` is 405 on GET and a 303 for a guest; axe), registration (`registration.spec.ts`,
+  after five wrong passwords; `/kirjaudu-ulos` is 405 on GET and a 303 for a guest; axe), forgot / reset password
+  (`forgot-reset-password.spec.ts`, guest, own account and address per test: `@smoke` a second browser
+  context logs in → `Unohditko salasanan?` → `/unohtunut-salasana` (inline validation, neutral status) →
+  the Mailpit link → `/uusi-salasana` (length and match errors) → `/kirjaudu?reset=1` banner → the other
+  context is sent to `/kirjaudu?next=%2Fdashboard` → old password `invalid`, new one reaches the dashboard →
+  the link is `invalid` afterwards; an unknown address gets the same status and no email; made-up and
+  missing tokens show the expired-or-used state; axe on every state), registration (`registration.spec.ts`,
   runs as a guest with its own `x-forwarded-for` per test: inline validation + meter + axe; `@smoke`
   register → `/vahvista-sahkoposti?email=` → verify email in Mailpit → the same address again
   gets the same redirect and no second email → login still refused while unverified; five
