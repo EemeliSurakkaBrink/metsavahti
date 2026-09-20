@@ -1,6 +1,6 @@
 {
   "project": "metsavahti",
-  "last_updated": "2026-09-06",
+  "last_updated": "2026-09-20",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -447,7 +447,7 @@
       "area": "wfs",
       "title": "Geometry hashing",
       "user_visible_behavior": "`hash.ts`: canonical WKB via `wkx` (coordinates rounded to 1 cm, rings ordered) → sha256; `attrHash` via stable stringify.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-020"],
       "ticket": "MV-025",
       "epic": "E01",
@@ -456,7 +456,10 @@
         "L1: pnpm check",
         "L1: pnpm test:unit -- tests/unit/wfs/geometry-hashing.test.ts (unit: same geometry different vertex order → same hash; 2 cm move → different hash.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 5e5fa86)",
+        "2026-09-20 pnpm test:unit -- tests/unit/wfs/geometry-hashing.test.ts → pass (working tree on 5e5fa86)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit: same geometry different vertex order → same hash; 2 cm move → different hash."
     },

@@ -159,7 +159,7 @@ src/
   payload/migrations      committed SQL migrations (PostGIS ext, generated column, GIST)
   lib/env.ts              validated environment (t3-env + Zod)
   lib/errors.ts           typed AppError subclasses, actionResult() for Server Actions, toErrorResponse()
-  lib/geo                 crs.ts, buffer.ts, spatial-queries.ts
+  lib/geo                 crs.ts, buffer.ts, hash.ts, spatial-queries.ts
   lib/wfs                 client.ts, schemas.ts, parse.ts, hakkuutapa.ts
   lib/jobs                fetch-declarations, match-watch-areas, send-alerts
   lib/notifications       React Email alert template
