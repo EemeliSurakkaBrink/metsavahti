@@ -174,6 +174,10 @@ export interface User {
   };
   plan?: 'free' | null;
   /**
+   * Viimeisin vahvistuslinkki; linkki on voimassa 24 tuntia lähetyksestä.
+   */
+  verificationSentAt?: string | null;
+  /**
    * Poistotyön merkki; rivi poistetaan pysyvästi työn lopussa.
    */
   deletedAt?: string | null;
@@ -701,6 +705,7 @@ export interface UsersSelect<T extends boolean = true> {
         dailyHour?: T;
       };
   plan?: T;
+  verificationSentAt?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;

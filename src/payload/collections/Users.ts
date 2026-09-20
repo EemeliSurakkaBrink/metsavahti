@@ -69,6 +69,15 @@ export const Users: CollectionConfig = {
         // Never allow self-assigned admin role through the public API.
         return isAdminUser(req.user) ? data : { ...data, role: 'user' }
       },
+      // `verificationSentAt` dates the pending verification link (MV-043: links are valid for
+      // `VERIFICATION_LINK_TTL_MS`). Payload issues the token inside `create`; the resend
+      // helper refreshes both together.
+      ({ data, operation }) => {
+        if (operation === 'create' && !data._verified) {
+          return { ...data, verificationSentAt: new Date().toISOString() }
+        }
+        return data
+      },
       // `marketingConsentAt` records when consent was last given; nobody sets it directly.
       ({ data, operation, originalDoc }) => {
         const { marketingConsentAt: _ignored, ...rest } = data
@@ -175,6 +184,20 @@ export const Users: CollectionConfig = {
         update: isAdminField,
       },
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'verificationSentAt',
+      type: 'date',
+      label: 'Vahvistuslinkki lähetetty',
+      access: {
+        create: isAdminField,
+        update: isAdminField,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Viimeisin vahvistuslinkki; linkki on voimassa 24 tuntia lähetyksestä.',
+      },
     },
     {
       name: 'deletedAt',
