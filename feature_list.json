@@ -496,7 +496,7 @@
       "area": "wfs",
       "title": "Client-side buffer preview helper",
       "user_visible_behavior": "`buffer.ts`: `previewCircle(center4326, radiusM)` → GeoJSON polygon via turf (for map preview only).",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-020"],
       "ticket": "MV-027",
       "epic": "E01",
@@ -505,7 +505,10 @@
         "L1: pnpm check",
         "L1: pnpm test:unit -- tests/unit/wfs/client-side-buffer-preview-helper.test.ts (unit: area within 1 % of πr².)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 35c6205)",
+        "2026-09-20 pnpm test:unit -- tests/unit/wfs/client-side-buffer-preview-helper.test.ts → pass (working tree on 35c6205)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit: area within 1 % of πr²."
     },
