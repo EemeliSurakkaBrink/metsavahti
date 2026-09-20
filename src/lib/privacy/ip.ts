@@ -35,3 +35,17 @@ function expandIpv6(value: string): string[] {
   const groups = [...left, ...Array.from({ length: Math.max(missing, 0) }, () => '0'), ...right]
   return groups.map((g) => g.replace(/^0+(?=.)/, ''))
 }
+
+/**
+ * The caller's address as seen by a Server Action or Route Handler: the first entry of
+ * `x-forwarded-for` (the reverse proxy prepends the client, `docs/TECH_STACK.md`), then
+ * `x-real-ip`. Returns `null` when neither header carries an IP address, so a spoofed or
+ * missing header never becomes a rate-limit key or a stored value by accident.
+ */
+export function clientIp(headers: Headers): string | null {
+  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  if (forwarded && isIP(forwarded)) return forwarded
+  const real = headers.get('x-real-ip')?.trim()
+  if (real && isIP(real)) return real
+  return null
+}

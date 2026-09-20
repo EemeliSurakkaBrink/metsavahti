@@ -121,7 +121,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 ## 5. Local development
 
 - `docker-compose.yml`: `db` (postgis/postgis:16-3.4, port 5432), `db_test` (same image, port 5433), `mailpit` (ports 1025/8025).
-- `.env.example` with: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `WFS_BASE_URL`, `CRON_SECRET`, `RESEND_API_KEY`, `SMTP_HOST/PORT` (dev), `MML_API_KEY`, `SENTRY_DSN`, `ENABLE_ERROR_TEST_ROUTE` (test hook: `1` enables the throwing `/virhe` route, set in `.env.test` only).
+- `.env.example` with: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `WFS_BASE_URL`, `CRON_SECRET`, `RESEND_API_KEY`, `SMTP_HOST/PORT` (dev), `MML_API_KEY`, `SENTRY_DSN`, `AUTH_RATE_LIMIT_PER_HOUR` (auth Server Actions per IP per hour, default 5, kept in `.env.test`; e2e tests set their own `x-forwarded-for`), `ENABLE_ERROR_TEST_ROUTE` (test hook: `1` enables the throwing `/virhe` route, set in `.env.test` only).
 - Scripts:
   - `dev`, `build`, `start`
   - `db:up`, `db:migrate`, `db:seed`, `db:reset`

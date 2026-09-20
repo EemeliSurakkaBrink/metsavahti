@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { VERIFY_EMAIL_SUBJECT, renderVerifyEmail } from '@/emails/VerifyEmail'
+import { env } from '@/lib/env'
 import { isAdmin, isAdminField, isAdminOrSelf, isAdminUser } from '@/payload/access'
 
 export const DEFAULT_TIMEZONE = 'Europe/Helsinki'
@@ -33,8 +35,14 @@ export const Users: CollectionConfig = {
     group: 'Käyttäjät',
   },
   auth: {
-    // Email verification is required before login (link is sent via the email adapter).
-    verify: true,
+    // Email verification is required before login. Payload sends the link on `create`
+    // (and on resend, MV-043) with the React Email template; only the HTML part is sent
+    // because Payload's verify hook has no text-part slot.
+    verify: {
+      generateEmailHTML: async ({ token }) =>
+        (await renderVerifyEmail({ token, baseUrl: env.NEXT_PUBLIC_SERVER_URL })).html,
+      generateEmailSubject: () => VERIFY_EMAIL_SUBJECT,
+    },
     // Reset links (`/uusi-salasana?token=`, MV-045) are valid for one hour.
     forgotPassword: { expiration: 60 * 60 * 1000 },
     tokenExpiration: 60 * 60 * 24 * 7, // 7 days
