@@ -733,7 +733,7 @@
       "area": "auth",
       "title": "Email transport and React Email base",
       "user_visible_behavior": "Payload email adapter: nodemailer → Mailpit in dev/test, Resend in prod (env-switched); `src/emails/EmailLayout.tsx` (logo, footer with settings link + attribution); `renderEmail()` util.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-003", "F-031"],
       "ticket": "MV-040",
       "epic": "E03",
@@ -744,7 +744,11 @@
         "L1: pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts (unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit Mailpit API assertion.)",
         "L2: pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts (unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit Mailpit API assertion.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 5610fc9)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts → pass (working tree on 5610fc9)",
+        "2026-09-20 pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts → pass (working tree on 5610fc9, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit (Mailpit API assertion)."
     },

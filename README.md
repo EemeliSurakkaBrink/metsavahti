@@ -167,7 +167,8 @@ src/
   lib/legal/documents.ts  legal document slugs, latest-published resolver, placeholder seed
   lib/wfs                 client.ts, schemas.ts, parse.ts, hakkuutapa.ts
   lib/jobs                fetch-declarations, match-watch-areas, send-alerts
-  lib/notifications       React Email alert template, provider.ts (which email adapter is active)
+  emails                  React Email templates: EmailLayout (shared frame), AlertEmail, renderEmail()
+  lib/notifications       provider.ts (which email adapter is active)
   lib/privacy             ip.ts (IP → network prefix before storage)
   components/             site header/footer/frame, system pages, attribution, map (MapLibre), shadcn ui/
 tests/

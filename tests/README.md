@@ -13,7 +13,8 @@ database or points at port 5432.
 - No database, no network: `helpers/msw.ts` errors on any unhandled request.
 - Covers CRS transforms (5 control points, round-trip < 1 mm) and GeoJSON reprojection, buffers/bboxes, WFS URL building + retry policy, Zod
   schema against the recorded fixture (snapshot), geometry hashing, hakkuutapa
-  labels, attribution text, cron-secret comparison, email rendering, the DB guard.
+  labels, attribution text, cron-secret comparison, email rendering (`EmailLayout` snapshot, alert
+  template, adapter selection by env), the DB guard.
 
 ## Integration — `pnpm test:integration`
 
@@ -48,6 +49,8 @@ database or points at port 5432.
   the `legal-documents` collection (`01 §3.10` columns, unique (slug, version), the idempotent
   placeholder seed, `findLatestLegalDocument()` ignoring drafts and future `publishedAt`, public read of
   published versions only, admin-only writes, and a `down` → `up` round-trip of the MV-036 migration),
+  the email transport (`payload.email` is the nodemailer adapter; a layout-rendered
+  `payload.sendEmail` reaches Mailpit with the settings link and attribution),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
   emails asserted through the Mailpit API), and the cron endpoint.
