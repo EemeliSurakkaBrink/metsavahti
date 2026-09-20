@@ -67,7 +67,7 @@ export default async function VerifyPage({ searchParams }: Props) {
           </span>
           <h1 className="text-2xl font-bold text-balance text-forest-700">{copy.used.title}</h1>
           <p className="leading-relaxed text-pretty text-ink-muted">{copy.used.body}</p>
-          <Link className={`${systemAction.primary} w-full`} href="/login">
+          <Link className={`${systemAction.primary} w-full`} href="/kirjaudu">
             {copy.used.login}
           </Link>
           <Link

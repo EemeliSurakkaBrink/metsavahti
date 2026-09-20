@@ -17,7 +17,7 @@ export default function RegisterPage() {
       <RegisterForm />
       <p className="text-center text-sm text-ink-muted">
         {copy.hasAccount}{' '}
-        <Link className="font-semibold text-forest-600 hover:underline" href="/login">
+        <Link className="font-semibold text-forest-600 hover:underline" href="/kirjaudu">
           {copy.login}
         </Link>
       </p>

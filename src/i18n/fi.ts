@@ -1,7 +1,7 @@
 /**
  * Finnish UI copy (00-deviations R8: the only source of UI strings). Started by MV-041 with
  * the auth layout and the shared form components, extended by MV-042 (registration, verify
- * page, verification email); inline strings elsewhere move here when their page is touched. Keys are grouped by component or page, values are the exact copy
+ * page, verification email) and MV-044 (login, logout); inline strings elsewhere move here when their page is touched. Keys are grouped by component or page, values are the exact copy
  * from the artboards in docs/design.
  */
 export const fi = {
@@ -14,14 +14,28 @@ export const fi = {
       title: 'Kirjaudu',
       email: 'Sähköposti',
       password: 'Salasana',
+      remember: 'Muista minut',
+      forgot: 'Unohditko salasanan?',
       submit: 'Kirjaudu',
       noAccount: 'Ei vielä tiliä?',
       register: 'Luo tili',
+      resend: 'Lähetä vahvistuslinkki uudelleen',
+      resent: 'Vahvistuslinkki lähetetty uudelleen.',
       errors: {
         emailInvalid: 'Anna kelvollinen sähköpostiosoite',
         passwordMissing: 'Salasana puuttuu',
-        failed: 'Kirjautuminen epäonnistui. Tarkista tunnus ja salasana.',
+        invalid: 'Kirjautuminen epäonnistui. Tarkista tunnus ja salasana.',
+        locked:
+          'Tili on lukittu liian monen epäonnistuneen kirjautumisyrityksen vuoksi. Yritä uudelleen 10 minuutin kuluttua.',
+        unverified: 'Sähköpostiosoitetta ei ole vielä vahvistettu.',
       },
+    },
+    logout: {
+      button: 'Kirjaudu ulos',
+      title: 'Olet kirjautunut ulos',
+      body: 'Vahtialueesi jatkavat seurantaa ja saat sähköpostit normaalisti.',
+      back: 'Kirjaudu takaisin',
+      home: 'Etusivulle',
     },
     register: {
       title: 'Luo tili',

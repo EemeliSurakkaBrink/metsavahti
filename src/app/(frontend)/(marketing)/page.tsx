@@ -16,7 +16,7 @@ export default function HomePage() {
         </p>
         <div className="flex gap-3">
           <Button asChild>
-            <Link href="/login">Kirjaudu sisään</Link>
+            <Link href="/kirjaudu">Kirjaudu sisään</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/admin/create-first-user">Luo tili</Link>

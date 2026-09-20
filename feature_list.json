@@ -848,7 +848,7 @@
       "area": "auth",
       "title": "Login / logout",
       "user_visible_behavior": "`/kirjaudu` with remember-me (session length 30 d vs 1 d), `?next=` handling (same-origin only), errors: invalid, locked, unverified (+resend button). `/kirjaudu-ulos` POST action.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-031", "F-041"],
       "ticket": "MV-044",
       "epic": "E03",
@@ -862,7 +862,11 @@
         "L2: pnpm test:integration -- tests/integration/login-logout.int.test.ts (integration: lockout after 5 failures; E2E `@smoke` login + logout.)",
         "L3: pnpm test:e2e -- tests/e2e/login-logout.spec.ts (integration: lockout after 5 failures; E2E `@smoke` login + logout.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 6d6ba13)",
+        "2026-09-20 pnpm test:integration -- tests/integration/login-logout.int.test.ts → pass (working tree on 6d6ba13, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/login-logout.spec.ts → pass (working tree on 6d6ba13, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: lockout after 5 failures; E2E `@smoke` login + logout."
     },

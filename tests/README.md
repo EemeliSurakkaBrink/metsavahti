@@ -90,7 +90,11 @@ database or points at port 5432.
 - Project order: `db-setup` (guard → migrate → truncate → seed first user, a
   watch area and the four placeholder legal documents through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
-- Specs: landing page + attribution + axe, login validation, registration (`registration.spec.ts`,
+- Specs: landing page + attribution + axe, login and logout (`login-logout.spec.ts`, guest, an own
+  verified account per test through `e2e/accounts.ts`: `@smoke` `/kirjaudu` → `/dashboard` (1-day cookie) →
+  `Kirjaudu ulos` → `/kirjauduttu-ulos` → the session is gone server-side; remember-me gives a 30-day cookie and
+  `?next=` follows same-origin paths only; invalid, unverified (+ inline resend → second Mailpit link) and locked
+  after five wrong passwords; `/kirjaudu-ulos` is 405 on GET and a 303 for a guest; axe), registration (`registration.spec.ts`,
   runs as a guest with its own `x-forwarded-for` per test: inline validation + meter + axe; `@smoke`
   register → `/vahvista-sahkoposti?email=` → verify email in Mailpit → the same address again
   gets the same redirect and no second email → login still refused while unverified; five
@@ -101,7 +105,7 @@ vahtialue` points at `/aloita` → login succeeds → the same link is `used`; a
   `verificationSentAt` 25 h so the link is `expired` and its resend button issues a working one;
   `/vahvista` without or with an unknown token; an admin resets `_verified` on a logged-in account and
   `/dashboard` redirects to `/vahvista-sahkoposti?email=…&required=1` with the `VAHVISTUS` interstitial; axe on every state), dashboard
-  redirect/auth/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
+  redirect (`/kirjaudu?next=%2Fdashboard`)/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
   `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
   jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets
   `ENABLE_ERROR_TEST_ROUTE=1`; the unit test `infra/error-test-route.test.ts` checks that
