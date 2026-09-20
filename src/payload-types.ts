@@ -143,6 +143,26 @@ export interface User {
   id: number;
   name?: string | null;
   role: 'user' | 'admin';
+  locale?: ('fi' | 'en') | null;
+  timezone?: string | null;
+  marketingConsent?: boolean | null;
+  /**
+   * Asetetaan automaattisesti, kun lupa annetaan.
+   */
+  marketingConsentAt?: string | null;
+  notificationPrefs?: {
+    enabled?: boolean | null;
+    mode?: ('immediate' | 'daily' | 'weekly') | null;
+    /**
+     * Tunti (0–23) käyttäjän aikavyöhykkeellä.
+     */
+    dailyHour?: number | null;
+  };
+  plan?: 'free' | null;
+  /**
+   * Poistotyön merkki; rivi poistetaan pysyvästi työn lopussa.
+   */
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -431,6 +451,19 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  locale?: T;
+  timezone?: T;
+  marketingConsent?: T;
+  marketingConsentAt?: T;
+  notificationPrefs?:
+    | T
+    | {
+        enabled?: T;
+        mode?: T;
+        dailyHour?: T;
+      };
+  plan?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

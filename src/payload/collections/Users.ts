@@ -1,19 +1,47 @@
 import type { CollectionConfig } from 'payload'
 
-import { isAdmin, isAdminField, isAdminOrSelf } from '@/payload/access'
+import { isAdmin, isAdminField, isAdminOrSelf, isAdminUser } from '@/payload/access'
 
+export const DEFAULT_TIMEZONE = 'Europe/Helsinki'
+export const DEFAULT_DAILY_HOUR = 9
+
+/** IANA zone check through `Intl`; Node ships the full tz database. */
+export function isValidTimeZone(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) return false
+  try {
+    new Intl.DateTimeFormat('fi-FI', { timeZone: value })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Auth collection (`01 §3.1`, ticket MV-031). Anyone can sign up; email verification is
+ * required before login; users read and update only themselves, admins everything.
+ * `role`, `plan` and `deletedAt` are admin-only fields; `marketingConsentAt` is derived.
+ * `locale` is stored for MV-041+ (the UI is Finnish-only today); `notificationPrefs.mode`
+ * follows `01 §4.3` (every run, daily digest, weekly digest); plan limits arrive with
+ * `src/config/plans.ts` in MV-032 (ledger S15).
+ */
 export const Users: CollectionConfig = {
   slug: 'users',
+  labels: { singular: 'Käyttäjä', plural: 'Käyttäjät' },
   admin: {
     useAsTitle: 'email',
+    defaultColumns: ['email', 'name', 'role', 'plan', 'createdAt'],
     group: 'Käyttäjät',
   },
   auth: {
     // Email verification is required before login (link is sent via the email adapter).
     verify: true,
+    // Reset links (`/uusi-salasana?token=`, MV-045) are valid for one hour.
+    forgotPassword: { expiration: 60 * 60 * 1000 },
     tokenExpiration: 60 * 60 * 24 * 7, // 7 days
-    maxLoginAttempts: 10,
+    maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,
+    // Server-side sessions: logging out or resetting a password invalidates other devices.
+    useSessions: true,
   },
   access: {
     // Anyone can sign up; `role` is protected by field-level access below.
@@ -21,7 +49,7 @@ export const Users: CollectionConfig = {
     read: isAdminOrSelf,
     update: isAdminOrSelf,
     delete: isAdmin,
-    admin: ({ req }) => Boolean(req.user && (req.user as { role?: string }).role === 'admin'),
+    admin: ({ req }) => isAdminUser(req.user),
   },
   hooks: {
     beforeChange: [
@@ -31,8 +59,16 @@ export const Users: CollectionConfig = {
         const { totalDocs } = await req.payload.count({ collection: 'users', overrideAccess: true })
         if (totalDocs === 0) return { ...data, role: 'admin' }
         // Never allow self-assigned admin role through the public API.
-        const requesterIsAdmin = (req.user as { role?: string } | null)?.role === 'admin'
-        return requesterIsAdmin ? data : { ...data, role: 'user' }
+        return isAdminUser(req.user) ? data : { ...data, role: 'user' }
+      },
+      // `marketingConsentAt` records when consent was last given; nobody sets it directly.
+      ({ data, operation, originalDoc }) => {
+        const { marketingConsentAt: _ignored, ...rest } = data
+        const consent = rest.marketingConsent
+        if (consent === undefined) return rest
+        const previous = operation === 'create' ? false : Boolean(originalDoc?.marketingConsent)
+        if (Boolean(consent) === previous) return rest
+        return { ...rest, marketingConsentAt: consent ? new Date().toISOString() : null }
       },
     ],
   },
@@ -47,6 +83,7 @@ export const Users: CollectionConfig = {
       type: 'select',
       required: true,
       defaultValue: 'user',
+      label: 'Rooli',
       options: [
         { label: 'Käyttäjä', value: 'user' },
         { label: 'Ylläpitäjä', value: 'admin' },
@@ -55,6 +92,93 @@ export const Users: CollectionConfig = {
         update: isAdminField,
       },
       saveToJWT: true,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'locale',
+      type: 'select',
+      defaultValue: 'fi',
+      label: 'Kieli',
+      options: [
+        { label: 'Suomi', value: 'fi' },
+        { label: 'English', value: 'en' },
+      ],
+    },
+    {
+      name: 'timezone',
+      type: 'text',
+      defaultValue: DEFAULT_TIMEZONE,
+      label: 'Aikavyöhyke',
+      validate: (value: unknown) =>
+        isValidTimeZone(value) || 'Tuntematon aikavyöhyke (IANA-nimi, esim. Europe/Helsinki)',
+    },
+    {
+      name: 'marketingConsent',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Markkinointilupa',
+    },
+    {
+      name: 'marketingConsentAt',
+      type: 'date',
+      label: 'Markkinointilupa annettu',
+      admin: { readOnly: true, description: 'Asetetaan automaattisesti, kun lupa annetaan.' },
+    },
+    {
+      name: 'notificationPrefs',
+      type: 'group',
+      label: 'Ilmoitusasetukset',
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: true,
+          label: 'Ilmoitukset käytössä',
+        },
+        {
+          name: 'mode',
+          type: 'select',
+          defaultValue: 'immediate',
+          label: 'Lähetystapa',
+          options: [
+            { label: 'Heti (jokaisella ajolla)', value: 'immediate' },
+            { label: 'Päivittäinen kooste', value: 'daily' },
+            { label: 'Viikoittainen kooste', value: 'weekly' },
+          ],
+        },
+        {
+          name: 'dailyHour',
+          type: 'number',
+          defaultValue: DEFAULT_DAILY_HOUR,
+          min: 0,
+          max: 23,
+          label: 'Koosteen tunti',
+          admin: { description: 'Tunti (0–23) käyttäjän aikavyöhykkeellä.' },
+        },
+      ],
+    },
+    {
+      name: 'plan',
+      type: 'select',
+      defaultValue: 'free',
+      label: 'Tilaus',
+      options: [{ label: 'Ilmainen', value: 'free' }],
+      access: {
+        update: isAdminField,
+      },
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'deletedAt',
+      type: 'date',
+      label: 'Poisto aloitettu',
+      access: {
+        update: isAdminField,
+      },
+      admin: {
+        position: 'sidebar',
+        description: 'Poistotyön merkki; rivi poistetaan pysyvästi työn lopussa.',
+      },
     },
   ],
 }
