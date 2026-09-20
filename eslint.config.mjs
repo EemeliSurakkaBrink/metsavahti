@@ -30,6 +30,7 @@ export default tseslint.config(
     ignores: [
       '.next/**',
       '.next-e2e/**',
+      '.next-check/**',
       'node_modules/**',
       'coverage/**',
       'playwright-report/**',
