@@ -761,7 +761,7 @@
       "area": "auth",
       "title": "Auth layout and shared form components",
       "user_visible_behavior": "`(auth)` layout (centered card), `PasswordInput` with show/hide + zxcvbn strength meter, `FormError`, `FormSuccess`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-016", "F-006"],
       "ticket": "MV-041",
       "epic": "E03",
@@ -769,9 +769,12 @@
       "design": ["docs/design/App.dc.html#route=kirjaudu"],
       "verification": [
         "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/auth/auth-layout-and-shared-form-components.test.ts (unit component tests.)"
+        "L1: pnpm test:unit -- tests/unit/auth/auth-layout-and-shared-form-components.test.tsx (unit component tests.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 9598319)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/auth-layout-and-shared-form-components.test.tsx → pass (working tree on 9598319)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit component tests."
     },

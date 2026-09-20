@@ -170,7 +170,9 @@ src/
   emails                  React Email templates: EmailLayout (shared frame), AlertEmail, renderEmail()
   lib/notifications       provider.ts (which email adapter is active)
   lib/privacy             ip.ts (IP → network prefix before storage)
-  components/             site header/footer/frame, system pages, attribution, map (MapLibre), shadcn ui/
+  components/             site header/footer/frame, brand mark, system pages, attribution, map (MapLibre), forms/ (PasswordInput, FormError, FormSuccess), shadcn ui/
+  i18n/fi.ts              Finnish UI copy (new strings go here)
+  lib/auth                password-strength.ts (zxcvbn score + E03 thresholds)
 tests/
   unit/  integration/  e2e/  live/  helpers/  fixtures/wfs/
 scripts/                  seed.ts, run-jobs.ts, record-fixtures.ts
@@ -198,7 +200,7 @@ into `feature_list.json`); routes will move to their Finnish names (`/kirjaudu`,
 - Attribute-level change detection (currently geometry only) and hakkuutapa
   label verification against the Metsäkeskus code list.
 - Geocoding (MML), rate limiting for public endpoints, MML background map.
-- Component tests (`@testing-library/react`) once UI components warrant them.
+- More component tests (`@testing-library/react`, started with the auth form components).
 
 ## Licence and data
 
