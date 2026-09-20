@@ -7,6 +7,7 @@ import { useForm, useWatch } from 'react-hook-form'
 
 import { FormError } from '@/components/forms/form-error'
 import { PasswordInput } from '@/components/forms/password-input'
+import { useHydrated } from '@/components/forms/use-hydrated'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -61,6 +62,7 @@ function CheckboxRow({
  * the rate limit and the duplicate check, then redirects to `/vahvista-sahkoposti`.
  */
 export function RegisterForm() {
+  const hydrated = useHydrated()
   const [serverError, setServerError] = useState<string | null>(null)
   const {
     register,
@@ -94,7 +96,12 @@ export function RegisterForm() {
   }
 
   return (
-    <form className="flex flex-col gap-4.5" noValidate onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="flex flex-col gap-4.5"
+      data-hydrated={hydrated ? '' : undefined}
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <FormError>{serverError}</FormError>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">{copy.email}</Label>

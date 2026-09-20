@@ -66,7 +66,7 @@ pnpm db:migrate                 # applies src/payload/migrations to the dev DB
 pnpm dev                        # http://localhost:3000
 ```
 
-- `/` — landing page, `/rekisteroidy` — create an account (verification email → `/vahvista-sahkoposti`, resend with a 60 s cooldown), `/vahvista?token=` — the link from the email (verified / expired / used), `/kirjaudu` — sign in (remember-me, `?next=`), `/kirjaudu-ulos` — log out (POST) → `/kirjauduttu-ulos`, `/dashboard` — your watch areas on a map
+- `/` — landing page, `/rekisteroidy` — create an account (verification email → `/vahvista-sahkoposti`, resend with a 60 s cooldown), `/vahvista?token=` — the link from the email (verified / expired / used), `/kirjaudu` — sign in (remember-me, `?next=`), `/unohtunut-salasana` — request a reset link (neutral answer), `/uusi-salasana?token=` — set a new password (ends every session) → `/kirjaudu?reset=1`, `/kirjaudu-ulos` — log out (POST) → `/kirjauduttu-ulos`, `/dashboard` — your watch areas on a map
 - `/admin` — Payload admin. The **first account created becomes admin**; use
   `/admin/create-first-user` or `pnpm db:seed` (creates `admin@metsavahti.local`).
 - Mailpit UI: http://localhost:8025 — every email sent locally ends up here.
@@ -150,7 +150,7 @@ See [tests/README.md](tests/README.md) for details. In short:
 
 ```
 src/
-  app/(frontend)/         root document + error boundaries; (auth)/ kirjaudu (+ login action), kirjauduttu-ulos, rekisteroidy (+ register action), vahvista-sahkoposti (+ resend action, button), vahvista; (marketing)/ landing, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); kirjaudu-ulos/route.ts (POST logout); (app)/dashboard
+  app/(frontend)/         root document + error boundaries; (auth)/ kirjaudu (+ login action), kirjauduttu-ulos, rekisteroidy (+ register action), vahvista-sahkoposti (+ resend action, button), vahvista, unohtunut-salasana (+ requestPasswordReset action, form), uusi-salasana (+ resetPassword action, form, invalid state); (marketing)/ landing, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); kirjaudu-ulos/route.ts (POST logout); (app)/dashboard
   app/(payload)/          generated Payload admin + REST/GraphQL routes
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)

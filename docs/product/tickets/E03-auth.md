@@ -20,13 +20,13 @@
 
 **Goal:** `/kirjaudu` with remember-me (session length 30 d vs 1 d), `?next=` handling (same-origin only), errors: invalid, locked, unverified (+resend button). `/kirjaudu-ulos` POST action. **Tests:** integration: lockout after 5 failures; E2E `@smoke` login + logout. **Depends on:** MV-041, MV-031
 
-### MV-045 Forgot / reset password and auth E2E suite
+### MV-045 Forgot / reset password
 
-**Goal:** `/unohtunut-salasana`, `/uusi-salasana?token=`; `ResetPassword` email; neutral responses; reset invalidates other sessions. Consolidated `tests/e2e/auth.spec.ts` covering all E03 flows (register, verify, login/logout, reset, route protection) on Chromium + Mobile Chrome; axe on all auth pages. **Tests:** E2E via Mailpit; integration: old session rejected after reset; consolidated E2E suite + axe. **Status:** absorbs MV-049 (merged 2026-09-20, ledger P11). **Depends on:** MV-040, MV-044, MV-046
+**Goal:** `/unohtunut-salasana`, `/uusi-salasana?token=`; `ResetPassword` email; neutral responses; reset invalidates other sessions. **Tests:** E2E via Mailpit; integration: old session rejected after reset. **Depends on:** MV-040, MV-044
 
 ### MV-046 Route protection middleware and session helpers
 
-**Goal:** `src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`). **Tests:** unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no violations on `/` and `/vahtialueet` (console check). **Status:** absorbs MV-047 (merged 2026-09-20, ledger P11). **Depends on:** MV-044, MV-011, MV-010
+**Goal:** `src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`). Consolidated auth E2E suite. **Tests:** unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no violations on `/` and `/vahtialueet` (console check); consolidated `tests/e2e/auth.spec.ts` covering all E03 flows (register, verify, login/logout, reset, route protection) on Chromium + Mobile Chrome with axe on all auth pages. **Status:** absorbs MV-047 and MV-049 (merged 2026-09-20, ledger P11). **Depends on:** MV-044, MV-011, MV-010
 
 ### MV-048 Rate limiter
 

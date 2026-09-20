@@ -836,13 +836,13 @@
       "id": "F-045",
       "priority": 45,
       "area": "auth",
-      "title": "Forgot / reset password and auth E2E suite",
-      "user_visible_behavior": "`/unohtunut-salasana`, `/uusi-salasana?token=`; `ResetPassword` email; neutral responses; reset invalidates other sessions. Consolidated `tests/e2e/auth.spec.ts` covering all E03 flows (register, verify, login/logout, reset, route protection) on Chromium + Mobile Chrome; axe on all auth pages.",
-      "status": "not_started",
-      "depends_on": ["F-040", "F-044", "F-046"],
+      "title": "Forgot / reset password",
+      "user_visible_behavior": "`/unohtunut-salasana`, `/uusi-salasana?token=`; `ResetPassword` email; neutral responses; reset invalidates other sessions.",
+      "status": "passing",
+      "depends_on": ["F-040", "F-044"],
       "ticket": "MV-045",
       "epic": "E03",
-      "spec": "docs/product/tickets/E03-auth.md#mv-045-forgot-reset-password-and-auth-e2e-suite",
+      "spec": "docs/product/tickets/E03-auth.md#mv-045-forgot-reset-password",
       "design": [
         "docs/design/App.dc.html#route=unohtunut",
         "docs/design/App.dc.html#route=uusi_salasana",
@@ -850,19 +850,23 @@
       ],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/forgot-reset-password.int.test.ts (E2E via Mailpit; integration: old session rejected after reset; consolidated E2E suite + axe.)",
-        "L3: pnpm test:e2e -- tests/e2e/auth.spec.ts (E2E via Mailpit; integration: old session rejected after reset; consolidated E2E suite + axe.)"
+        "L2: pnpm test:integration -- tests/integration/forgot-reset-password.int.test.ts (E2E via Mailpit; integration: old session rejected after reset.)",
+        "L3: pnpm test:e2e -- tests/e2e/forgot-reset-password.spec.ts (E2E via Mailpit; integration: old session rejected after reset.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 27e4c00)",
+        "2026-09-20 pnpm test:integration -- tests/integration/forgot-reset-password.int.test.ts → pass (working tree on 27e4c00, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/forgot-reset-password.spec.ts → pass (working tree on 27e4c00, Docker available)"
+      ],
       "attempts": 0,
-      "notes": "Tests (ticket): E2E via Mailpit; integration: old session rejected after reset; consolidated E2E suite + axe. Status (ticket): absorbs MV-049 (merged 2026-09-20, ledger P11)."
+      "notes": "Tests (ticket): E2E via Mailpit; integration: old session rejected after reset."
     },
     {
       "id": "F-046",
       "priority": 46,
       "area": "auth",
       "title": "Route protection middleware and session helpers",
-      "user_visible_behavior": "`src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`).",
+      "user_visible_behavior": "`src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`). Consolidated auth E2E suite.",
       "status": "not_started",
       "depends_on": ["F-010", "F-011", "F-044"],
       "ticket": "MV-046",
@@ -876,11 +880,11 @@
         "L1: pnpm check",
         "L1: pnpm test:unit -- tests/unit/auth/route-protection.test.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)",
         "L2: pnpm test:integration -- tests/integration/route-protection.int.test.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)",
-        "L3: pnpm test:e2e -- tests/e2e/route-protection.spec.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)"
+        "L3: pnpm test:e2e -- tests/e2e/auth.spec.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no violations on `/` and `/vahtialueet` (console check). Status (ticket): absorbs MV-047 (merged 2026-09-20, ledger P11)."
+      "notes": "Tests (ticket): unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no violations on `/` and `/vahtialueet` (console check); consolidated `tests/e2e/auth.spec.ts` covering all E03 flows (register, verify, login/logout, reset, route protection) on Chromium + Mobile Chrome with axe on all auth pages. Status (ticket): absorbs MV-047 and MV-049 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-048",

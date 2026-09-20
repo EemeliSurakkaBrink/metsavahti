@@ -22,6 +22,15 @@ export async function useOwnAddress(page: Page): Promise<void> {
   await page.setExtraHTTPHeaders({ 'x-forwarded-for': ip })
 }
 
+/**
+ * Wait until the page's form has hydrated (`data-hydrated`, `useHydrated()`): react-hook-form
+ * resets its inputs to their defaults on mount, so a value filled before that is lost (seen
+ * on webkit under load).
+ */
+export async function waitForForm(page: Page): Promise<void> {
+  await expect(page.locator('form[data-hydrated]')).toBeAttached()
+}
+
 /** `/rekisteroidy` → `/vahvista-sahkoposti?email=`; returns the (unverified) address. */
 export async function registerAccount(
   page: Page,
@@ -30,6 +39,7 @@ export async function registerAccount(
 ): Promise<string> {
   const email = `${tag}-${browserName}-${Date.now()}@metsavahti.test`
   await page.goto('/rekisteroidy')
+  await waitForForm(page)
   await page.getByLabel('Sähköposti').fill(email)
   await page.getByLabel('Salasana', { exact: true }).fill(ACCOUNT_PASSWORD)
   await page.getByLabel('Salasana uudelleen').fill(ACCOUNT_PASSWORD)
@@ -49,6 +59,22 @@ export async function verificationLinks(email: string, count: number): Promise<s
   for (const message of messages) {
     const full = await mailpit.getMessage(message.ID)
     links.push(mailpit.extractFirstLink(full.HTML, '/vahvista?token=')!)
+  }
+  return links
+}
+
+/** The `/uusi-salasana?token=` links sent to `email`, newest first, once `count` have arrived. */
+export async function resetLinks(email: string, count: number): Promise<string[]> {
+  const messagesFor = async () =>
+    (await mailpit.listMessages()).filter(
+      (m) => m.To[0]?.Address === email && m.Subject === 'Salasanan palautus',
+    )
+  await expect.poll(async () => (await messagesFor()).length, { timeout: 15_000 }).toBe(count)
+  const messages = (await messagesFor()).sort((a, b) => b.Created.localeCompare(a.Created))
+  const links: string[] = []
+  for (const message of messages) {
+    const full = await mailpit.getMessage(message.ID)
+    links.push(mailpit.extractFirstLink(full.HTML, '/uusi-salasana?token=')!)
   }
   return links
 }

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { RESET_PASSWORD_SUBJECT, renderResetPassword } from '@/emails/ResetPassword'
 import { VERIFY_EMAIL_SUBJECT, renderVerifyEmail } from '@/emails/VerifyEmail'
 import { env } from '@/lib/env'
 import { isAdmin, isAdminField, isAdminOrSelf, isAdminUser } from '@/payload/access'
@@ -43,8 +44,20 @@ export const Users: CollectionConfig = {
         (await renderVerifyEmail({ token, baseUrl: env.NEXT_PUBLIC_SERVER_URL })).html,
       generateEmailSubject: () => VERIFY_EMAIL_SUBJECT,
     },
-    // Reset links (`/uusi-salasana?token=`, MV-045) are valid for one hour.
-    forgotPassword: { expiration: 60 * 60 * 1000 },
+    // Reset links (`/uusi-salasana?token=`, MV-045) are valid for one hour. Payload sends the
+    // React Email template on `forgotPassword` (HTML part only, like `verify`), whether the
+    // request came from `/unohtunut-salasana`, the REST endpoint or the admin UI.
+    forgotPassword: {
+      expiration: 60 * 60 * 1000,
+      generateEmailHTML: async (args) =>
+        (
+          await renderResetPassword({
+            token: args?.token ?? '',
+            baseUrl: env.NEXT_PUBLIC_SERVER_URL,
+          })
+        ).html,
+      generateEmailSubject: () => RESET_PASSWORD_SUBJECT,
+    },
     tokenExpiration: 60 * 60 * 24 * 7, // 7 days
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,
