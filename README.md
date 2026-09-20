@@ -156,7 +156,7 @@ src/
   payload/access          access-control helpers
   payload/jobs            task + workflow definitions, cron access
   payload/schema          afterSchemaInit hook registering PostGIS columns
-  payload/migrations      committed SQL migrations (PostGIS ext, generated column, GIST)
+  payload/migrations      committed SQL migrations (PostGIS ext, generated column, GIST); README.md documents the raw-SQL pattern
   config/wfs.ts           WFS query constants (grid cell, bbox padding, max bbox side)
   lib/env.ts              validated environment (t3-env + Zod)
   lib/errors.ts           typed AppError subclasses, actionResult() for Server Actions, toErrorResponse()

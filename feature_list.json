@@ -556,7 +556,7 @@
       "area": "data-model",
       "title": "Enable PostGIS and migration scaffolding",
       "user_visible_behavior": "Migration `0001_postgis` (`CREATE EXTENSION IF NOT EXISTS postgis`); Drizzle raw-SQL migration helper pattern documented in `src/payload/migrations/README.md`; `pnpm db:migrate`, `db:reset`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-007"],
       "ticket": "MV-030",
       "epic": "E02",
@@ -565,7 +565,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/enable-postgis-and-migration-scaffolding.int.test.ts (integration: `SELECT PostGIS_Version` works.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on dda16c1)",
+        "2026-09-20 pnpm test:integration -- tests/integration/enable-postgis-and-migration-scaffolding.int.test.ts → pass (working tree on dda16c1, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: `SELECT PostGIS_Version()` works."
     },

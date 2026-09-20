@@ -29,6 +29,7 @@ Format: **Context** (what forced a choice) · **Decision** · **Consequences**.
 - Context: `push: true` would let dev and test schemas drift and could drop the PostGIS columns.
 - Decision: `push: false` everywhere; `prodMigrations` apply on boot in production.
 - Consequences: every schema change needs `pnpm db:migrate:create`; integration tests run `payload migrate` against the throwaway container.
+- Update 2026-09-20 (F-030 / MV-030): the ticket's `0001_postgis` cannot exist as a separate first migration — Payload records every migration in `payload_migrations`, which the initial migration creates, so nothing can run before it. PostGIS is enabled by the adapter's `extensions: ['postgis']` before every `migrate` (CLI and boot) and by the first statement of `20260906_125038_initial`. Raw-SQL migration pattern: `src/payload/migrations/README.md`.
 
 ## D-005 · Three isolated database environments (2026-09-06)
 

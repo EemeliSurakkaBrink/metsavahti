@@ -48,6 +48,9 @@ export default buildConfig({
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
     pool: { connectionString: env.DATABASE_URL },
+    // `CREATE EXTENSION IF NOT EXISTS postgis` runs before every `migrate` (CLI and boot), so the
+    // extension exists before the first geometry column regardless of migration order (MV-030).
+    extensions: ['postgis'],
     // Schema comes exclusively from committed migrations in every environment.
     push: false,
     migrationDir: path.resolve(dirname, 'payload/migrations'),
