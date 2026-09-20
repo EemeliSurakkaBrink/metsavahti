@@ -474,7 +474,7 @@
       "area": "wfs",
       "title": "Bbox and clustering",
       "user_visible_behavior": "`bbox.ts`: `bboxForWatchArea(center4326, radiusM, paddingM)` in 3067; `clusterBboxes(areas, cellSizeM)` → minimal set of merged bboxes each ≤ `wfs.maxBboxSizeM`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-020"],
       "ticket": "MV-026",
       "epic": "E01",
@@ -483,7 +483,10 @@
         "L1: pnpm check",
         "L1: pnpm test:unit -- tests/unit/wfs/bbox-and-clustering.test.ts (unit: 1 000 random areas → ≤ 200 bboxes; every area fully inside at least one bbox.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 55a4fff)",
+        "2026-09-20 pnpm test:unit -- tests/unit/wfs/bbox-and-clustering.test.ts → pass (working tree on 55a4fff)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit: 1 000 random areas → ≤ 200 bboxes; every area fully inside at least one bbox."
     },
