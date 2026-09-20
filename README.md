@@ -66,7 +66,7 @@ pnpm db:migrate                 # applies src/payload/migrations to the dev DB
 pnpm dev                        # http://localhost:3000
 ```
 
-- `/` — landing page, `/login` — sign in, `/dashboard` — your watch areas on a map
+- `/` — landing page, `/rekisteroidy` — create an account (verification email → `/vahvista-sahkoposti`), `/login` — sign in, `/dashboard` — your watch areas on a map
 - `/admin` — Payload admin. The **first account created becomes admin**; use
   `/admin/create-first-user` or `pnpm db:seed` (creates `admin@metsavahti.local`).
 - Mailpit UI: http://localhost:8025 — every email sent locally ends up here.
@@ -150,7 +150,7 @@ See [tests/README.md](tests/README.md) for details. In short:
 
 ```
 src/
-  app/(frontend)/         root document + error boundaries; (marketing)/ landing, login, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); (app)/dashboard
+  app/(frontend)/         root document + error boundaries; (auth)/ login, rekisteroidy (+ register action), vahvista-sahkoposti; (marketing)/ landing, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); (app)/dashboard
   app/(payload)/          generated Payload admin + REST/GraphQL routes
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)

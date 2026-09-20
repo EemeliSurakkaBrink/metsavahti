@@ -17,7 +17,10 @@ database or points at port 5432.
   schema against the recorded fixture (snapshot), geometry hashing, hakkuutapa
   labels, attribution text, cron-secret comparison, email rendering (`EmailLayout` snapshot, alert
   template, adapter selection by env), the auth layout and form components (`PasswordInput`
-  toggle + zxcvbn meter, `FormError`, `FormSuccess`, `scorePassword` thresholds), the DB guard.
+  toggle + zxcvbn meter, `FormError`, `FormSuccess`, `scorePassword` thresholds), registration
+  (`auth/registration.test.ts`: form schema per field, `validateRegistration` with the zxcvbn
+  requirement and the email local part as a penalised input, the sliding-window rate limiter,
+  `clientIp`, the `VerifyEmail` template), the DB guard.
 
 ## Integration — `pnpm test:integration`
 
@@ -54,6 +57,10 @@ database or points at port 5432.
   published versions only, admin-only writes, and a `down` → `up` round-trip of the MV-036 migration),
   the email transport (`payload.email` is the nodemailer adapter; a layout-rendered
   `payload.sendEmail` reaches Mailpit with the settings link and attribution),
+  registration (`registration.int.test.ts`: `registerUser()` creates an unverified user with
+  `marketingConsent`, the `terms` / `privacy` / `marketing` consent rows at the seeded legal
+  version with the IP reduced to /24, and the verify email in Mailpit whose link carries the
+  user's `_verificationToken`; two rows without marketing; a duplicate address writes and sends nothing),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
   emails asserted through the Mailpit API), and the cron endpoint.
@@ -65,10 +72,12 @@ database or points at port 5432.
 - Playwright starts two servers: the WFS mock (`e2e/mocks/wfs-server.ts`, Hono on 3200) and the app on **3100** (`next dev` locally, `next start` in CI, both with
   `NEXT_DIST_DIR=.next-e2e`). `reuseExistingServer` is on locally, so keep them
   running between iterations for fast reruns.
-- Project order: `db-setup` (guard → migrate → truncate → seed first user + a
-  watch area through the REST API) → `auth-setup` (logs in once, stores cookies
+- Project order: `db-setup` (guard → migrate → truncate → seed first user, a
+  watch area and the four placeholder legal documents through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
-- Specs: landing page + attribution + axe, login validation, dashboard
+- Specs: landing page + attribution + axe, login validation, registration (`registration.spec.ts`,
+  runs as a guest: inline validation + meter + axe; `@smoke` register → `/vahvista-sahkoposti?email=` →
+  verify email in Mailpit → login still refused while unverified), dashboard
   redirect/auth/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
   `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
   jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets

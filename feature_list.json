@@ -784,7 +784,7 @@
       "area": "auth",
       "title": "Registration",
       "user_visible_behavior": "`/rekisteroidy` + Server Action `register`: Zod schema (email, password ≥ 10 chars & zxcvbn ≥ 3, confirm, `acceptTerms` required, `marketing` optional); creates user, writes `consent_events` (terms, privacy, marketing if ticked) with current legal versions; sends `VerifyEmail`; redirects to `/vahvista-sahkoposti?email=`; rate limit 5/h/IP.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-035", "F-036", "F-040", "F-041"],
       "ticket": "MV-042",
       "epic": "E03",
@@ -800,7 +800,12 @@
         "L2: pnpm test:integration -- tests/integration/registration.int.test.ts (unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow.)",
         "L3: pnpm test:e2e -- tests/e2e/registration.spec.ts (unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 49f61d3)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/registration.test.ts → pass (working tree on 49f61d3)",
+        "2026-09-20 pnpm test:integration -- tests/integration/registration.int.test.ts → pass (working tree on 49f61d3, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 49f61d3, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Was F-002 (sign-up page); route is /rekisteroidy, not /signup (00-deviations R1). Tests (ticket): unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow."
     },
