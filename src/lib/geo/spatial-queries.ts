@@ -41,43 +41,62 @@ export type WatchAreaMatch = {
   watchAreaId: number
   ownerId: number
   declarationId: number
+  /** `watch_area_declarations.id` when the pair has been matched before, else null. */
+  watchAreaDeclarationId: number | null
   geomHash: string
+  attrHash: string
+  lastSeenGeomHash: string | null
+  lastSeenAttrHash: string | null
   distanceM: number
-  previouslyAlerted: boolean
+  cuttingTypeLabel: string | null
+  areaHa: number | null
+  receivedAt: string | null
 }
 
 /**
- * (watch area, declaration) pairs that intersect and have no alert yet for the
- * declaration's current geometry. `previouslyAlerted` tells "new" from "changed".
+ * Intersecting (watch area, declaration) pairs whose `watch_area_declarations` row is
+ * missing or stores hashes that differ from the declaration's current ones (`01 §3.4`).
+ * Pairs that are already recorded with the current hashes are not returned, which is what
+ * makes a re-run with identical data a no-op. `distanceM` is centre → polygon (0 inside).
  */
-export async function findUnalertedMatches(payload: Payload): Promise<WatchAreaMatch[]> {
-  const { rows } = await run('findUnalertedMatches', () =>
+export async function findUnrecordedMatches(payload: Payload): Promise<WatchAreaMatch[]> {
+  const { rows } = await run('findUnrecordedMatches', () =>
     drizzle(payload).execute<{
       watch_area_id: number
       owner_id: number
       declaration_id: number
+      watch_area_declaration_id: number | null
       geom_hash: string
+      attr_hash: string
+      last_seen_geom_hash: string | null
+      last_seen_attr_hash: string | null
       distance_m: string | number
-      previously_alerted: boolean
+      cutting_type_label: string | null
+      area_ha: string | number | null
+      received_at: string | Date | null
     }>(sql`
     SELECT
       wa.id                                             AS watch_area_id,
       wa.owner_id                                       AS owner_id,
       d.id                                              AS declaration_id,
+      wad.id                                            AS watch_area_declaration_id,
       d.geom_hash                                       AS geom_hash,
+      d.attr_hash                                       AS attr_hash,
+      wad.last_seen_geom_hash                           AS last_seen_geom_hash,
+      wad.last_seen_attr_hash                           AS last_seen_attr_hash,
       ST_Distance(ST_Transform(ST_SetSRID(wa.center, 4326), 3067), d.geom) AS distance_m,
-      EXISTS (
-        SELECT 1 FROM alerts a
-        WHERE a.watch_area_id = wa.id AND a.declaration_id = d.id
-      )                                                 AS previously_alerted
+      d.cutting_type_label                              AS cutting_type_label,
+      d.area_ha                                         AS area_ha,
+      d.received_at                                     AS received_at
     FROM watch_areas wa
     JOIN declarations d ON ST_Intersects(d.geom, wa.geom_3067)
+    LEFT JOIN watch_area_declarations wad
+      ON wad.watch_area_id = wa.id AND wad.declaration_id = d.id
     WHERE d.geom IS NOT NULL
-      AND NOT EXISTS (
-        SELECT 1 FROM alerts a
-        WHERE a.watch_area_id = wa.id
-          AND a.declaration_id = d.id
-          AND a.geom_hash = d.geom_hash
+      AND (
+        wad.id IS NULL
+        OR wad.last_seen_geom_hash <> d.geom_hash
+        OR wad.last_seen_attr_hash <> d.attr_hash
       )
     ORDER BY wa.id, d.id
   `),
@@ -87,9 +106,16 @@ export async function findUnalertedMatches(payload: Payload): Promise<WatchAreaM
     watchAreaId: Number(r.watch_area_id),
     ownerId: Number(r.owner_id),
     declarationId: Number(r.declaration_id),
+    watchAreaDeclarationId:
+      r.watch_area_declaration_id == null ? null : Number(r.watch_area_declaration_id),
     geomHash: r.geom_hash,
+    attrHash: r.attr_hash,
+    lastSeenGeomHash: r.last_seen_geom_hash,
+    lastSeenAttrHash: r.last_seen_attr_hash,
     distanceM: Number(r.distance_m),
-    previouslyAlerted: Boolean(r.previously_alerted),
+    cuttingTypeLabel: r.cutting_type_label,
+    areaHa: r.area_ha == null ? null : Number(r.area_ha),
+    receivedAt: r.received_at == null ? null : new Date(r.received_at).toISOString(),
   }))
 }
 

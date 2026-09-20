@@ -45,6 +45,7 @@ Format: **Context** (what forced a choice) · **Decision** · **Consequences**.
 - Consequences: attribute-only changes are missed until F-008 adds `attr_hash`.
 - Update 2026-09-20 (F-025 / MV-025): `geom_hash` is now the sha256 of the _canonical_ WKB (`src/lib/geo/hash.ts`: coordinates rounded to 1 cm, rings rotated to their smallest vertex and wound consistently, holes and multipart members sorted), so re-serialised but unchanged boundaries no longer count as changed. `attrHash()` exists in the same module; its column and the `attributes_changed` rule arrive with MV-072 (00-deviations D5).
 - Update 2026-09-20 (F-033 / MV-033): the `attr_hash` column exists and `fetch-declarations` computes it; an attribute-only change now updates the row and writes a `declaration_revisions` entry, but alerts still key on `geom_hash` until MV-072.
+- Update 2026-09-20 (F-034 / MV-034): the compared hashes moved from the alert (`alerts.geom_hash`, dropped) to `watch_area_declarations.last_seen_geom_hash` / `last_seen_attr_hash` (`01 §3.4`); `kind: changed` became `changeType: geometry_changed`. An attribute-only change now updates `last_seen_attr_hash` silently, so MV-072 can switch `attributes_changed` on without a flood of stale alerts.
 
 ## D-007 · Agent harness layout (2026-09-06)
 

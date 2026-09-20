@@ -36,8 +36,13 @@ database or points at port 5432.
   the `declarations` + `declaration-revisions` collections (`01 §3.3` columns and indexes,
   generated `centroid` inside the MultiPolygon, raw insert via `helpers/declarations.ts`,
   unique `source_id` violation, derived `cuttingTypeLabel` / `validUntil`, admin read-only),
+  the `watch-area-declarations` + `alerts` collections (`01 §3.4–3.5` columns, unique
+  (watch_area, declaration), cascading FKs, `(user, created_at DESC)` / `(user, notified_at)` indexes,
+  admin read-only join rows, owner-only alert read, `readAt`-only owner update, no owner create/delete,
+  and a `down` → `up` round-trip of the MV-034 migration converting pre-MV-034 alerts),
   the full `sync-declarations` pipeline (new → idempotent → changed
-  geometry with a `declaration-revisions` row, emails asserted through the Mailpit API), and the cron endpoint.
+  geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
+  emails asserted through the Mailpit API), and the cron endpoint.
 
 ## E2E — `pnpm test:e2e` (`test:e2e:ui` for the inspector)
 
@@ -50,7 +55,7 @@ database or points at port 5432.
   watch area through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
 - Specs: landing page + attribution + axe, login validation, dashboard
-  redirect/auth/map, marketing layout + system pages (header/footer, 404 status,
+  redirect/auth/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
   `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
   jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets
   `ENABLE_ERROR_TEST_ROUTE=1`; the unit test `infra/error-test-route.test.ts` checks that

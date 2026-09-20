@@ -44,6 +44,7 @@ describe('payload boot + migrations', () => {
         'watch-areas',
         'declarations',
         'declaration-revisions',
+        'watch-area-declarations',
         'alerts',
         'notification-log',
         'payload-jobs',

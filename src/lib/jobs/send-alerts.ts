@@ -2,6 +2,7 @@ import { metsakeskusAttribution } from '@/lib/attribution'
 import { env } from '@/lib/env'
 import type { JobContext } from '@/lib/jobs/context'
 import { type AlertEmailDeclaration, renderAlertEmail } from '@/lib/notifications/alert-email'
+import { alertSnapshot } from '@/payload/collections/Alerts'
 import type { Alert, Declaration, User, WatchArea } from '@/payload-types'
 
 export type SendAlertsResult = { emailsSent: number; emailsFailed: number; alertsHandled: number }
@@ -21,14 +22,16 @@ function isPopulated(alert: Alert): alert is PopulatedAlert {
 }
 
 /**
- * Group pending alerts per (user, watch area), send one email per group,
- * mark alerts sent/failed and write a notification-log row.
+ * Group not-yet-notified alerts per (user, watch area), send one email per group,
+ * stamp `notifiedAt` on the alerts that went out and write a notification-log row.
+ * A failed send leaves `notifiedAt` empty so the next run retries; the failure itself
+ * is recorded in `notification-log` (`01 §3.5`: delivery state lives there).
  */
 export async function sendAlerts(ctx: JobContext, jobRunId: string): Promise<SendAlertsResult> {
   const { payload, logger, now } = ctx
   const { docs } = await payload.find({
     collection: 'alerts',
-    where: { status: { equals: 'pending' } },
+    where: { notifiedAt: { exists: false } },
     depth: 1,
     limit: 0,
     pagination: false,
@@ -51,13 +54,16 @@ export async function sendAlerts(ctx: JobContext, jobRunId: string): Promise<Sen
     const first = alerts[0]
     if (!first) continue
     const { user, watchArea } = first
-    const declarations: AlertEmailDeclaration[] = alerts.map((a) => ({
-      declarationNumber: a.declaration.declarationNumber,
-      hakkuutapa: a.declaration.cuttingTypeCode ?? null,
-      areaHa: a.declaration.areaHa ?? null,
-      distanceM: a.distanceM ?? 0,
-      kind: a.kind,
-    }))
+    const declarations: AlertEmailDeclaration[] = alerts.map((a) => {
+      const snapshot = alertSnapshot(a)
+      return {
+        declarationNumber: a.declaration.declarationNumber,
+        hakkuutapa: a.declaration.cuttingTypeCode ?? null,
+        areaHa: snapshot.areaHa,
+        distanceM: snapshot.distanceM,
+        changeType: a.changeType,
+      }
+    })
 
     const { html, text } = await renderAlertEmail({
       watchAreaName: watchArea.name,
@@ -83,14 +89,16 @@ export async function sendAlerts(ctx: JobContext, jobRunId: string): Promise<Sen
       logger.error({ err, userId: user.id, watchAreaId: watchArea.id }, 'alert email failed')
     }
 
-    const sentAt = now().toISOString()
+    const notifiedAt = now().toISOString()
     for (const alert of alerts) {
-      await payload.update({
-        collection: 'alerts',
-        id: alert.id,
-        data: { status, ...(status === 'sent' ? { sentAt } : {}) },
-        overrideAccess: true,
-      })
+      if (status === 'sent') {
+        await payload.update({
+          collection: 'alerts',
+          id: alert.id,
+          data: { notifiedAt },
+          overrideAccess: true,
+        })
+      }
       alertsHandled += 1
     }
     await payload.create({

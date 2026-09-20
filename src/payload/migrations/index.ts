@@ -2,6 +2,7 @@ import * as migration_20260906_125038_initial from './20260906_125038_initial';
 import * as migration_20260920_135750_users_fields from './20260920_135750_users_fields';
 import * as migration_20260920_141524_watch_areas_fields from './20260920_141524_watch_areas_fields';
 import * as migration_20260920_143554_declarations_geom from './20260920_143554_declarations_geom';
+import * as migration_20260920_145929_watch_area_declarations_alerts from './20260920_145929_watch_area_declarations_alerts';
 
 export const migrations = [
   {
@@ -23,5 +24,10 @@ export const migrations = [
     up: migration_20260920_143554_declarations_geom.up,
     down: migration_20260920_143554_declarations_geom.down,
     name: '20260920_143554_declarations_geom',
+  },
+  {
+    up: migration_20260920_145929_watch_area_declarations_alerts.up,
+    down: migration_20260920_145929_watch_area_declarations_alerts.down,
+    name: '20260920_145929_watch_area_declarations_alerts',
   },
 ];

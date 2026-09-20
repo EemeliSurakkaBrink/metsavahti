@@ -644,18 +644,25 @@
       "area": "data-model",
       "title": "watch_area_declarations and alerts",
       "user_visible_behavior": "Per `01 §3.4–3.5`; unique (watch_area, declaration); alerts owner read + `readAt` update only; indexes on (user, createdAt desc), (user, notifiedAt).",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-032", "F-033"],
       "ticket": "MV-034",
       "epic": "E02",
       "spec": "docs/product/tickets/E02-data-model.md#mv-034-watchareadeclarations-and-alerts",
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/watch-area-declarations-and-alerts.int.test.ts (integration access control.)"
+        "L2: pnpm test:integration -- tests/integration/watch-area-declarations-and-alerts.int.test.ts (integration access control.)",
+        "L3: pnpm test:e2e (the dashboard alert count crosses frontend + Payload; AGENTS.md requires L3.)"
       ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration access control."
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 31340e6)",
+        "2026-09-20 pnpm test:integration -- tests/integration/watch-area-declarations-and-alerts.int.test.ts → pass (working tree on 31340e6, Docker available)",
+        "2026-09-20 pnpm check → pass (working tree on e7d5a7d)",
+        "2026-09-20 pnpm test:integration -- tests/integration/watch-area-declarations-and-alerts.int.test.ts → pass (working tree on e7d5a7d, Docker available)",
+        "2026-09-20 pnpm test:e2e → pass (working tree on e7d5a7d, Docker available)"
+      ],
+      "attempts": 1,
+      "notes": "Tests (ticket): integration access control. Attempt 1 failed 2026-09-20: evaluator: Revise"
     },
     {
       "id": "F-035",
