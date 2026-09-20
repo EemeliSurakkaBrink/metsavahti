@@ -101,6 +101,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      wkx:
+        specifier: ^0.5.0
+        version: 0.5.0
       zod:
         specifier: 4.5.4
         version: 4.5.4
@@ -8315,6 +8318,9 @@ packages:
 
   wkt-parser@1.5.6:
     resolution: {integrity: sha512-cqHU3lzGt/gt2OqIORP0uVy5yeOX43WABmgFkmJsmcqH3HhQo9PiJG6ftytwGKmpQUbegeX7+pQc2BuNCRfcrw==}
+
+  wkx@0.5.0:
+    resolution: {integrity: sha512-Xng/d4Ichh8uN4l0FToV/258EjMGU9MGcA0HV2d9B/ZpZB3lqQm7nkOdZdm5GhKtLLhAE7PiVQwN4eN+2YJJUg==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -17460,6 +17466,10 @@ snapshots:
       stackback: 0.0.2
 
   wkt-parser@1.5.6: {}
+
+  wkx@0.5.0:
+    dependencies:
+      '@types/node': 22.20.1
 
   word-wrap@1.2.5: {}
 

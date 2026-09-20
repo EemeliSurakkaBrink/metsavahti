@@ -1,5 +1,4 @@
-import { createHash } from 'node:crypto'
-
+import { geomHash } from '@/lib/geo/hash'
 import {
   type DeclarationFeature,
   type DeclarationFeatureCollection,
@@ -25,16 +24,6 @@ export function parseFeatureCollection(raw: unknown): DeclarationFeatureCollecti
   return declarationFeatureCollectionSchema.parse(raw)
 }
 
-/**
- * Stable hash of the geometry so we can detect boundary changes between runs.
- * (sha256 over the canonical JSON of type + coordinates.)
- */
-export function hashGeometry(geometry: DeclarationGeometry): string {
-  return createHash('sha256')
-    .update(JSON.stringify([geometry.type, geometry.coordinates]))
-    .digest('hex')
-}
-
 export function toDeclarationRecord(feature: DeclarationFeature): DeclarationRecord {
   const p = feature.properties
   return {
@@ -45,7 +34,7 @@ export function toDeclarationRecord(feature: DeclarationFeature): DeclarationRec
     arrivalDate: p.DECLARATIONARRIVALDATE ?? null,
     updatedAtSource: p.UPDATETIME ?? null,
     geometry: feature.geometry,
-    geomHash: hashGeometry(feature.geometry),
+    geomHash: geomHash(feature.geometry),
     properties: p,
   }
 }

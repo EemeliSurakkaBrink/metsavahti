@@ -41,6 +41,7 @@ Format: **Context** (what forced a choice) · **Decision** · **Consequences**.
 - Context: the WFS layer has no reliable "updated at" attribute.
 - Decision: `geom_hash` (sha256 of WKB) decides `new` vs `changed`; a second run with identical data sends nothing.
 - Consequences: attribute-only changes are missed until F-008 adds `attr_hash`.
+- Update 2026-09-20 (F-025 / MV-025): `geom_hash` is now the sha256 of the _canonical_ WKB (`src/lib/geo/hash.ts`: coordinates rounded to 1 cm, rings rotated to their smallest vertex and wound consistently, holes and multipart members sorted), so re-serialised but unchanged boundaries no longer count as changed. `attrHash()` exists in the same module; its column and the `attributes_changed` rule arrive with MV-072 (00-deviations D5).
 
 ## D-007 · Agent harness layout (2026-09-06)
 
