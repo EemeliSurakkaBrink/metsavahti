@@ -40,6 +40,11 @@ database or points at port 5432.
   (watch_area, declaration), cascading FKs, `(user, created_at DESC)` / `(user, notified_at)` indexes,
   admin read-only join rows, owner-only alert read, `readAt`-only owner update, no owner create/delete,
   and a `down` → `up` round-trip of the MV-034 migration converting pre-MV-034 alerts),
+  the `notification-log` + `consent-events` + `data-export-requests` + `job-runs` + `exports`
+  collections (`01 §3.6–3.9` columns and indexes, consent events rejecting update/delete through
+  access control and through the hooks even with `overrideAccess`, IP stored as a /24 prefix, owner-only
+  reads, zip-only uploads written under `EXPORTS_DIR`, admin-only job runs and log, and a `down` → `up`
+  round-trip of the MV-035 migration backfilling `type` / `provider` / `sent_at`),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
   emails asserted through the Mailpit API), and the cron endpoint.

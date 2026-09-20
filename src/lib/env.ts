@@ -28,6 +28,14 @@ export const env = createEnv({
     LOG_LEVEL: z.enum(logLevels).default('info'),
     /** `1` exposes `/virhe`, a route that throws so the e2e suite can test `error.tsx`. */
     ENABLE_ERROR_TEST_ROUTE: z.enum(['0', '1']).default('0'),
+    /** Local directory for the `exports` upload collection (relative to the working directory). */
+    EXPORTS_DIR: z.string().min(1).default('exports'),
+    /** When set, `exports` files go to this S3-compatible bucket instead of `EXPORTS_DIR` (D-013). */
+    S3_BUCKET: z.string().min(1).optional(),
+    S3_REGION: z.string().min(1).default('auto'),
+    S3_ENDPOINT: z.url().optional(),
+    S3_ACCESS_KEY_ID: z.string().min(1).optional(),
+    S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_SERVER_URL: z.url(),

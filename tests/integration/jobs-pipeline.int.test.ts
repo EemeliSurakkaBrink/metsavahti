@@ -113,7 +113,13 @@ describe('sync-declarations pipeline', () => {
 
     const log = await payload.find({ collection: 'notification-log', overrideAccess: true })
     expect(log.totalDocs).toBe(1)
-    expect(log.docs[0]!.status).toBe('sent')
+    expect(log.docs[0]).toMatchObject({
+      type: 'alert_immediate',
+      status: 'sent',
+      provider: 'nodemailer',
+      providerMessageId: expect.any(String),
+      sentAt: expect.any(String),
+    })
   })
 
   it('second run with identical data is idempotent: no new alerts, no new email', async () => {
