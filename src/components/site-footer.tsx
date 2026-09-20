@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Attribution } from '@/components/attribution'
 import { CookieSettingsButton } from '@/components/cookie-settings-button'
 
-/** Legal routes from 03-pages.md → (legal); the pages themselves arrive with MV-091/MV-096. */
+/** Legal routes from 03-pages.md → (legal); the pages themselves arrive with MV-091/MV-095. */
 const legalLinks = [
   { href: '/tietosuoja', label: 'Tietosuojaseloste' },
   { href: '/kayttoehdot', label: 'Käyttöehdot' },

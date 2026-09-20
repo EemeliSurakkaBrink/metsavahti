@@ -12,25 +12,21 @@
 
 **Goal:** Write the actual Finnish text for privacy policy (structure per `03b` §5, retention table auto-generated from `retention.ts`), terms, cookie policy, accessibility statement; seed as version `2026-09`. Include a clear note that it is a draft for legal review. **Acceptance:** each section listed in brief present; no placeholders left except controller identity fields from env (`LEGAL_CONTROLLER_NAME`, `LEGAL_CONTACT_EMAIL`, `LEGAL_ADDRESS`). **Depends on:** MV-091
 
-### MV-093 Data export
+### MV-093 Privacy page `/tili/tietosuoja` and data export
 
-**Goal:** `POST /api/account/export` → `data_export_requests` + `export` job building zip (`account.json`, `watch-areas.geojson`, `alerts.json`, `consents.json`, `notifications.json`), stored in `exports`, `ExportReady` email with signed link (24 h), download route `GET /api/account/export/[id]?token=`. UI on `/tili/tietosuoja` shows pending/ready/expired. Rate limit 1/day. **Tests:** integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: request → Mailpit link → 200. **Depends on:** MV-056, MV-070, MV-035
+**Goal:** `/tili/tietosuoja`: consent history table from `consent_events`, cookie-settings button, export section (pending/ready/expired), links to policy + supervisory authority. `POST /api/account/export` → `data_export_requests` + `export` job building zip (`account.json`, `watch-areas.geojson`, `alerts.json`, `consents.json`, `notifications.json`), stored in `exports`, `ExportReady` email with signed link (24 h), download route `GET /api/account/export/[id]?token=`. Rate limit 1/day. **Tests:** integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: page renders consent history; request → Mailpit link → 200. **Status:** absorbs MV-056 (merged 2026-09-20, ledger P11). **Depends on:** MV-050, MV-035, MV-070
 
-### MV-094 Account deletion
+### MV-094 Delete account page `/tili/poista` and account deletion
 
-**Goal:** `POST /api/account/delete` (password re-check) → `delete-account` job per `01 §4.6`; `AccountDeleted` email sent first; consent events anonymised (user null, email sha256); session revoked; redirect `/tili-poistettu`. **Tests:** integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E. **Depends on:** MV-057, MV-070
+**Goal:** `/tili/poista`: explanation from `retention.ts`, `POISTA` + password confirmation form; `/tili-poistettu` public page. `POST /api/account/delete` (password re-check) → `delete-account` job per `01 §4.6`; `AccountDeleted` email sent first; consent events anonymised (user null, email sha256); session revoked; redirect `/tili-poistettu`. **Tests:** unit form validation; integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E page renders, validates and deletes. **Status:** absorbs MV-057 (merged 2026-09-20, ledger P11). **Depends on:** MV-050, MV-070
 
-### MV-095 Public data-request form `/tietopyynto`
+### MV-095 Public data-request and contact forms `/tietopyynto`, `/yhteystiedot`
 
-**Goal:** Form (email, type, message, consent), rate-limited, emails `DPO_EMAIL` (`DataRequestReceived`) and confirmation to requester. **Tests:** integration both emails; E2E. **Depends on:** MV-048, MV-040
-
-### MV-096 Contact form `/yhteystiedot`
-
-**Goal:** As spec; honeypot + rate limit; `ContactReceived` email. **Tests:** integration; E2E. **Depends on:** MV-048, MV-040
+**Goal:** `/tietopyynto`: form (email, type, message, consent), rate-limited, emails `DPO_EMAIL` (`DataRequestReceived`) and confirmation to requester. `/yhteystiedot`: as spec; honeypot + rate limit; `ContactReceived` email. **Tests:** integration: both data-request emails, contact email; E2E both forms. **Status:** absorbs MV-096 (merged 2026-09-20, ledger P11). **Depends on:** MV-048, MV-040
 
 ### MV-097 Retention enforcement audit
 
-**Goal:** Test that every retention rule stated in the privacy page (from `retention.ts`) has a corresponding cleanup implementation: unit test iterating `retention.ts` entries and asserting a handler exists in `cleanup` task registry. **Depends on:** MV-076, MV-092
+**Goal:** Test that every retention rule stated in the privacy page (from `retention.ts`) has a corresponding cleanup implementation: unit test iterating `retention.ts` entries and asserting a handler exists in `cleanup` task registry. **Depends on:** MV-070, MV-092
 
 ### MV-098 Admin GDPR tooling
 

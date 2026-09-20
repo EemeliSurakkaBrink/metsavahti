@@ -47,7 +47,7 @@ Everything in AGENTS.md → Definition of done, plus:
   and Mailpit. Prefer roles/labels over `data-testid`. Tag the fast journeys `@smoke`.
 - **Live** (`tests/live`): real WFS only, nightly. Never in PR CI.
 - Fixtures: `tests/fixtures/wfs/<name>.json` recorded with `pnpm fixtures:record -- --bbox …`;
-  MV-022 produces the named set (`inside`, `outside`, `borderline`, `changed-geometry`,
+  MV-021 produces the named set (`inside`, `outside`, `borderline`, `changed-geometry`,
   `changed-attributes`, `empty`, `paged-1`/`paged-2`).
 - Factories in `tests/factories/` (`userFactory`, `watchAreaFactory`, `declarationFactory`)
   from MV-037 on; no ad-hoc inserts after that.

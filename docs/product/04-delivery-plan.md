@@ -53,6 +53,10 @@ E00 ──┬── E01 ──┐
 
 Merge order inside an epic follows ticket numbers unless a ticket says otherwise. Tickets touching `payload.config.ts` or migrations should be merged one at a time to avoid migration conflicts (E02 owns migrations; other epics add migrations only via tickets that name the migration file).
 
+Ticket numbers keep gaps: on 2026-09-20, 21 small or tightly coupled tickets were absorbed into their
+neighbours ([00-deviations.md](00-deviations.md) P11) so that one driver-run session does one
+meaningful unit of work. The ranges in the table are the epic's number space, not a count.
+
 ## Definition of "complete project"
 
 All tickets in E00–E12 merged, CI green including nightly live contract test, production deployed with cron running, at least one real watch area receiving a real alert email, launch checklist (MV-135) signed off.

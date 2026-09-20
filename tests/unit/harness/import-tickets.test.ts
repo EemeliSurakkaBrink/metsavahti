@@ -160,7 +160,8 @@ describe('committed tickets', () => {
     const tickets = readTickets()
     const ids = new Set(tickets.map((t) => t.id))
     expect(ids.size).toBe(tickets.length)
-    expect(tickets.length).toBeGreaterThan(100)
+    // 111 tickets at import (2026-09-06); 90 after the 2026-09-20 merge (00-deviations P11).
+    expect(tickets.length).toBeGreaterThan(80)
     for (const t of tickets) {
       for (const dep of parseDependencies(t.dependsOn, tickets, t)) {
         expect(ids.has(dep), `${t.id} depends on unknown ${dep}`).toBe(true)
