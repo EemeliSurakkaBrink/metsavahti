@@ -24,6 +24,12 @@ database or points at port 5432.
   call from one address is `rate_limited` while another address passes, a duplicate address
   redirects exactly like a new account, a weak password is refused on the server; `clientIp`,
   the `VerifyEmail` template), the DB guard.
+  email verification (`auth/email-verification-pages.test.ts`: the 24 h expiry boundary, the
+  `resendVerification` action with `resendVerificationEmail` spied: one send per address per 60 s
+  with the remaining seconds, neutral for unknown addresses, every call counted against the IP
+  limit; `readSessionToken` against tokens signed with Payload's `jwtSign`, the cookie parser and
+  `findUnverifiedSessionUser` with `findByID` stubbed; `email-verification-pages.resend-button.test.tsx`:
+  the button's countdown under fake timers and how a short server refusal becomes the countdown),
 
 ## Integration — `pnpm test:integration`
 
@@ -64,6 +70,12 @@ database or points at port 5432.
   `marketingConsent`, the `terms` / `privacy` / `marketing` consent rows at the seeded legal
   version with the IP reduced to /24, and the verify email in Mailpit whose link carries the
   user's `_verificationToken`; two rows without marketing; a duplicate address writes and sends nothing),
+  email verification (`email-verification-pages.int.test.ts`: `verifyEmailToken` verifies once and
+  then reports `invalid`, refuses a token past 24 h as `expired` without touching the account, treats
+  unknown tokens as `invalid`; `resendVerificationEmail` issues a fresh dated token, the new link in
+  Mailpit works and the old one does not, unknown/verified addresses send nothing; the session guard
+  names a logged-in account whose `_verified` was reset while `payload.auth()` already returns no
+  user; a `down` → `up` round-trip of the MV-043 migration),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
   emails asserted through the Mailpit API), and the cron endpoint.
@@ -82,7 +94,13 @@ database or points at port 5432.
   runs as a guest with its own `x-forwarded-for` per test: inline validation + meter + axe; `@smoke`
   register → `/vahvista-sahkoposti?email=` → verify email in Mailpit → the same address again
   gets the same redirect and no second email → login still refused while unverified; five
-  weak-password submissions from one address, the sixth shows `Liikaa pyyntöjä`), dashboard
+  weak-password submissions from one address, the sixth shows `Liikaa pyyntöjä`), email verification
+  (`email-verification-pages.spec.ts`, guest, own address per test: `@smoke` register → resend with the
+  cooldown → the newest Mailpit link verifies and the older one is `invalid` → `Luo ensimmäinen
+vahtialue` points at `/aloita` → login succeeds → the same link is `used`; an admin backdates
+  `verificationSentAt` 25 h so the link is `expired` and its resend button issues a working one;
+  `/vahvista` without or with an unknown token; an admin resets `_verified` on a logged-in account and
+  `/dashboard` redirects to `/vahvista-sahkoposti?email=…&required=1` with the `VAHVISTUS` interstitial; axe on every state), dashboard
   redirect/auth/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
   `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
   jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets

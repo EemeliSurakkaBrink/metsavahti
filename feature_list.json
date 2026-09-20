@@ -819,7 +819,7 @@
       "area": "auth",
       "title": "Email verification pages",
       "user_visible_behavior": "`/vahvista-sahkoposti` (resend with 60 s cooldown), `/vahvista?token=` (success/expired/used states). Middleware sends unverified users to `/vahvista-sahkoposti`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-042"],
       "ticket": "MV-043",
       "epic": "E03",
@@ -834,7 +834,11 @@
         "L2: pnpm test:integration -- tests/integration/email-verification-pages.int.test.ts (integration token states; E2E: register → Mailpit link → verified → `/aloita`.)",
         "L3: pnpm test:e2e -- tests/e2e/email-verification-pages.spec.ts (integration token states; E2E: register → Mailpit link → verified → `/aloita`.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on fc3e5e4)",
+        "2026-09-20 pnpm test:integration -- tests/integration/email-verification-pages.int.test.ts → pass (working tree on fc3e5e4, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/email-verification-pages.spec.ts → pass (working tree on fc3e5e4, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Was F-003 (verification link activates the account). Tests (ticket): integration token states; E2E: register → Mailpit link → verified → `/aloita`."
     },

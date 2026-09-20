@@ -50,6 +50,31 @@ export const fi = {
       sentToUnknown: 'Lähetimme vahvistuslinkin sähköpostiisi.',
       validFor: 'Linkki on voimassa 24 tuntia.',
       changeEmail: 'Vaihda sähköpostiosoite',
+      resend: 'Lähetä uudelleen',
+      resent: 'Vahvistuslinkki lähetetty uudelleen.',
+      required: {
+        code: 'VAHVISTUS',
+        title: 'Vahvista sähköpostiosoitteesi ensin',
+        body: 'Lähetimme vahvistuslinkin sähköpostiisi. Vahtialueet avautuvat, kun osoite on vahvistettu.',
+        home: 'Etusivulle',
+      },
+    },
+    verify: {
+      verified: {
+        title: 'Sähköposti vahvistettu',
+        body: 'Tilisi on valmis. Seuraavaksi merkitään ensimmäinen paikka kartalle.',
+        cta: 'Luo ensimmäinen vahtialue',
+      },
+      expired: {
+        title: 'Vahvistuslinkki on vanhentunut',
+        body: 'Linkki oli voimassa 24 tuntia. Lähetämme uuden linkin osoitteeseen',
+      },
+      used: {
+        title: 'Linkki on jo käytetty',
+        body: 'Vahvistuslinkki on jo käytetty tai se ei ole kelvollinen. Jos olet jo vahvistanut osoitteesi, voit kirjautua sisään.',
+        login: 'Kirjaudu',
+        register: 'Luo tili',
+      },
     },
   },
   emails: {
