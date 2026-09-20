@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     'watch-areas': WatchArea;
     declarations: Declaration;
+    'declaration-revisions': DeclarationRevision;
     alerts: Alert;
     'notification-log': NotificationLog;
     'payload-kv': PayloadKv;
@@ -83,6 +84,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'watch-areas': WatchAreasSelect<false> | WatchAreasSelect<true>;
     declarations: DeclarationsSelect<false> | DeclarationsSelect<true>;
+    'declaration-revisions': DeclarationRevisionsSelect<false> | DeclarationRevisionsSelect<true>;
     alerts: AlertsSelect<false> | AlertsSelect<true>;
     'notification-log': NotificationLogSelect<false> | NotificationLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -217,16 +219,22 @@ export interface WatchArea {
  */
 export interface Declaration {
   id: number;
-  metsakeskusId: string;
+  sourceId: string;
+  sourceLayerVersion?: string | null;
   declarationNumber: string;
-  hakkuutapa?: number | null;
+  cuttingTypeCode?: number | null;
+  /**
+   * Johdettu koodista (lib/wfs/hakkuutapa.ts).
+   */
+  cuttingTypeLabel?: string | null;
   areaHa?: number | null;
-  arrivalDate?: string | null;
-  updatedAtSource?: string | null;
-  geomHash: string;
-  firstSeen: string;
-  lastSeen: string;
-  properties?:
+  receivedAt?: string | null;
+  /**
+   * Saapumispäivä + 3 vuotta.
+   */
+  validUntil?: string | null;
+  municipalityCode?: string | null;
+  rawAttributes?:
     | {
         [k: string]: unknown;
       }
@@ -235,6 +243,36 @@ export interface Declaration {
     | number
     | boolean
     | null;
+  geomHash: string;
+  attrHash: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  /**
+   * Asetetaan, kun kohde puuttuu tuloksista kolmella peräkkäisellä ajolla.
+   */
+  removedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "declaration-revisions".
+ */
+export interface DeclarationRevision {
+  id: number;
+  declaration: number | Declaration;
+  prevGeomHash: string;
+  prevAttrHash: string;
+  prevRawAttributes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  changedAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -404,6 +442,10 @@ export interface PayloadLockedDocument {
         value: number | Declaration;
       } | null)
     | ({
+        relationTo: 'declaration-revisions';
+        value: number | DeclarationRevision;
+      } | null)
+    | ({
         relationTo: 'alerts';
         value: number | Alert;
       } | null)
@@ -513,16 +555,34 @@ export interface WatchAreasSelect<T extends boolean = true> {
  * via the `definition` "declarations_select".
  */
 export interface DeclarationsSelect<T extends boolean = true> {
-  metsakeskusId?: T;
+  sourceId?: T;
+  sourceLayerVersion?: T;
   declarationNumber?: T;
-  hakkuutapa?: T;
+  cuttingTypeCode?: T;
+  cuttingTypeLabel?: T;
   areaHa?: T;
-  arrivalDate?: T;
-  updatedAtSource?: T;
+  receivedAt?: T;
+  validUntil?: T;
+  municipalityCode?: T;
+  rawAttributes?: T;
   geomHash?: T;
-  firstSeen?: T;
-  lastSeen?: T;
-  properties?: T;
+  attrHash?: T;
+  firstSeenAt?: T;
+  lastSeenAt?: T;
+  removedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "declaration-revisions_select".
+ */
+export interface DeclarationRevisionsSelect<T extends boolean = true> {
+  declaration?: T;
+  prevGeomHash?: T;
+  prevAttrHash?: T;
+  prevRawAttributes?: T;
+  changedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -650,6 +710,7 @@ export interface TaskFetchDeclarations {
     fetched: number;
     created: number;
     updated: number;
+    revisions: number;
   };
 }
 /**

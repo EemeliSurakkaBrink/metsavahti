@@ -1,4 +1,4 @@
-import { geomHash } from '@/lib/geo/hash'
+import { attrHash, geomHash } from '@/lib/geo/hash'
 import {
   type DeclarationFeature,
   type DeclarationFeatureCollection,
@@ -8,15 +8,15 @@ import {
 
 /** Normalised declaration ready to be stored in the `declarations` collection. */
 export type DeclarationRecord = {
-  metsakeskusId: string
+  sourceId: string
   declarationNumber: string
-  hakkuutapa: number | null
+  cuttingTypeCode: number | null
   areaHa: number | null
-  arrivalDate: string | null
-  updatedAtSource: string | null
+  receivedAt: string | null
   geometry: DeclarationGeometry
   geomHash: string
-  properties: DeclarationFeature['properties']
+  attrHash: string
+  rawAttributes: DeclarationFeature['properties']
 }
 
 /** Parse and validate a raw WFS JSON body. Throws a ZodError on contract drift. */
@@ -27,15 +27,15 @@ export function parseFeatureCollection(raw: unknown): DeclarationFeatureCollecti
 export function toDeclarationRecord(feature: DeclarationFeature): DeclarationRecord {
   const p = feature.properties
   return {
-    metsakeskusId: feature.id,
+    sourceId: feature.id,
     declarationNumber: p.FORESTUSEDECLARATIONNUMBER,
-    hakkuutapa: p.CUTTINGREALIZATIONPRACTICE ?? null,
+    cuttingTypeCode: p.CUTTINGREALIZATIONPRACTICE ?? null,
     areaHa: p.AREA ?? null,
-    arrivalDate: p.DECLARATIONARRIVALDATE ?? null,
-    updatedAtSource: p.UPDATETIME ?? null,
+    receivedAt: p.DECLARATIONARRIVALDATE ?? null,
     geometry: feature.geometry,
     geomHash: geomHash(feature.geometry),
-    properties: p,
+    attrHash: attrHash(p),
+    rawAttributes: p,
   }
 }
 

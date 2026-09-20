@@ -23,6 +23,6 @@ describe('wfs parse', () => {
 
   it('normalises features into declaration records', () => {
     const records = toDeclarationRecords(parseFeatureCollection(fixture))
-    expect(records.map(({ geometry: _g, properties: _p, ...rest }) => rest)).toMatchSnapshot()
+    expect(records.map(({ geometry: _g, rawAttributes: _p, ...rest }) => rest)).toMatchSnapshot()
   })
 })

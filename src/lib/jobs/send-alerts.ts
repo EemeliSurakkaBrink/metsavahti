@@ -53,7 +53,7 @@ export async function sendAlerts(ctx: JobContext, jobRunId: string): Promise<Sen
     const { user, watchArea } = first
     const declarations: AlertEmailDeclaration[] = alerts.map((a) => ({
       declarationNumber: a.declaration.declarationNumber,
-      hakkuutapa: a.declaration.hakkuutapa ?? null,
+      hakkuutapa: a.declaration.cuttingTypeCode ?? null,
       areaHa: a.declaration.areaHa ?? null,
       distanceM: a.distanceM ?? 0,
       kind: a.kind,
