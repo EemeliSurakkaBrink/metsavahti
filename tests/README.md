@@ -26,7 +26,8 @@ database or points at port 5432.
 - Each file calls `resetDatabase()` (TRUNCATE … CASCADE) in `beforeAll`.
 - The WFS is stubbed with `msw` (`helpers/wfs-fixture.ts` answers bbox queries
   like the real service).
-- Covers: migrations applied (generated `geom_3067`, GIST indexes), access
+- Covers: PostGIS enabled (`PostGIS_Version()`, adapter `extensions`), applied migrations equal `index.ts`,
+  migrations applied (generated `geom_3067`, GIST indexes), access
   control, the full `sync-declarations` pipeline (new → idempotent → changed
   geometry, emails asserted through the Mailpit API), and the cron endpoint.
 
