@@ -28,7 +28,9 @@ database or points at port 5432.
   like the real service).
 - Covers: PostGIS enabled (`PostGIS_Version()`, adapter `extensions`), applied migrations equal `index.ts`,
   migrations applied (generated `geom_3067`, GIST indexes), access
-  control, the full `sync-declarations` pipeline (new → idempotent → changed
+  control, the `users` collection (self-only read/update, admin-only `role`/`plan`/`deletedAt`,
+  `01 §3.1` defaults, derived `marketingConsentAt`, IANA `timezone`, auth options),
+  the full `sync-declarations` pipeline (new → idempotent → changed
   geometry, emails asserted through the Mailpit API), and the cron endpoint.
 
 ## E2E — `pnpm test:e2e` (`test:e2e:ui` for the inspector)

@@ -578,7 +578,7 @@
       "area": "data-model",
       "title": "users collection",
       "user_visible_behavior": "Fields per `01 §3.1`, `verify: true`, `forgotPassword`, `maxLoginAttempts 5`, `lockTime 10m`, `useSessions`, roles `user|admin`, access self-only.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-030"],
       "ticket": "MV-031",
       "epic": "E02",
@@ -587,7 +587,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/users-collection.int.test.ts (integration: user cannot read another user; admin can.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 5526dcb)",
+        "2026-09-20 pnpm test:integration -- tests/integration/users-collection.int.test.ts → pass (working tree on 5526dcb, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: user cannot read another user; admin can."
     },
