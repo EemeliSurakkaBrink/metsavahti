@@ -1,36 +1,20 @@
-# E09 — Marketing Site (MV-100…MV-105)
+# E09 — Marketing Site (MV-100…MV-101)
 
-### MV-100 Landing page `/`
+### MV-100 Landing page `/`, FAQ content and SEO
 
-Hero, 3-step strip, explainer box, trust section, FAQ (from `src/content/faq.ts`), CTAs; illustrative map mock as static SVG/PNG. **Tests:** E2E `@smoke` + axe + Lighthouse budget (perf ≥ 90 in CI via `@lhci/cli`, non-blocking). **Depends on:** MV-011
+Hero, 3-step strip, explainer box, trust section, FAQ (from `src/content/faq.ts`: 8 Finnish Q&As — what is a declaration, exemptions, why alert may be late, is my data shared, cost, accuracy of radius, cancel account, source licence), CTAs; illustrative map mock as static SVG/PNG. SEO & metadata: Open Graph images (static), `sitemap.xml`, `robots.txt`, canonical, `fi` lang, structured data (Organization, FAQPage). **Tests:** unit for sitemap entries; E2E `@smoke` + axe + Lighthouse budget (perf ≥ 90 in CI via `@lhci/cli`, non-blocking). **Status:** absorbs MV-103 and MV-104 (merged 2026-09-20, ledger P11). **Depends on:** MV-011
 
-### MV-101 `/miten-se-toimii`
+### MV-101 `/miten-se-toimii`, `/hinnoittelu` and marketing E2E + visual snapshots
 
-Long-form page with two SVG illustrations (2×/day cycle; sample email). **Depends on:** MV-011
-
-### MV-102 `/hinnoittelu` behind `SHOW_PRICING`
-
-Plan cards from `plans.ts`. **Depends on:** MV-011
-
-### MV-103 SEO & metadata
-
-Open Graph images (static), `sitemap.xml`, `robots.txt`, canonical, `fi` lang, structured data (Organization, FAQPage). **Tests:** unit for sitemap entries. **Depends on:** MV-100
-
-### MV-104 FAQ content
-
-8 Finnish Q&As (what is a declaration, exemptions, why alert may be late, is my data shared, cost, accuracy of radius, cancel account, source licence). **Depends on:** MV-100
-
-### MV-105 Marketing E2E + visual snapshots
-
-`tests/e2e/marketing.spec.ts`, `@visual` snapshots desktop/mobile. **Depends on:** MV-100…MV-104
+`/miten-se-toimii`: long-form page with two SVG illustrations (2×/day cycle; sample email). `/hinnoittelu` behind `SHOW_PRICING`: plan cards from `plans.ts`. `tests/e2e/marketing.spec.ts` with `@visual` snapshots desktop/mobile for every marketing page. **Tests:** E2E + `@visual` snapshots. **Status:** absorbs MV-102 and MV-105 (merged 2026-09-20, ledger P11). **Depends on:** MV-011, MV-100
 
 ---
 
-# E10 — Accessibility & i18n Hardening (MV-110…MV-114)
+# E10 — Accessibility & i18n Hardening (MV-110…MV-113)
 
-### MV-110 Axe sweep
+### MV-110 Axe sweep, reduced motion and colour-blind check
 
-Run `@axe-core/playwright` on every route listed in `03-pages.md` (logged-in and out); fix all serious/critical; keep list in `tests/e2e/a11y.spec.ts`. **Depends on:** E05, E07, E08, E09
+Run `@axe-core/playwright` on every route listed in `03-pages.md` (logged-in and out); fix all serious/critical; keep list in `tests/e2e/a11y.spec.ts`. Respect `prefers-reduced-motion`; cutting-type colours verified with simulated deuteranopia and always paired with icons/labels. **Status:** absorbs MV-114 (merged 2026-09-20, ledger P11). **Depends on:** E05, E07, E08, E09
 
 ### MV-111 Keyboard and screen-reader pass for map flows
 
@@ -43,10 +27,6 @@ Consistency pass on `fi.ts` (terminology: vahtialue, ilmoitus, metsänkäyttöil
 ### MV-113 English locale stub wiring
 
 Locale switch in `/tili` persists; `en.ts` falls back to Finnish; `<html lang>` follows locale. **Depends on:** MV-051
-
-### MV-114 Reduced motion and colour-blind check
-
-Respect `prefers-reduced-motion`; cutting-type colours verified with simulated deuteranopia and always paired with icons/labels. **Depends on:** MV-060
 
 ---
 
@@ -74,7 +54,7 @@ Server, edge, client, jobs; release tagging; PII scrubbing (emails hashed, coord
 
 ### MV-125 Uptime + pipeline alerting
 
-External monitor on `/api/health`; alert if `stale: true`; Slack/email notification; `nightly.yml` live contract test failure notifies. **Depends on:** MV-078, MV-029
+External monitor on `/api/health`; alert if `stale: true`; Slack/email notification; `nightly.yml` live contract test failure notifies. **Depends on:** MV-075, MV-029
 
 ### MV-126 Analytics (optional, consent-gated)
 

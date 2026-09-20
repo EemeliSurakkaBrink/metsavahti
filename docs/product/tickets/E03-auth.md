@@ -24,18 +24,10 @@
 
 **Goal:** `/unohtunut-salasana`, `/uusi-salasana?token=`; `ResetPassword` email; neutral responses; reset invalidates other sessions. **Tests:** E2E via Mailpit; integration: old session rejected after reset. **Depends on:** MV-040, MV-044
 
-### MV-046 Route protection middleware
+### MV-046 Route protection middleware and session helpers
 
-**Goal:** `src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). **Tests:** integration: matrix of route × auth state → expected status/redirect; E2E: CSP has no violations on `/` and `/vahtialueet` (console check). **Depends on:** MV-044, MV-011
-
-### MV-047 Session helpers and ownership guard
-
-**Goal:** `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`). **Tests:** unit for wrapper; integration `assertOwner` throws `Forbidden`. **Depends on:** MV-044, MV-010
+**Goal:** `src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`). Consolidated auth E2E suite. **Tests:** unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no violations on `/` and `/vahtialueet` (console check); consolidated `tests/e2e/auth.spec.ts` covering all E03 flows (register, verify, login/logout, reset, route protection) on Chromium + Mobile Chrome with axe on all auth pages. **Status:** absorbs MV-047 and MV-049 (merged 2026-09-20, ledger P11). **Depends on:** MV-044, MV-011, MV-010
 
 ### MV-048 Rate limiter
 
 **Goal:** `src/lib/rate-limit.ts` Postgres-backed sliding window (`rate_limit_buckets` table, migration `0004`) with keys per IP/user/route; helper for Server Actions and Route Handlers; 429 → `/liikaa-pyyntoja` for form posts, JSON 429 for API. **Tests:** integration: 6th request within window rejected. **Depends on:** MV-030
-
-### MV-049 Auth E2E suite
-
-**Goal:** Consolidated `tests/e2e/auth.spec.ts` covering all E03 flows on Chromium + Mobile Chrome; axe on all auth pages. **Depends on:** MV-042…MV-046

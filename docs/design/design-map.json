@@ -20,12 +20,9 @@
   "MV-046": ["docs/design/App.dc.html#route=huolto", "docs/design/App.dc.html#route=vahvistus_vaaditaan"],
   "MV-048": ["docs/design/App.dc.html#route=rajoitus"],
   "MV-050": ["docs/design/App.dc.html#route=vahtialueet", "docs/design/Metsävahti.dc.html"],
-  "MV-051": ["docs/design/App.dc.html#route=tili"],
+  "MV-051": ["docs/design/App.dc.html#route=tili", "docs/design/App.dc.html#route=turvallisuus"],
   "MV-052": ["docs/design/Email.dc.html#template=7"],
-  "MV-053": ["docs/design/App.dc.html#route=turvallisuus"],
   "MV-054": ["docs/design/App.dc.html#route=ilmoitusasetukset"],
-  "MV-056": ["docs/design/App.dc.html#route=tietosuoja"],
-  "MV-057": ["docs/design/App.dc.html#route=poista"],
   "MV-060": ["docs/design/App.dc.html#route=alue", "docs/design/App.dc.html#route=aloita"],
   "MV-061": ["docs/design/App.dc.html#route=alue"],
   "MV-062": ["docs/design/App.dc.html#route=aloita"],
@@ -48,11 +45,7 @@
   "MV-092": ["docs/design/Legal.dc.html#tietosuoja"],
   "MV-093": ["docs/design/App.dc.html#route=tietosuoja", "docs/design/Email.dc.html#template=5"],
   "MV-094": ["docs/design/App.dc.html#route=poista", "docs/design/Email.dc.html#template=6"],
-  "MV-095": ["docs/design/Yhteystiedot.dc.html#tietopyynto"],
-  "MV-096": ["docs/design/Yhteystiedot.dc.html"],
-  "MV-100": ["docs/design/Landing.dc.html#hero=B"],
-  "MV-101": ["docs/design/Miten.dc.html"],
-  "MV-102": ["docs/design/Hinnoittelu.dc.html"],
-  "MV-104": ["docs/design/Landing.dc.html#faq"],
-  "MV-105": ["docs/design/Landing.dc.html#hero=B", "docs/design/Miten.dc.html", "docs/design/Hinnoittelu.dc.html"]
+  "MV-095": ["docs/design/Yhteystiedot.dc.html#tietopyynto", "docs/design/Yhteystiedot.dc.html"],
+  "MV-100": ["docs/design/Landing.dc.html#hero=B", "docs/design/Landing.dc.html#faq"],
+  "MV-101": ["docs/design/Miten.dc.html", "docs/design/Hinnoittelu.dc.html", "docs/design/Landing.dc.html#hero=B"]
 }

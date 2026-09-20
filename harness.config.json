@@ -2,9 +2,9 @@
   "$comment": "Loop driver configuration (scripts/harness-loop.ts). Caps bound one generator session; allowedTools merge with .claude/settings.json only for driver-run sessions. See docs/harness/README.md.",
   "caps": {
     "maxAttempts": 2,
-    "maxTurns": 200,
-    "maxBudgetUsd": 15,
-    "wallClockMin": 60,
+    "maxTurns": 300,
+    "maxBudgetUsd": 25,
+    "wallClockMin": 90,
     "maxConsecutiveFailures": 2
   },
   "generator": {

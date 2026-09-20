@@ -373,40 +373,21 @@
       "id": "F-021",
       "priority": 21,
       "area": "wfs",
-      "title": "Discover and pin WFS layer contract",
-      "user_visible_behavior": "Script `pnpm wfs:describe` that calls `GetCapabilities` + `DescribeFeatureType`, prints layer names/attributes for the metsänkäyttöilmoitus layer; pin results in `src/lib/wfs/layer.ts` (layer name, attribute names, id field, date fields, cutting type field). Record `tests/fixtures/wfs/capabilities.xml` and `describe.xml`.",
+      "title": "Discover and pin WFS layer contract and record fixtures",
+      "user_visible_behavior": "Script `pnpm wfs:describe` that calls `GetCapabilities` + `DescribeFeatureType`, prints layer names/attributes for the metsänkäyttöilmoitus layer; pin results in `src/lib/wfs/layer.ts` (layer name, attribute names, id field, date fields, cutting type field). Record `tests/fixtures/wfs/capabilities.xml` and `describe.xml`. Then `pnpm fixtures:record --bbox <3067 bbox> --name <name>` writing GeoJSON pages to `tests/fixtures/wfs/`; produce the fixture set listed in `05-conventions.md` (inside/outside/borderline/changed-_/empty/paged-_). Choose a real bbox with several declarations and define `SAMPLE_WATCH_AREA` (centre + radius) in `tests/fixtures/sample-area.ts` such that fixtures are meaningful.",
       "status": "not_started",
       "depends_on": ["F-003"],
       "ticket": "MV-021",
       "epic": "E01",
-      "spec": "docs/product/tickets/E01-wfs-geo.md#mv-021-discover-and-pin-wfs-layer-contract",
+      "spec": "docs/product/tickets/E01-wfs-geo.md#mv-021-discover-and-pin-wfs-layer-contract-and-record-fixtures",
       "verification": [
         "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/wfs/discover-and-pin-wfs-layer-contract.test.ts (unit: schema parses recorded fixtures.)",
+        "L1: pnpm test:unit -- tests/unit/wfs/wfs-layer-contract.test.ts (unit: schema parses recorded fixtures.)",
         "manual: recorded fixtures reviewed (network access to the live WFS was needed)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): unit: schema parses recorded fixtures. Acceptance: `layer.ts` documented with the discovery date; Zod schema `WfsFeatureSchema` matches real attributes."
-    },
-    {
-      "id": "F-022",
-      "priority": 22,
-      "area": "wfs",
-      "title": "Record WFS fixtures",
-      "user_visible_behavior": "`pnpm fixtures:record --bbox <3067 bbox> --name <name>` writing GeoJSON pages to `tests/fixtures/wfs/`; produce the fixture set listed in `05-conventions.md` (inside/outside/borderline/changed-_/empty/paged-_). Choose a real bbox with several declarations and define `SAMPLE_WATCH_AREA` (centre + radius) in `tests/fixtures/sample-area.ts` such that fixtures are meaningful.",
-      "status": "not_started",
-      "depends_on": ["F-021"],
-      "ticket": "MV-022",
-      "epic": "E01",
-      "spec": "docs/product/tickets/E01-wfs-geo.md#mv-022-record-wfs-fixtures",
-      "verification": [
-        "L1: pnpm check",
-        "manual: recorded fixtures reviewed (network access to the live WFS was needed)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Acceptance: fixtures < 2 MB total, anonymised if any personal fields exist (there should be none)."
+      "notes": "Tests (ticket): unit: schema parses recorded fixtures. Acceptance: `layer.ts` documented with the discovery date; Zod schema `WfsFeatureSchema` matches real attributes; fixtures < 2 MB total, anonymised if any personal fields exist (there should be none). Status (ticket): absorbs MV-022 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-023",
@@ -431,20 +412,20 @@
       "id": "F-024",
       "priority": 24,
       "area": "wfs",
-      "title": "Normalisation and cutting-type codes",
-      "user_visible_behavior": "`normalise.ts`: `WfsFeature` → `NormalisedDeclaration` (sourceId, cuttingTypeCode/Label, areaHa, receivedAt, validUntil, municipalityCode, rawAttributes, geometry MultiPolygon 3067). `codes.ts`: code → `{ label_fi, colourToken, severity }` from `config/cutting-types.ts`, unknown → `muu`.",
+      "title": "Normalisation, cutting-type codes and Finnish labels",
+      "user_visible_behavior": "`normalise.ts`: `WfsFeature` → `NormalisedDeclaration` (sourceId, cuttingTypeCode/Label, areaHa, receivedAt, validUntil, municipalityCode, rawAttributes, geometry MultiPolygon 3067). `codes.ts`: code → `{ label_fi, colourToken, severity }` from `config/cutting-types.ts`, unknown → `muu`. Populate `config/cutting-types.ts` with the real Metsäkeskus codes discovered in MV-021 and plain-Finnish labels + one-line explanations for UI (\"Harvennushakkuu — osa puista poistetaan…\").",
       "status": "not_started",
       "depends_on": ["F-021"],
       "ticket": "MV-024",
       "epic": "E01",
-      "spec": "docs/product/tickets/E01-wfs-geo.md#mv-024-normalisation-and-cutting-type-codes",
+      "spec": "docs/product/tickets/E01-wfs-geo.md#mv-024-normalisation-cutting-type-codes-and-finnish-labels",
       "verification": [
         "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/wfs/normalisation-and-cutting-type-codes.test.ts (unit on every fixture; unknown code path; date parsing edge cases.)"
+        "L1: pnpm test:unit -- tests/unit/wfs/normalisation.test.ts (unit on every fixture; unknown code path; date parsing edge cases; every code in fixtures has a label.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): unit on every fixture; unknown code path; date parsing edge cases."
+      "notes": "Was F-009 (hakkuutapa labels verified against the Metsäkeskus code list; link the code list in the config). Tests (ticket): unit on every fixture; unknown code path; date parsing edge cases; every code in fixtures has a label. Status (ticket): absorbs MV-028 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-025",
@@ -511,25 +492,6 @@
       ],
       "attempts": 0,
       "notes": "Tests (ticket): unit: area within 1 % of πr²."
-    },
-    {
-      "id": "F-028",
-      "priority": 28,
-      "area": "wfs",
-      "title": "Cutting-type config and Finnish labels",
-      "user_visible_behavior": "Populate `config/cutting-types.ts` with the real Metsäkeskus codes discovered in MV-021 and plain-Finnish labels + one-line explanations for UI (\"Harvennushakkuu — osa puista poistetaan…\").",
-      "status": "not_started",
-      "depends_on": ["F-021", "F-024"],
-      "ticket": "MV-028",
-      "epic": "E01",
-      "spec": "docs/product/tickets/E01-wfs-geo.md#mv-028-cutting-type-config-and-finnish-labels",
-      "verification": [
-        "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/wfs/cutting-type-config-and-finnish-labels.test.ts (unit: every code in fixtures has a label.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Was F-009 (hakkuutapa labels verified against the Metsäkeskus code list; link the code list in the config). Tests (ticket): unit: every code in fixtures has a label."
     },
     {
       "id": "F-029",
@@ -903,45 +865,26 @@
       "id": "F-046",
       "priority": 46,
       "area": "auth",
-      "title": "Route protection middleware",
-      "user_visible_behavior": "`src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none).",
+      "title": "Route protection middleware and session helpers",
+      "user_visible_behavior": "`src/middleware.ts`: guards for `(app)` routes, guest-only for auth routes, maintenance mode, security headers (CSP nonce, HSTS, frame-ancestors none). `getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`). Consolidated auth E2E suite.",
       "status": "not_started",
-      "depends_on": ["F-011", "F-044"],
+      "depends_on": ["F-010", "F-011", "F-044"],
       "ticket": "MV-046",
       "epic": "E03",
-      "spec": "docs/product/tickets/E03-auth.md#mv-046-route-protection-middleware",
+      "spec": "docs/product/tickets/E03-auth.md#mv-046-route-protection-middleware-and-session-helpers",
       "design": [
         "docs/design/App.dc.html#route=huolto",
         "docs/design/App.dc.html#route=vahvistus_vaaditaan"
       ],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/route-protection-middleware.int.test.ts (integration: matrix of route × auth state → expected status/redirect; E2E: CSP has no violations on `/` and `/vahtialueet` console check.)",
-        "L3: pnpm test:e2e -- tests/e2e/route-protection-middleware.spec.ts (integration: matrix of route × auth state → expected status/redirect; E2E: CSP has no violations on `/` and `/vahtialueet` console check.)"
+        "L1: pnpm test:unit -- tests/unit/auth/route-protection.test.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)",
+        "L2: pnpm test:integration -- tests/integration/route-protection.int.test.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)",
+        "L3: pnpm test:e2e -- tests/e2e/auth.spec.ts (unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no v…)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration: matrix of route × auth state → expected status/redirect; E2E: CSP has no violations on `/` and `/vahtialueet` (console check)."
-    },
-    {
-      "id": "F-047",
-      "priority": 47,
-      "area": "auth",
-      "title": "Session helpers and ownership guard",
-      "user_visible_behavior": "`getSessionUser()` (server), `requireUser()`, `assertOwner(user, doc)`, `AppError` mapping for Server Actions (`actionResult<T>()` wrapper returning `{ ok, data | error }`).",
-      "status": "not_started",
-      "depends_on": ["F-010", "F-044"],
-      "ticket": "MV-047",
-      "epic": "E03",
-      "spec": "docs/product/tickets/E03-auth.md#mv-047-session-helpers-and-ownership-guard",
-      "verification": [
-        "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/auth/session-helpers-and-ownership-guard.test.ts (unit for wrapper; integration `assertOwner` throws `Forbidden`.)",
-        "L2: pnpm test:integration -- tests/integration/session-helpers-and-ownership-guard.int.test.ts (unit for wrapper; integration `assertOwner` throws `Forbidden`.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): unit for wrapper; integration `assertOwner` throws `Forbidden`."
+      "notes": "Tests (ticket): unit for wrapper; integration: matrix of route × auth state → expected status/redirect, `assertOwner` throws `Forbidden`; E2E: CSP has no violations on `/` and `/vahtialueet` (console check); consolidated `tests/e2e/auth.spec.ts` covering all E03 flows (register, verify, login/logout, reset, route protection) on Chromium + Mobile Chrome with axe on all auth pages. Status (ticket): absorbs MV-047 and MV-049 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-048",
@@ -962,25 +905,6 @@
       "evidence": [],
       "attempts": 0,
       "notes": "Was F-010 (Postgres-based limiter preferred over Upstash to avoid a new external service). Tests (ticket): integration: 6th request within window rejected."
-    },
-    {
-      "id": "F-049",
-      "priority": 49,
-      "area": "auth",
-      "title": "Auth E2E suite",
-      "user_visible_behavior": "Consolidated `tests/e2e/auth.spec.ts` covering all E03 flows on Chromium + Mobile Chrome; axe on all auth pages.",
-      "status": "not_started",
-      "depends_on": ["F-042", "F-043", "F-044", "F-045", "F-046"],
-      "ticket": "MV-049",
-      "epic": "E03",
-      "spec": "docs/product/tickets/E03-auth.md#mv-049-auth-e2e-suite",
-      "verification": [
-        "L1: pnpm check",
-        "manual: Consolidated `tests/e2e/auth.spec.ts` covering all E03 flows on Chromium + Mobile Chrome; axe on all auth pages."
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
     },
     {
       "id": "F-050",
@@ -1007,22 +931,25 @@
       "id": "F-051",
       "priority": 51,
       "area": "account",
-      "title": "Profile page /tili",
-      "user_visible_behavior": "Name, locale, timezone edits (Server Action `updateProfile`); email shows current + \"Vaihda\" starting change flow (MV-052).",
+      "title": "Profile and security pages /tili, /tili/turvallisuus",
+      "user_visible_behavior": "`/tili`: name, locale, timezone edits (Server Action `updateProfile`); email shows current + \"Vaihda\" starting change flow (MV-052). `/tili/turvallisuus`: change password (current required; invalidates other sessions), sessions list (device/UA, created, last seen, current flag), \"Kirjaa ulos muista laitteista\".",
       "status": "not_started",
-      "depends_on": ["F-047", "F-050"],
+      "depends_on": ["F-044", "F-046", "F-050"],
       "ticket": "MV-051",
       "epic": "E04",
-      "spec": "docs/product/tickets/E04-account.md#mv-051-profile-page-tili",
-      "design": ["docs/design/App.dc.html#route=tili"],
+      "spec": "docs/product/tickets/E04-account.md#mv-051-profile-and-security-pages-tili-tiliturvallisuus",
+      "design": [
+        "docs/design/App.dc.html#route=tili",
+        "docs/design/App.dc.html#route=turvallisuus"
+      ],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/profile-page-tili.int.test.ts (integration owner-only; E2E edit name.)",
-        "L3: pnpm test:e2e -- tests/e2e/profile-page-tili.spec.ts (integration owner-only; E2E edit name.)"
+        "L2: pnpm test:integration -- tests/integration/profile-security.int.test.ts (integration owner-only; integration: other session invalid after password change; E2E edit name + change password.)",
+        "L3: pnpm test:e2e -- tests/e2e/profile-security.spec.ts (integration owner-only; integration: other session invalid after password change; E2E edit name + change password.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration owner-only; E2E edit name."
+      "notes": "Tests (ticket): integration owner-only; integration: other session invalid after password change; E2E edit name + change password. Status (ticket): absorbs MV-053 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-052",
@@ -1046,27 +973,6 @@
       "notes": "Tests (ticket): integration: token reuse rejected; E2E via Mailpit."
     },
     {
-      "id": "F-053",
-      "priority": 53,
-      "area": "account",
-      "title": "Security page /tili/turvallisuus",
-      "user_visible_behavior": "Change password (current required; invalidates other sessions), sessions list (device/UA, created, last seen, current flag), \"Kirjaa ulos muista laitteista\".",
-      "status": "not_started",
-      "depends_on": ["F-044", "F-050"],
-      "ticket": "MV-053",
-      "epic": "E04",
-      "spec": "docs/product/tickets/E04-account.md#mv-053-security-page-tiliturvallisuus",
-      "design": ["docs/design/App.dc.html#route=turvallisuus"],
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/security-page-tili-turvallisuus.int.test.ts (integration: other session invalid after password change; E2E.)",
-        "L3: pnpm test:e2e -- tests/e2e/security-page-tili-turvallisuus.spec.ts (integration: other session invalid after password change; E2E.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration: other session invalid after password change; E2E."
-    },
-    {
       "id": "F-054",
       "priority": 54,
       "area": "account",
@@ -1088,73 +994,13 @@
       "notes": "Tests (ticket): integration: consent event written with `granted=false` on untick; E2E test email arrives in Mailpit."
     },
     {
-      "id": "F-055",
-      "priority": 55,
-      "area": "account",
-      "title": "Unsubscribe endpoint",
-      "user_visible_behavior": "`GET /api/notifications/unsubscribe?token=` (signed, purpose `unsub`, watchAreaId, 30 d) → sets `notificationsEnabled=false`, renders confirmation page with login link; token single-use recorded in `notification_log` or a small table.",
-      "status": "not_started",
-      "depends_on": ["F-032", "F-047"],
-      "ticket": "MV-055",
-      "epic": "E04",
-      "spec": "docs/product/tickets/E04-account.md#mv-055-unsubscribe-endpoint",
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/unsubscribe-endpoint.int.test.ts (integration: valid → disabled; tampered → 400.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration: valid → disabled; tampered → 400."
-    },
-    {
-      "id": "F-056",
-      "priority": 56,
-      "area": "account",
-      "title": "Privacy page /tili/tietosuoja (UI only)",
-      "user_visible_behavior": "Consent history table from `consent_events`, cookie-settings button, export section wired to MV-093 (shows disabled state until implemented behind flag), links to policy + supervisory authority.",
-      "status": "not_started",
-      "depends_on": ["F-035", "F-050"],
-      "ticket": "MV-056",
-      "epic": "E04",
-      "spec": "docs/product/tickets/E04-account.md#mv-056-privacy-page-tilitietosuoja-ui-only",
-      "design": ["docs/design/App.dc.html#route=tietosuoja"],
-      "verification": [
-        "L1: pnpm check",
-        "L3: pnpm test:e2e -- tests/e2e/privacy-page-tili-tietosuoja-ui-only.spec.ts (E2E renders history.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): E2E renders history."
-    },
-    {
-      "id": "F-057",
-      "priority": 57,
-      "area": "account",
-      "title": "Delete account page /tili/poista (UI only)",
-      "user_visible_behavior": "Explanation from `retention.ts`, `POISTA` + password confirmation form calling `POST /api/account/delete` (endpoint from MV-094; until then returns 501 behind flag), `/tili-poistettu` public page.",
-      "status": "not_started",
-      "depends_on": ["F-050"],
-      "ticket": "MV-057",
-      "epic": "E04",
-      "spec": "docs/product/tickets/E04-account.md#mv-057-delete-account-page-tilipoista-ui-only",
-      "design": ["docs/design/App.dc.html#route=poista"],
-      "verification": [
-        "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/account/delete-account-page-tili-poista-ui-only.test.ts (unit form validation; E2E page renders and validates.)",
-        "L3: pnpm test:e2e -- tests/e2e/delete-account-page-tili-poista-ui-only.spec.ts (unit form validation; E2E page renders and validates.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): unit form validation; E2E page renders and validates."
-    },
-    {
       "id": "F-060",
       "priority": 60,
       "area": "watch-areas",
       "title": "MapView component",
       "user_visible_behavior": "`src/components/map/MapView.tsx` (MapLibre + react-map-gl): base raster (OSM in dev, `MAP_TILE_URL` env), optional Metsäkeskus WMS toggle layer, declarations GeoJSON layer styled by `cuttingType` colour token, watch-area circle/polygon layer, legend, \"Keskitä\" control, keyboard-operable controls, attribution control, `onCenterChange` with draggable pin in interactive mode; SSR-safe dynamic import.",
       "status": "not_started",
-      "depends_on": ["F-016", "F-027", "F-028"],
+      "depends_on": ["F-016", "F-024", "F-027"],
       "ticket": "MV-060",
       "epic": "E05",
       "spec": "docs/product/tickets/E05-watch-areas.md#mv-060-mapview-component",
@@ -1195,7 +1041,7 @@
       "title": "Geocoding proxy",
       "user_visible_behavior": "`GET /api/geocode?q=` → MML geocoding (or Digitransit) behind `Geocoder` interface; Zod-validated output `{ label, lng, lat, municipality }[]`; 24 h in-memory + DB cache; rate limit 60/min/user. `AddressSearch` combobox component (debounce 300 ms, arrow-key navigation).",
       "status": "blocked",
-      "depends_on": ["F-047", "F-048"],
+      "depends_on": ["F-046", "F-048"],
       "ticket": "MV-062",
       "epic": "E05",
       "spec": "docs/product/tickets/E05-watch-areas.md#mv-062-geocoding-proxy",
@@ -1236,7 +1082,7 @@
       "title": "Watch-area Server Actions",
       "user_visible_behavior": "`createWatchArea`, `updateWatchArea`, `deleteWatchArea`, `toggleWatchAreaNotifications`; Zod schemas; plan-limit error mapped to UI; `update` nulls `lastCheckedAt`; delete cascades join rows/alerts (DB FK `ON DELETE CASCADE` via migration `0006`).",
       "status": "not_started",
-      "depends_on": ["F-032", "F-047"],
+      "depends_on": ["F-032", "F-046"],
       "ticket": "MV-064",
       "epic": "E05",
       "spec": "docs/product/tickets/E05-watch-areas.md#mv-064-watch-area-server-actions",
@@ -1315,59 +1161,40 @@
       "id": "F-068",
       "priority": 68,
       "area": "watch-areas",
-      "title": "Create/edit pages /vahtialueet/uusi, /vahtialueet/[id]/muokkaa",
-      "user_visible_behavior": "Single-page form reusing wizard steps; prefilled for edit.",
+      "title": "Create/edit pages /vahtialueet/uusi, /vahtialueet/[id]/muokkaa and watch-area E2E suite",
+      "user_visible_behavior": "Single-page form reusing wizard steps; prefilled for edit. `tests/e2e/watch-areas.spec.ts` full journey on desktop + mobile; axe on all E05 pages; keyboard-only creation path (no map interaction).",
       "status": "not_started",
       "depends_on": ["F-065", "F-067"],
       "ticket": "MV-068",
       "epic": "E05",
-      "spec": "docs/product/tickets/E05-watch-areas.md#mv-068-createedit-pages-vahtialueetuusi-vahtialueetidmuokkaa",
+      "spec": "docs/product/tickets/E05-watch-areas.md#mv-068-createedit-pages-vahtialueetuusi-vahtialueetidmuokkaa-and-watch-area-e2e-suite",
       "design": ["docs/design/App.dc.html#route=alue_muokkaa"],
       "verification": [
         "L1: pnpm check",
-        "L3: pnpm test:e2e -- tests/e2e/create-edit-pages-vahtialueet-uusi-vahti.spec.ts (E2E edit radius → detail shows new radius.)"
+        "L3: pnpm test:e2e -- tests/e2e/watch-areas.spec.ts (E2E edit radius → detail shows new radius; E2E full journey + axe + keyboard-only path.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): E2E edit radius → detail shows new radius."
-    },
-    {
-      "id": "F-069",
-      "priority": 69,
-      "area": "watch-areas",
-      "title": "Watch-area E2E suite + axe",
-      "user_visible_behavior": "`tests/e2e/watch-areas.spec.ts` full journey on desktop + mobile; axe on all E05 pages; keyboard-only creation path (no map interaction).",
-      "status": "not_started",
-      "depends_on": ["F-065", "F-066", "F-067", "F-068"],
-      "ticket": "MV-069",
-      "epic": "E05",
-      "spec": "docs/product/tickets/E05-watch-areas.md#mv-069-watch-area-e2e-suite-axe",
-      "verification": [
-        "L1: pnpm check",
-        "manual: `tests/e2e/watch-areas.spec.ts` full journey on desktop + mobile; axe on all E05 pages; keyboard-only creation path no map interaction."
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
+      "notes": "Tests (ticket): E2E edit radius → detail shows new radius; E2E full journey + axe + keyboard-only path. Status (ticket): absorbs MV-069 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-070",
       "priority": 70,
       "area": "pipeline",
-      "title": "Jobs infrastructure",
-      "user_visible_behavior": "Configure Payload Jobs queue; `job_runs` writer helper (`withJobRun(task, fn)` recording status/stats/error); `POST /api/jobs/run` (Bearer `CRON_SECRET`, enqueues `pipeline`, returns runId); `pnpm jobs:run` script executing queue once; admin \"Run pipeline now\" button (admin only).",
+      "title": "Jobs infrastructure and cleanup task",
+      "user_visible_behavior": "Configure Payload Jobs queue; `job_runs` writer helper (`withJobRun(task, fn)` recording status/stats/error); `POST /api/jobs/run` (Bearer `CRON_SECRET`, enqueues `pipeline`, returns runId); `pnpm jobs:run` script executing queue once; admin \"Run pipeline now\" button (admin only). `cleanup` task per `01 §4.4` using `retention.ts`, scheduled weekly via `POST /api/jobs/run?task=cleanup`.",
       "status": "not_started",
-      "depends_on": ["F-010", "F-035"],
+      "depends_on": ["F-010", "F-033", "F-035"],
       "ticket": "MV-070",
       "epic": "E06",
-      "spec": "docs/product/tickets/E06-pipeline.md#mv-070-jobs-infrastructure",
+      "spec": "docs/product/tickets/E06-pipeline.md#mv-070-jobs-infrastructure-and-cleanup-task",
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/jobs-infrastructure.int.test.ts (integration: unauthenticated 401; run creates `job_runs` row.)"
+        "L2: pnpm test:integration -- tests/integration/jobs-infrastructure.int.test.ts (integration: unauthenticated 401; run creates `job_runs` row; cleanup removes expired declarations and keeps referenced ones.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration: unauthenticated 401; run creates `job_runs` row."
+      "notes": "Tests (ticket): integration: unauthenticated 401; run creates `job_runs` row; cleanup removes expired declarations and keeps referenced ones. Status (ticket): absorbs MV-076 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-071",
@@ -1411,21 +1238,22 @@
       "id": "F-073",
       "priority": 73,
       "area": "pipeline",
-      "title": "Alert email templates",
-      "user_visible_behavior": "`AlertImmediate` (one watch area, N alerts) and `AlertDigest` (grouped by area) React Email templates with Finnish copy, cutting-type explanation lines, distance formatting (\"noin 350 m tontistasi\"), CTA to `/ilmoitukset/[id]`, unsubscribe link (signed via MV-055 token), settings link, attribution; optional static-map `<img>` when `ENABLE_MAP_IMAGES`.",
+      "title": "Alert email templates and unsubscribe endpoint",
+      "user_visible_behavior": "`AlertImmediate` (one watch area, N alerts) and `AlertDigest` (grouped by area) React Email templates with Finnish copy, cutting-type explanation lines, distance formatting (\"noin 350 m tontistasi\"), CTA to `/ilmoitukset/[id]`, unsubscribe link (signed token, purpose `unsub`, watchAreaId, 30 d), settings link, attribution; optional static-map `<img>` when `ENABLE_MAP_IMAGES`. `GET /api/notifications/unsubscribe?token=` → sets `notificationsEnabled=false`, renders confirmation page with login link; token single-use recorded in `notification_log` or a small table.",
       "status": "not_started",
-      "depends_on": ["F-028", "F-040", "F-055"],
+      "depends_on": ["F-024", "F-032", "F-040", "F-046"],
       "ticket": "MV-073",
       "epic": "E06",
-      "spec": "docs/product/tickets/E06-pipeline.md#mv-073-alert-email-templates",
+      "spec": "docs/product/tickets/E06-pipeline.md#mv-073-alert-email-templates-and-unsubscribe-endpoint",
       "design": ["docs/design/Email.dc.html#template=3", "docs/design/Email.dc.html#template=4"],
       "verification": [
         "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/pipeline/alert-email-templates.test.ts (unit snapshots; assert required links present; HTML < 100 KB.)"
+        "L1: pnpm test:unit -- tests/unit/pipeline/alert-emails.test.ts (unit snapshots; assert required links present; HTML < 100 KB; integration: valid token → disabled; tampered → 400.)",
+        "L2: pnpm test:integration -- tests/integration/alert-emails.int.test.ts (unit snapshots; assert required links present; HTML < 100 KB; integration: valid token → disabled; tampered → 400.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): unit snapshots; assert required links present; HTML < 100 KB."
+      "notes": "Tests (ticket): unit snapshots; assert required links present; HTML < 100 KB; integration: valid token → disabled; tampered → 400. Status (ticket): absorbs MV-055 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-074",
@@ -1450,39 +1278,20 @@
       "id": "F-075",
       "priority": 75,
       "area": "pipeline",
-      "title": "pipeline orchestration task",
-      "user_visible_behavior": "`pipeline` runs fetch → match → notify sequentially with shared `runId`; skips notify if match failed; overall `job_runs` summary; guard against overlapping runs (advisory lock).",
+      "title": "Pipeline orchestration task and health status",
+      "user_visible_behavior": "`pipeline` runs fetch → match → notify sequentially with shared `runId`; skips notify if match failed; overall `job_runs` summary; guard against overlapping runs (advisory lock). Extend `/api/health` with last pipeline run (status, finishedAt, stats), `stale: true` if > 14 h old; `?deep=1` performs WFS GetCapabilities.",
       "status": "not_started",
       "depends_on": ["F-071", "F-072", "F-074"],
       "ticket": "MV-075",
       "epic": "E06",
-      "spec": "docs/product/tickets/E06-pipeline.md#mv-075-pipeline-orchestration-task",
+      "spec": "docs/product/tickets/E06-pipeline.md#mv-075-pipeline-orchestration-task-and-health-status",
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/pipeline-orchestration-task.int.test.ts (integration end-to-end with fixtures: area + fake WFS → email in Mailpit; second run → no email; concurrent trigger → second returns 409.)"
+        "L2: pnpm test:integration -- tests/integration/pipeline.int.test.ts (integration end-to-end with fixtures: area + fake WFS → email in Mailpit; second run → no email; concurrent trigger → second returns 409; h…)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration end-to-end with fixtures: area + fake WFS → email in Mailpit; second run → no email; concurrent trigger → second returns 409."
-    },
-    {
-      "id": "F-076",
-      "priority": 76,
-      "area": "pipeline",
-      "title": "cleanup task",
-      "user_visible_behavior": "Per `01 §4.4` using `retention.ts`; scheduled weekly via `POST /api/jobs/run?task=cleanup`.",
-      "status": "not_started",
-      "depends_on": ["F-033", "F-070"],
-      "ticket": "MV-076",
-      "epic": "E06",
-      "spec": "docs/product/tickets/E06-pipeline.md#mv-076-cleanup-task",
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/cleanup-task.int.test.ts (integration: expired declarations removed, referenced ones kept.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration: expired declarations removed, referenced ones kept."
+      "notes": "Tests (ticket): integration end-to-end with fixtures: area + fake WFS → email in Mailpit; second run → no email; concurrent trigger → second returns 409; health reports the last run and `stale`. Status (ticket): absorbs MV-078 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-077",
@@ -1491,7 +1300,7 @@
       "title": "Static map image endpoint (flagged)",
       "user_visible_behavior": "`GET /api/alerts/[id]/map-image.png` (owner session or signed token): SVG composed from watch circle + polygon (3067 → local pixel space, no tiles) rendered with `@resvg/resvg-js`, cached 7 d. Behind `ENABLE_MAP_IMAGES`.",
       "status": "not_started",
-      "depends_on": ["F-034", "F-047"],
+      "depends_on": ["F-034", "F-046"],
       "ticket": "MV-077",
       "epic": "E06",
       "spec": "docs/product/tickets/E06-pipeline.md#mv-077-static-map-image-endpoint-flagged",
@@ -1502,25 +1311,6 @@
       "evidence": [],
       "attempts": 0,
       "notes": "Tests (ticket): integration: returns PNG, 403 for non-owner, token OK."
-    },
-    {
-      "id": "F-078",
-      "priority": 78,
-      "area": "pipeline",
-      "title": "Health endpoint pipeline status",
-      "user_visible_behavior": "Extend `/api/health` with last pipeline run (status, finishedAt, stats), `stale: true` if > 14 h old; `?deep=1` performs WFS GetCapabilities.",
-      "status": "not_started",
-      "depends_on": ["F-070"],
-      "ticket": "MV-078",
-      "epic": "E06",
-      "spec": "docs/product/tickets/E06-pipeline.md#mv-078-health-endpoint-pipeline-status",
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/health-endpoint-pipeline-status.int.test.ts (integration.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration."
     },
     {
       "id": "F-079",
@@ -1545,120 +1335,63 @@
       "id": "F-080",
       "priority": 80,
       "area": "alerts",
-      "title": "Alert feed /ilmoitukset",
-      "user_visible_behavior": "Paginated (50, cursor) newest-first, grouped by date headers (Europe/Helsinki), `AlertItem` (area name, cutting chip, area ha, distance, change type label, \"Näytä kartalla\"), filter by watch area, unread styling, empty state.",
+      "title": "Alert feed /ilmoitukset, mark read and change-type semantics",
+      "user_visible_behavior": "Paginated (50, cursor) newest-first, grouped by date headers (Europe/Helsinki), `AlertItem` (area name, cutting chip, area ha, distance, change type label, \"Näytä kartalla\"), filter by watch area, unread styling, empty state. Server Actions `markAlertRead`, `markAllAlertsRead`; badge in nav updates. Labels/explanations for `new`, `geometry_changed`, `attributes_changed`, `removed` in `fi.ts`; icons; `removed` hidden unless flag.",
       "status": "not_started",
       "depends_on": ["F-050", "F-072"],
       "ticket": "MV-080",
       "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-080-alert-feed-ilmoitukset",
+      "spec": "docs/product/tickets/E07-alerts.md#mv-080-alert-feed-ilmoitukset-mark-read-and-change-type-semantics",
       "design": ["docs/design/App.dc.html#route=ilmoitukset"],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/alert-feed-ilmoitukset.int.test.ts (integration owner-only; E2E `@smoke` after pipeline run.)",
-        "L3: pnpm test:e2e -- tests/e2e/alert-feed-ilmoitukset.spec.ts (integration owner-only; E2E `@smoke` after pipeline run.)"
+        "L1: pnpm test:unit -- tests/unit/alerts/alert-feed.test.ts (unit change-type labels; integration owner-only feed and actions; E2E `@smoke` after pipeline run, badge count after mark read.)",
+        "L2: pnpm test:integration -- tests/integration/alert-feed.int.test.ts (unit change-type labels; integration owner-only feed and actions; E2E `@smoke` after pipeline run, badge count after mark read.)",
+        "L3: pnpm test:e2e -- tests/e2e/alert-feed.spec.ts (unit change-type labels; integration owner-only feed and actions; E2E `@smoke` after pipeline run, badge count after mark read.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Was F-006 (alert list; now its own page). Tests (ticket): integration owner-only; E2E `@smoke` after pipeline run."
-    },
-    {
-      "id": "F-081",
-      "priority": 81,
-      "area": "alerts",
-      "title": "Mark read / mark all read",
-      "user_visible_behavior": "Server Actions `markAlertRead`, `markAllAlertsRead`; badge in nav updates.",
-      "status": "not_started",
-      "depends_on": ["F-080"],
-      "ticket": "MV-081",
-      "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-081-mark-read-mark-all-read",
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/mark-read-mark-all-read.int.test.ts (integration owner-only; E2E badge count.)",
-        "L3: pnpm test:e2e -- tests/e2e/mark-read-mark-all-read.spec.ts (integration owner-only; E2E badge count.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration owner-only; E2E badge count."
+      "notes": "Was F-006 (alert list; now its own page). Tests (ticket): unit change-type labels; integration owner-only (feed and actions); E2E `@smoke` after pipeline run, badge count after mark read. Status (ticket): absorbs MV-081 and MV-084 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-082",
       "priority": 82,
       "area": "alerts",
-      "title": "Alert detail /ilmoitukset/[id]",
-      "user_visible_behavior": "Map zoomed to polygon (+ watch circle), snapshot attributes vs current (shows \"Tiedot päivittyneet\" if declaration changed since), link to Metsäkeskus map service (URL pattern in `config/wfs.ts`), \"Mitä tämä tarkoittaa?\" explainer per cutting type, marks read on view.",
+      "title": "Alert detail /ilmoitukset/[id] and full-loop E2E",
+      "user_visible_behavior": "Map zoomed to polygon (+ watch circle), snapshot attributes vs current (shows \"Tiedot päivittyneet\" if declaration changed since), link to Metsäkeskus map service (URL pattern in `config/wfs.ts`), \"Mitä tämä tarkoittaa?\" explainer per cutting type, marks read on view. `tests/e2e/alert-loop.spec.ts`: login → create area over fixture bbox → trigger `/api/jobs/run` via request context → feed shows alert → email in Mailpit contains link → link opens alert detail. Tag `@smoke`.",
       "status": "not_started",
-      "depends_on": ["F-060", "F-080"],
+      "depends_on": ["F-060", "F-075", "F-080"],
       "ticket": "MV-082",
       "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-082-alert-detail-ilmoituksetid",
+      "spec": "docs/product/tickets/E07-alerts.md#mv-082-alert-detail-ilmoituksetid-and-full-loop-e2e",
       "design": ["docs/design/App.dc.html#route=ilmoitus"],
       "verification": [
         "L1: pnpm check",
-        "L3: pnpm test:e2e -- tests/e2e/alert-detail-ilmoitukset-id.spec.ts (E2E.)"
+        "L3: pnpm test:e2e -- tests/e2e/alert-loop.spec.ts (E2E detail page; E2E full loop `@smoke`.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): E2E."
+      "notes": "Tests (ticket): E2E detail page; E2E full loop `@smoke`. Status (ticket): absorbs MV-085 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-083",
       "priority": 83,
       "area": "alerts",
-      "title": "Dashboard \"Uusia\" badges and status strip wiring",
-      "user_visible_behavior": "Counts on `/vahtialueet` from unread alerts per area; status strip reads `job_runs` (last successful pipeline, stale warning).",
+      "title": "Dashboard \"Uusia\" badges, status strip and badge revalidation",
+      "user_visible_behavior": "Counts on `/vahtialueet` from unread alerts per area; status strip reads `job_runs` (last successful pipeline, stale warning). Nav badge revalidated via `revalidateTag('alerts:userId')` after pipeline run; no websockets in v1.",
       "status": "not_started",
-      "depends_on": ["F-066", "F-072"],
+      "depends_on": ["F-066", "F-072", "F-074", "F-080"],
       "ticket": "MV-083",
       "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-083-dashboard-uusia-badges-and-status-strip-wiring",
+      "spec": "docs/product/tickets/E07-alerts.md#mv-083-dashboard-uusia-badges-status-strip-and-badge-revalidation",
       "design": ["docs/design/App.dc.html#route=vahtialueet"],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/dashboard-uusia-badges-and-status-strip.int.test.ts (integration counts.)"
+        "L2: pnpm test:integration -- tests/integration/dashboard-badges.int.test.ts (integration counts; integration tag invalidation called.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration counts."
-    },
-    {
-      "id": "F-084",
-      "priority": 84,
-      "area": "alerts",
-      "title": "Change-type semantics in UI",
-      "user_visible_behavior": "Labels/explanations for `new`, `geometry_changed`, `attributes_changed`, `removed` in `fi.ts`; icons; `removed` hidden unless flag.",
-      "status": "not_started",
-      "depends_on": ["F-080"],
-      "ticket": "MV-084",
-      "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-084-change-type-semantics-in-ui",
-      "verification": [
-        "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/alerts/change-type-semantics-in-ui.test.ts (unit.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): unit."
-    },
-    {
-      "id": "F-085",
-      "priority": 85,
-      "area": "alerts",
-      "title": "Alert E2E: full loop",
-      "user_visible_behavior": "`tests/e2e/alert-loop.spec.ts`: login → create area over fixture bbox → trigger `/api/jobs/run` via request context → feed shows alert → email in Mailpit contains link → link opens alert detail. Tag `@smoke`.",
-      "status": "not_started",
-      "depends_on": ["F-075", "F-082"],
-      "ticket": "MV-085",
-      "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-085-alert-e2e-full-loop",
-      "verification": [
-        "L1: pnpm check",
-        "manual: `tests/e2e/alert-loop.spec.ts`: login → create area over fixture bbox → trigger `/api/jobs/run` via request context → feed shows alert → email in Mailpit contains link → link open…"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
+      "notes": "Tests (ticket): integration counts; integration tag invalidation called. Status (ticket): absorbs MV-087 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-086",
@@ -1679,25 +1412,6 @@
       "evidence": [],
       "attempts": 0,
       "notes": "Tests (ticket): integration: new version → banner data; accept writes event."
-    },
-    {
-      "id": "F-087",
-      "priority": 87,
-      "area": "alerts",
-      "title": "Notification badge realtime-ish",
-      "user_visible_behavior": "Nav badge revalidated via `revalidateTag('alerts:userId')` after pipeline run; no websockets in v1.",
-      "status": "not_started",
-      "depends_on": ["F-074", "F-081"],
-      "ticket": "MV-087",
-      "epic": "E07",
-      "spec": "docs/product/tickets/E07-alerts.md#mv-087-notification-badge-realtime-ish",
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/notification-badge-realtime-ish.int.test.ts (integration tag invalidation called.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration tag invalidation called."
     },
     {
       "id": "F-090",
@@ -1770,88 +1484,71 @@
       "id": "F-093",
       "priority": 93,
       "area": "gdpr",
-      "title": "Data export",
-      "user_visible_behavior": "`POST /api/account/export` → `data_export_requests` + `export` job building zip (`account.json`, `watch-areas.geojson`, `alerts.json`, `consents.json`, `notifications.json`), stored in `exports`, `ExportReady` email with signed link (24 h), download route `GET /api/account/export/[id]?token=`. UI on `/tili/tietosuoja` shows pending/ready/expired. Rate limit 1/day.",
+      "title": "Privacy page /tili/tietosuoja and data export",
+      "user_visible_behavior": "`/tili/tietosuoja`: consent history table from `consent_events`, cookie-settings button, export section (pending/ready/expired), links to policy + supervisory authority. `POST /api/account/export` → `data_export_requests` + `export` job building zip (`account.json`, `watch-areas.geojson`, `alerts.json`, `consents.json`, `notifications.json`), stored in `exports`, `ExportReady` email with signed link (24 h), download route `GET /api/account/export/[id]?token=`. Rate limit 1/day.",
       "status": "not_started",
-      "depends_on": ["F-035", "F-056", "F-070"],
+      "depends_on": ["F-035", "F-050", "F-070"],
       "ticket": "MV-093",
       "epic": "E08",
-      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-093-data-export",
+      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-093-privacy-page-tilitietosuoja-and-data-export",
       "design": [
         "docs/design/App.dc.html#route=tietosuoja",
         "docs/design/Email.dc.html#template=5"
       ],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/data-export.int.test.ts (integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: request → Mailpit link → 200.)",
-        "L3: pnpm test:e2e -- tests/e2e/data-export.spec.ts (integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: request → Mailpit link → 200.)"
+        "L2: pnpm test:integration -- tests/integration/data-export.int.test.ts (integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: page renders consent history; request → Mailpit link → 200.)",
+        "L3: pnpm test:e2e -- tests/e2e/data-export.spec.ts (integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: page renders consent history; request → Mailpit link → 200.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: request → Mailpit link → 200."
+      "notes": "Tests (ticket): integration: zip contains 5 files, geojson valid WGS84; expired token 410; E2E: page renders consent history; request → Mailpit link → 200. Status (ticket): absorbs MV-056 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-094",
       "priority": 94,
       "area": "gdpr",
-      "title": "Account deletion",
-      "user_visible_behavior": "`POST /api/account/delete` (password re-check) → `delete-account` job per `01 §4.6`; `AccountDeleted` email sent first; consent events anonymised (user null, email sha256); session revoked; redirect `/tili-poistettu`.",
+      "title": "Delete account page /tili/poista and account deletion",
+      "user_visible_behavior": "`/tili/poista`: explanation from `retention.ts`, `POISTA` + password confirmation form; `/tili-poistettu` public page. `POST /api/account/delete` (password re-check) → `delete-account` job per `01 §4.6`; `AccountDeleted` email sent first; consent events anonymised (user null, email sha256); session revoked; redirect `/tili-poistettu`.",
       "status": "not_started",
-      "depends_on": ["F-057", "F-070"],
+      "depends_on": ["F-050", "F-070"],
       "ticket": "MV-094",
       "epic": "E08",
-      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-094-account-deletion",
+      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-094-delete-account-page-tilipoista-and-account-deletion",
       "design": ["docs/design/App.dc.html#route=poista", "docs/design/Email.dc.html#template=6"],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/account-deletion.int.test.ts (integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E.)",
-        "L3: pnpm test:e2e -- tests/e2e/account-deletion.spec.ts (integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E.)"
+        "L1: pnpm test:unit -- tests/unit/gdpr/account-deletion.test.ts (unit form validation; integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E page render…)",
+        "L2: pnpm test:integration -- tests/integration/account-deletion.int.test.ts (unit form validation; integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E page render…)",
+        "L3: pnpm test:e2e -- tests/e2e/account-deletion.spec.ts (unit form validation; integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E page render…)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E."
+      "notes": "Tests (ticket): unit form validation; integration: no rows remain for user in any collection except anonymised consent events; login fails; E2E page renders, validates and deletes. Status (ticket): absorbs MV-057 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-095",
       "priority": 95,
       "area": "gdpr",
-      "title": "Public data-request form /tietopyynto",
-      "user_visible_behavior": "Form (email, type, message, consent), rate-limited, emails `DPO_EMAIL` (`DataRequestReceived`) and confirmation to requester.",
+      "title": "Public data-request and contact forms /tietopyynto, /yhteystiedot",
+      "user_visible_behavior": "`/tietopyynto`: form (email, type, message, consent), rate-limited, emails `DPO_EMAIL` (`DataRequestReceived`) and confirmation to requester. `/yhteystiedot`: as spec; honeypot + rate limit; `ContactReceived` email.",
       "status": "not_started",
       "depends_on": ["F-040", "F-048"],
       "ticket": "MV-095",
       "epic": "E08",
-      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-095-public-data-request-form-tietopyynto",
-      "design": ["docs/design/Yhteystiedot.dc.html#tietopyynto"],
+      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-095-public-data-request-and-contact-forms-tietopyynto-yhteystiedot",
+      "design": [
+        "docs/design/Yhteystiedot.dc.html#tietopyynto",
+        "docs/design/Yhteystiedot.dc.html"
+      ],
       "verification": [
         "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/public-data-request-form-tietopyynto.int.test.ts (integration both emails; E2E.)",
-        "L3: pnpm test:e2e -- tests/e2e/public-data-request-form-tietopyynto.spec.ts (integration both emails; E2E.)"
+        "L2: pnpm test:integration -- tests/integration/public-forms.int.test.ts (integration: both data-request emails, contact email; E2E both forms.)",
+        "L3: pnpm test:e2e -- tests/e2e/public-forms.spec.ts (integration: both data-request emails, contact email; E2E both forms.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): integration both emails; E2E."
-    },
-    {
-      "id": "F-096",
-      "priority": 96,
-      "area": "gdpr",
-      "title": "Contact form /yhteystiedot",
-      "user_visible_behavior": "As spec; honeypot + rate limit; `ContactReceived` email.",
-      "status": "not_started",
-      "depends_on": ["F-040", "F-048"],
-      "ticket": "MV-096",
-      "epic": "E08",
-      "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-096-contact-form-yhteystiedot",
-      "design": ["docs/design/Yhteystiedot.dc.html"],
-      "verification": [
-        "L1: pnpm check",
-        "L2: pnpm test:integration -- tests/integration/contact-form-yhteystiedot.int.test.ts (integration; E2E.)",
-        "L3: pnpm test:e2e -- tests/e2e/contact-form-yhteystiedot.spec.ts (integration; E2E.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): integration; E2E."
+      "notes": "Tests (ticket): integration: both data-request emails, contact email; E2E both forms. Status (ticket): absorbs MV-096 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-097",
@@ -1860,7 +1557,7 @@
       "title": "Retention enforcement audit",
       "user_visible_behavior": "Test that every retention rule stated in the privacy page (from `retention.ts`) has a corresponding cleanup implementation: unit test iterating `retention.ts` entries and asserting a handler exists in `cleanup` task registry.",
       "status": "not_started",
-      "depends_on": ["F-076", "F-092"],
+      "depends_on": ["F-070", "F-092"],
       "ticket": "MV-097",
       "epic": "E08",
       "spec": "docs/product/tickets/E08-gdpr-legal.md#mv-097-retention-enforcement-audit",
@@ -1914,128 +1611,53 @@
       "id": "F-100",
       "priority": 100,
       "area": "marketing",
-      "title": "Landing page /",
-      "user_visible_behavior": "Hero, 3-step strip, explainer box, trust section, FAQ (from `src/content/faq.ts`), CTAs; illustrative map mock as static SVG/PNG.",
+      "title": "Landing page /, FAQ content and SEO",
+      "user_visible_behavior": "Hero, 3-step strip, explainer box, trust section, FAQ (from `src/content/faq.ts`: 8 Finnish Q&As — what is a declaration, exemptions, why alert may be late, is my data shared, cost, accuracy of radius, cancel account, source licence), CTAs; illustrative map mock as static SVG/PNG. SEO & metadata: Open Graph images (static), `sitemap.xml`, `robots.txt`, canonical, `fi` lang, structured data (Organization, FAQPage).",
       "status": "not_started",
       "depends_on": ["F-011"],
       "ticket": "MV-100",
       "epic": "E09",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-100-landing-page",
-      "design": ["docs/design/Landing.dc.html#hero=B"],
+      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-100-landing-page-faq-content-and-seo",
+      "design": ["docs/design/Landing.dc.html#hero=B", "docs/design/Landing.dc.html#faq"],
       "verification": [
         "L1: pnpm check",
-        "L3: pnpm test:e2e -- tests/e2e/landing-page.spec.ts (E2E `@smoke` + axe + Lighthouse budget perf ≥ 90 in CI via `@lhci/cli`, non-blocking.)"
+        "L1: pnpm test:unit -- tests/unit/marketing/landing-page.test.ts (unit for sitemap entries; E2E `@smoke` + axe + Lighthouse budget perf ≥ 90 in CI via `@lhci/cli`, non-blocking.)",
+        "L3: pnpm test:e2e -- tests/e2e/landing-page.spec.ts (unit for sitemap entries; E2E `@smoke` + axe + Lighthouse budget perf ≥ 90 in CI via `@lhci/cli`, non-blocking.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": "Tests (ticket): E2E `@smoke` + axe + Lighthouse budget (perf ≥ 90 in CI via `@lhci/cli`, non-blocking)."
+      "notes": "Tests (ticket): unit for sitemap entries; E2E `@smoke` + axe + Lighthouse budget (perf ≥ 90 in CI via `@lhci/cli`, non-blocking). Status (ticket): absorbs MV-103 and MV-104 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-101",
       "priority": 101,
       "area": "marketing",
-      "title": "/miten-se-toimii",
-      "user_visible_behavior": "Long-form page with two SVG illustrations (2×/day cycle; sample email).",
+      "title": "/miten-se-toimii, /hinnoittelu and marketing E2E + visual snapshots",
+      "user_visible_behavior": "`/miten-se-toimii`: long-form page with two SVG illustrations (2×/day cycle; sample email). `/hinnoittelu` behind `SHOW_PRICING`: plan cards from `plans.ts`. `tests/e2e/marketing.spec.ts` with `@visual` snapshots desktop/mobile for every marketing page.",
       "status": "not_started",
-      "depends_on": ["F-011"],
+      "depends_on": ["F-011", "F-100"],
       "ticket": "MV-101",
       "epic": "E09",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-101-miten-se-toimii",
-      "design": ["docs/design/Miten.dc.html"],
-      "verification": [
-        "L1: pnpm check",
-        "manual: Long-form page with two SVG illustrations 2×/day cycle; sample email."
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "F-102",
-      "priority": 102,
-      "area": "marketing",
-      "title": "/hinnoittelu behind SHOW_PRICING",
-      "user_visible_behavior": "Plan cards from `plans.ts`.",
-      "status": "not_started",
-      "depends_on": ["F-011"],
-      "ticket": "MV-102",
-      "epic": "E09",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-102-hinnoittelu-behind-showpricing",
-      "design": ["docs/design/Hinnoittelu.dc.html"],
-      "verification": ["L1: pnpm check", "manual: Plan cards from `plans.ts`."],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "F-103",
-      "priority": 103,
-      "area": "marketing",
-      "title": "SEO & metadata",
-      "user_visible_behavior": "Open Graph images (static), `sitemap.xml`, `robots.txt`, canonical, `fi` lang, structured data (Organization, FAQPage).",
-      "status": "not_started",
-      "depends_on": ["F-100"],
-      "ticket": "MV-103",
-      "epic": "E09",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-103-seo-metadata",
-      "verification": [
-        "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/marketing/seo-metadata.test.ts (unit for sitemap entries.)"
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): unit for sitemap entries."
-    },
-    {
-      "id": "F-104",
-      "priority": 104,
-      "area": "marketing",
-      "title": "FAQ content",
-      "user_visible_behavior": "8 Finnish Q&As (what is a declaration, exemptions, why alert may be late, is my data shared, cost, accuracy of radius, cancel account, source licence).",
-      "status": "not_started",
-      "depends_on": ["F-100"],
-      "ticket": "MV-104",
-      "epic": "E09",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-104-faq-content",
-      "design": ["docs/design/Landing.dc.html#faq"],
-      "verification": [
-        "L1: pnpm check",
-        "manual: 8 Finnish Q&As what is a declaration, exemptions, why alert may be late, is my data shared, cost, accuracy of radius, cancel account, source licence."
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "F-105",
-      "priority": 105,
-      "area": "marketing",
-      "title": "Marketing E2E + visual snapshots",
-      "user_visible_behavior": "`tests/e2e/marketing.spec.ts`, `@visual` snapshots desktop/mobile.",
-      "status": "not_started",
-      "depends_on": ["F-100", "F-101", "F-102", "F-103", "F-104"],
-      "ticket": "MV-105",
-      "epic": "E09",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-105-marketing-e2e-visual-snapshots",
+      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-101-miten-se-toimii-hinnoittelu-and-marketing-e2e-visual-snapshots",
       "design": [
-        "docs/design/Landing.dc.html#hero=B",
         "docs/design/Miten.dc.html",
-        "docs/design/Hinnoittelu.dc.html"
+        "docs/design/Hinnoittelu.dc.html",
+        "docs/design/Landing.dc.html#hero=B"
       ],
       "verification": [
         "L1: pnpm check",
-        "manual: `tests/e2e/marketing.spec.ts`, `@visual` snapshots desktop/mobile."
+        "L3: pnpm test:e2e -- tests/e2e/marketing.spec.ts (E2E + `@visual` snapshots.)"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": ""
+      "notes": "Tests (ticket): E2E + `@visual` snapshots. Status (ticket): absorbs MV-102 and MV-105 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-110",
       "priority": 110,
       "area": "a11y",
-      "title": "Axe sweep",
-      "user_visible_behavior": "Run `@axe-core/playwright` on every route listed in `03-pages.md` (logged-in and out); fix all serious/critical; keep list in `tests/e2e/a11y.spec.ts`.",
+      "title": "Axe sweep, reduced motion and colour-blind check",
+      "user_visible_behavior": "Run `@axe-core/playwright` on every route listed in `03-pages.md` (logged-in and out); fix all serious/critical; keep list in `tests/e2e/a11y.spec.ts`. Respect `prefers-reduced-motion`; cutting-type colours verified with simulated deuteranopia and always paired with icons/labels.",
       "status": "not_started",
       "depends_on": [
         "F-060",
@@ -2047,42 +1669,32 @@
         "F-066",
         "F-067",
         "F-068",
-        "F-069",
         "F-080",
-        "F-081",
         "F-082",
         "F-083",
-        "F-084",
-        "F-085",
         "F-086",
-        "F-087",
         "F-090",
         "F-091",
         "F-092",
         "F-093",
         "F-094",
         "F-095",
-        "F-096",
         "F-097",
         "F-098",
         "F-099",
         "F-100",
-        "F-101",
-        "F-102",
-        "F-103",
-        "F-104",
-        "F-105"
+        "F-101"
       ],
       "ticket": "MV-110",
       "epic": "E10",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-110-axe-sweep",
+      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-110-axe-sweep-reduced-motion-and-colour-blind-check",
       "verification": [
         "L1: pnpm check",
-        "manual: Run `@axe-core/playwright` on every route listed in `03-pages.md` logged-in and out; fix all serious/critical; keep list in `tests/e2e/a11y.spec.ts`."
+        "manual: Run `@axe-core/playwright` on every route listed in `03-pages.md` logged-in and out; fix all serious/critical; keep list in `tests/e2e/a11y.spec.ts`. Respect `prefers-reduced-moti…"
       ],
       "evidence": [],
       "attempts": 0,
-      "notes": ""
+      "notes": "Status (ticket): absorbs MV-114 (merged 2026-09-20, ledger P11)."
     },
     {
       "id": "F-111",
@@ -2118,17 +1730,11 @@
         "F-044",
         "F-045",
         "F-046",
-        "F-047",
         "F-048",
-        "F-049",
         "F-050",
         "F-051",
         "F-052",
-        "F-053",
         "F-054",
-        "F-055",
-        "F-056",
-        "F-057",
         "F-060",
         "F-061",
         "F-062",
@@ -2138,31 +1744,21 @@
         "F-066",
         "F-067",
         "F-068",
-        "F-069",
         "F-080",
-        "F-081",
         "F-082",
         "F-083",
-        "F-084",
-        "F-085",
         "F-086",
-        "F-087",
         "F-090",
         "F-091",
         "F-092",
         "F-093",
         "F-094",
         "F-095",
-        "F-096",
         "F-097",
         "F-098",
         "F-099",
         "F-100",
-        "F-101",
-        "F-102",
-        "F-103",
-        "F-104",
-        "F-105"
+        "F-101"
       ],
       "ticket": "MV-112",
       "epic": "E10",
@@ -2189,25 +1785,6 @@
       "verification": [
         "L1: pnpm check",
         "manual: Locale switch in `/tili` persists; `en.ts` falls back to Finnish; `<html lang>` follows locale."
-      ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "F-114",
-      "priority": 114,
-      "area": "a11y",
-      "title": "Reduced motion and colour-blind check",
-      "user_visible_behavior": "Respect `prefers-reduced-motion`; cutting-type colours verified with simulated deuteranopia and always paired with icons/labels.",
-      "status": "not_started",
-      "depends_on": ["F-060"],
-      "ticket": "MV-114",
-      "epic": "E10",
-      "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-114-reduced-motion-and-colour-blind-check",
-      "verification": [
-        "L1: pnpm check",
-        "manual: Respect `prefers-reduced-motion`; cutting-type colours verified with simulated deuteranopia and always paired with icons/labels."
       ],
       "evidence": [],
       "attempts": 0,
@@ -2317,7 +1894,7 @@
       "title": "Uptime + pipeline alerting",
       "user_visible_behavior": "External monitor on `/api/health`; alert if `stale: true`; Slack/email notification; `nightly.yml` live contract test failure notifies.",
       "status": "not_started",
-      "depends_on": ["F-029", "F-078"],
+      "depends_on": ["F-029", "F-075"],
       "ticket": "MV-125",
       "epic": "E11",
       "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-125-uptime-pipeline-alerting",
@@ -2389,13 +1966,11 @@
         "F-012",
         "F-020",
         "F-021",
-        "F-022",
         "F-023",
         "F-024",
         "F-025",
         "F-026",
         "F-027",
-        "F-028",
         "F-029",
         "F-030",
         "F-031",
@@ -2412,17 +1987,11 @@
         "F-044",
         "F-045",
         "F-046",
-        "F-047",
         "F-048",
-        "F-049",
         "F-050",
         "F-051",
         "F-052",
-        "F-053",
         "F-054",
-        "F-055",
-        "F-056",
-        "F-057",
         "F-060",
         "F-061",
         "F-062",
@@ -2432,46 +2001,33 @@
         "F-066",
         "F-067",
         "F-068",
-        "F-069",
         "F-070",
         "F-071",
         "F-072",
         "F-073",
         "F-074",
         "F-075",
-        "F-076",
         "F-077",
-        "F-078",
         "F-079",
         "F-080",
-        "F-081",
         "F-082",
         "F-083",
-        "F-084",
-        "F-085",
         "F-086",
-        "F-087",
         "F-090",
         "F-091",
         "F-092",
         "F-093",
         "F-094",
         "F-095",
-        "F-096",
         "F-097",
         "F-098",
         "F-099",
         "F-100",
         "F-101",
-        "F-102",
-        "F-103",
-        "F-104",
-        "F-105",
         "F-110",
         "F-111",
         "F-112",
         "F-113",
-        "F-114",
         "F-120",
         "F-121",
         "F-122",
@@ -2518,7 +2074,7 @@
       "title": "Full E2E + nightly green for 3 consecutive nights",
       "user_visible_behavior": "Stabilise flaky tests; visual baselines locked.",
       "status": "not_started",
-      "depends_on": ["F-110", "F-111", "F-112", "F-113", "F-114"],
+      "depends_on": ["F-110", "F-111", "F-112", "F-113"],
       "ticket": "MV-132",
       "epic": "E12",
       "spec": "docs/product/tickets/E09-E12-marketing-a11y-ops-launch.md#mv-132-full-e2e-nightly-green-for-3-consecutive-nights",

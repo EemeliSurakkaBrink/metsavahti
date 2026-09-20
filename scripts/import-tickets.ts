@@ -49,7 +49,7 @@ const FOLDED_NOTES: Record<string, string> = {
     'Was F-007 (matched declarations overlay; 3067 → 4326 conversion; spatial SQL only in spatial-queries.ts).',
   'MV-072':
     'Was F-008 (attribute-level change detection; attr_hash next to geom_hash supersedes D-006).',
-  'MV-028':
+  'MV-024':
     'Was F-009 (hakkuutapa labels verified against the Metsäkeskus code list; link the code list in the config).',
   'MV-048':
     'Was F-010 (Postgres-based limiter preferred over Upstash to avoid a new external service).',
@@ -210,7 +210,7 @@ export function deriveVerification(ticket: Ticket): string[] {
     steps.push(`L3: pnpm test:e2e -- tests/e2e/${slug}.spec.ts (${summarize(tests)})`)
   if (ticket.id === 'MV-029')
     steps.push('manual: RUN_LIVE=1 pnpm test:live passes against the real Metsäkeskus WFS')
-  if (ticket.id === 'MV-021' || ticket.id === 'MV-022')
+  if (ticket.id === 'MV-021')
     steps.push('manual: recorded fixtures reviewed (network access to the live WFS was needed)')
   if (steps.length === 1 || HUMAN_ONLY_EPICS.has(ticket.epic)) {
     steps.push(`manual: ${summarize(ticket.acceptance ?? ticket.goal, 180)}`)
