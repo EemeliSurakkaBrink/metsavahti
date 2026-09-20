@@ -49,6 +49,7 @@ jobs:
           WFS_BASE_URL: https://avoin.metsakeskus.fi/rajapinnat/v1/ows/
           CRON_SECRET: ci-build-only
           EMAIL_FROM: ci@example.com
+          EXPORTS_DIR: exports
 
   e2e:
     name: E2E (Playwright)

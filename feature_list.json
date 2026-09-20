@@ -670,7 +670,7 @@
       "area": "data-model",
       "title": "notification_log, consent_events, data_export_requests, job_runs, exports upload collection",
       "user_visible_behavior": "Per `01 §3.6–3.9`; `exports` uses local disk in dev/test and S3-compatible storage in prod (adapter behind env). `consent_events` append-only (no update/delete access).",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-031"],
       "ticket": "MV-035",
       "epic": "E02",
@@ -679,7 +679,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/notification-log-consent-events-data-exp.int.test.ts (integration: consent event cannot be updated.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 2dfafbb)",
+        "2026-09-20 pnpm test:integration -- tests/integration/notification-log-consent-events-data-exp.int.test.ts → pass (working tree on 2dfafbb, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: consent event cannot be updated."
     },

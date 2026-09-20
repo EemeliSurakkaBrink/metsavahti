@@ -33,18 +33,19 @@ time; `notifiedAt` marks delivery and owners can only set `readAt`.
 
 ## Tech stack
 
-| Layer             | Choice                                                                                                                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                    |
-| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                        |
-| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`; Payload Jobs Queue for the pipeline |
-| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                 |
-| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                     |
-| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                         |
-| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                        |
-| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                          |
-| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                       |
-| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                         |
+| Layer             | Choice                                                                                                                                                                                                                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                                                                                              |
+| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                                                                                                  |
+| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`, `consent-events`, `data-export-requests`, `job-runs`, `exports` (upload); Payload Jobs Queue for the pipeline |
+| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                                                                                           |
+| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                                                                                               |
+| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                                                                                                   |
+| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                                                                                                  |
+| File storage      | `exports` upload collection: local disk (`EXPORTS_DIR`) in dev/test, S3-compatible bucket via `@payloadcms/storage-s3` when `S3_BUCKET` is set (D-013)                                                                                                                                  |
+| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                                                                                                    |
+| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                                                                                                 |
+| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                                                                                                   |
 
 The full spec, including deviations from the original plan, is in
 [docs/TECH_STACK.md](docs/TECH_STACK.md).
@@ -154,7 +155,7 @@ src/
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)
   payload.config.ts       Payload config (postgres adapter, email, jobs)
-  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog
+  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog, ConsentEvents, DataExportRequests, JobRuns, Exports (upload)
   payload/access          access-control helpers
   payload/jobs            task + workflow definitions, cron access
   payload/schema          afterSchemaInit hook registering PostGIS columns
@@ -165,7 +166,8 @@ src/
   lib/geo                 crs.ts, buffer.ts, bbox.ts, hash.ts, spatial-queries.ts
   lib/wfs                 client.ts, schemas.ts, parse.ts, hakkuutapa.ts
   lib/jobs                fetch-declarations, match-watch-areas, send-alerts
-  lib/notifications       React Email alert template
+  lib/notifications       React Email alert template, provider.ts (which email adapter is active)
+  lib/privacy             ip.ts (IP → network prefix before storage)
   components/             site header/footer/frame, system pages, attribution, map (MapLibre), shadcn ui/
 tests/
   unit/  integration/  e2e/  live/  helpers/  fixtures/wfs/
@@ -178,7 +180,8 @@ docker-compose.yml        db (5432), db_test (5433), mailpit (1025/8025)
 
 - Any host that runs Next.js 16 + a Postgres with PostGIS (Neon, Supabase,
   DigitalOcean Managed Postgres, or a droplet). Set the variables from
-  `.env.example`; `RESEND_API_KEY` without `SMTP_HOST` selects Resend.
+  `.env.example`; `RESEND_API_KEY` without `SMTP_HOST` selects Resend. `S3_BUCKET` (+ key, secret, optional
+  `S3_ENDPOINT` for non-AWS providers) moves account-export archives from `EXPORTS_DIR` to object storage.
 - Schedule `POST /api/jobs/run` with `Authorization: Bearer $CRON_SECRET` at
   09:30 and 21:30 Europe/Helsinki (≈30 min after Metsäkeskus updates).
 - Migrations run automatically on boot in production (`prodMigrations`).
