@@ -38,7 +38,7 @@ export async function sendAlerts(ctx: JobContext, jobRunId: string): Promise<Sen
   const groups = new Map<string, PopulatedAlert[]>()
   for (const alert of docs) {
     if (!isPopulated(alert)) continue
-    if (!alert.watchArea.notifyByEmail) continue
+    if (!alert.watchArea.notificationsEnabled) continue
     const key = `${alert.user.id}:${alert.watchArea.id}`
     groups.set(key, [...(groups.get(key) ?? []), alert])
   }

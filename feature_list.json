@@ -600,7 +600,7 @@
       "area": "data-model",
       "title": "watch_areas collection + geometry column",
       "user_visible_behavior": "Fields per `01 §3.2`; `geom_3067` stays the generated column from migration `0001` (D-003, 00-deviations D1 — no trigger); add the GIST index if missing and rename `notifyByEmail` → `notificationsEnabled` in a migration (00-deviations D4). Validation: radius 100–5000, plan limit enforced in `beforeValidate` hook using `config/plans.ts`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-031"],
       "ticket": "MV-032",
       "epic": "E02",
@@ -609,7 +609,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/watch-areas-collection-geometry-column.int.test.ts (integration: insert → geom not null, `ST_Area` ≈ πr² ±2 %; update radius → geom changes; 3rd area on free plan rejected.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on ba45951)",
+        "2026-09-20 pnpm test:integration -- tests/integration/watch-areas-collection-geometry-column.int.test.ts → pass (working tree on ba45951, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: insert → geom not null, `ST_Area` ≈ πr² (±2 %); update radius → geom changes; 3rd area on free plan rejected."
     },
