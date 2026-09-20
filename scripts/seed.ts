@@ -1,9 +1,12 @@
 /**
- * Seed the development database with an admin user and a sample watch area.
+ * Seed the development database with an admin user, a sample watch area and the four
+ * placeholder legal documents (idempotent).
  *   pnpm db:seed   (uses .env; refuses to run against a *_test/_e2e database)
  */
 import 'dotenv/config'
 import { getPayload } from 'payload'
+
+import { seedLegalDocuments } from '../src/lib/legal/documents'
 
 async function main() {
   const dbName = new URL(process.env.DATABASE_URL ?? '').pathname.slice(1)
@@ -38,6 +41,10 @@ async function main() {
       data: { name: 'Esimerkki: Nuuksio', center: [24.53, 60.31], radiusM: 2000, owner: admin.id },
     })
   }
+  const legal = await seedLegalDocuments(payload)
+  console.log(
+    `Seeded ${legal.length} placeholder legal documents (${legal.length === 0 ? 'already present' : legal.map((d) => d.slug).join(', ')}).`,
+  )
   console.log(`Seeded admin ${email} (password: ${password}) and a sample watch area.`)
   process.exit(0)
 }

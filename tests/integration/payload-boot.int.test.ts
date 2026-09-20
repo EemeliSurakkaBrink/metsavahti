@@ -51,6 +51,7 @@ describe('payload boot + migrations', () => {
         'data-export-requests',
         'exports',
         'job-runs',
+        'legal-documents',
         'payload-jobs',
       ]),
     )

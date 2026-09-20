@@ -78,6 +78,7 @@ export interface Config {
     'data-export-requests': DataExportRequest;
     exports: Export;
     'job-runs': JobRun;
+    'legal-documents': LegalDocument;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -97,6 +98,7 @@ export interface Config {
     'data-export-requests': DataExportRequestsSelect<false> | DataExportRequestsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     'job-runs': JobRunsSelect<false> | JobRunsSelect<true>;
+    'legal-documents': LegalDocumentsSelect<false> | LegalDocumentsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -439,6 +441,42 @@ export interface JobRun {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-documents".
+ */
+export interface LegalDocument {
+  id: number;
+  title: string;
+  slug: 'privacy' | 'terms' | 'cookies' | 'accessibility';
+  /**
+   * Esim. 2026-09. Uusi versio on aina uusi asiakirja.
+   */
+  version: string;
+  /**
+   * Tyhjä = luonnos. Sivut näyttävät uusimman julkaistun version.
+   */
+  publishedAt?: string | null;
+  requiresReacceptance: boolean;
+  changeSummary?: string | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -597,6 +635,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'job-runs';
         value: number | JobRun;
+      } | null)
+    | ({
+        relationTo: 'legal-documents';
+        value: number | LegalDocument;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -834,6 +876,21 @@ export interface JobRunsSelect<T extends boolean = true> {
   status?: T;
   stats?: T;
   error?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-documents_select".
+ */
+export interface LegalDocumentsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  version?: T;
+  publishedAt?: T;
+  requiresReacceptance?: T;
+  changeSummary?: T;
+  body?: T;
   updatedAt?: T;
   createdAt?: T;
 }

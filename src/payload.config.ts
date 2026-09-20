@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { resendAdapter } from '@payloadcms/email-resend'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -16,6 +17,7 @@ import {
   Declarations,
   Exports,
   JobRuns,
+  LegalDocuments,
   NotificationLog,
   Users,
   WatchAreaDeclarations,
@@ -96,7 +98,10 @@ export default buildConfig({
     DataExportRequests,
     Exports,
     JobRuns,
+    LegalDocuments,
   ],
+  // One editor for every richText field (legal_documents.body); admin UI + JSON storage.
+  editor: lexicalEditor(),
   secret: env.PAYLOAD_SECRET,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
