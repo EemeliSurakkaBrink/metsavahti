@@ -692,7 +692,7 @@
       "area": "data-model",
       "title": "legal_documents collection + seed",
       "user_visible_behavior": "Per `01 §3.10`; versioned; `publishedAt`; `requiresReacceptance`. Seed 4 placeholder docs (`privacy`, `terms`, `cookies`, `accessibility`) with version `2026-09-draft`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-012", "F-031"],
       "ticket": "MV-036",
       "epic": "E02",
@@ -701,7 +701,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/legal-documents-collection-seed.int.test.ts (integration: latest published resolves.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 4659f4b)",
+        "2026-09-20 pnpm test:integration -- tests/integration/legal-documents-collection-seed.int.test.ts → pass (working tree on 4659f4b, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: latest published resolves."
     },

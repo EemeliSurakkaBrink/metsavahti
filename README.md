@@ -33,19 +33,19 @@ time; `notifiedAt` marks delivery and owners can only set `readAt`.
 
 ## Tech stack
 
-| Layer             | Choice                                                                                                                                                                                                                                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                                                                                              |
-| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                                                                                                  |
-| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`, `consent-events`, `data-export-requests`, `job-runs`, `exports` (upload); Payload Jobs Queue for the pipeline |
-| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                                                                                           |
-| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                                                                                               |
-| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                                                                                                   |
-| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                                                                                                  |
-| File storage      | `exports` upload collection: local disk (`EXPORTS_DIR`) in dev/test, S3-compatible bucket via `@payloadcms/storage-s3` when `S3_BUCKET` is set (D-013)                                                                                                                                  |
-| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                                                                                                    |
-| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                                                                                                 |
-| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                                                                                                   |
+| Layer             | Choice                                                                                                                                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                                                                                                                                     |
+| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                                                                                                                                         |
+| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`, `consent-events`, `data-export-requests`, `job-runs`, `legal-documents` (Lexical rich text), `exports` (upload); Payload Jobs Queue for the pipeline |
+| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                                                                                                                                  |
+| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                                                                                                                                      |
+| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                                                                                                                                          |
+| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                                                                                                                                         |
+| File storage      | `exports` upload collection: local disk (`EXPORTS_DIR`) in dev/test, S3-compatible bucket via `@payloadcms/storage-s3` when `S3_BUCKET` is set (D-013)                                                                                                                                                                         |
+| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                                                                                                                                           |
+| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                                                                                                                                        |
+| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                                                                                                                                          |
 
 The full spec, including deviations from the original plan, is in
 [docs/TECH_STACK.md](docs/TECH_STACK.md).
@@ -97,27 +97,27 @@ Safeguards:
 
 ## Scripts
 
-| Script                                                               | What it does                                                                                       |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `pnpm dev` / `build` / `start`                                       | Next.js with Turbopack                                                                             |
-| `pnpm db:up` / `db:down`                                             | start / stop `db`, `db_test`, `mailpit`                                                            |
-| `pnpm db:migrate` / `db:migrate:create <name>` / `db:migrate:status` | Payload migrations (dev DB)                                                                        |
-| `pnpm db:seed`                                                       | admin user + sample watch area in the dev DB (refuses test DBs)                                    |
-| `pnpm db:reset`                                                      | drop volumes, recreate containers, migrate                                                         |
-| `pnpm test`                                                          | unit + integration                                                                                 |
-| `pnpm test:unit` / `test:watch`                                      | Vitest unit project (no DB, no network)                                                            |
-| `pnpm test:integration`                                              | Vitest integration project (Testcontainers PostGIS + Mailpit)                                      |
-| `pnpm test:coverage`                                                 | both projects with v8 coverage (80 % line threshold on `src/lib/geo`, `src/lib/wfs`)               |
-| `pnpm test:e2e` / `test:e2e:ui`                                      | Playwright against `next dev -p 3100` + `db_test` + WFS mock                                       |
-| `pnpm test:e2e:ci`                                                   | same, but builds first and runs `next start` (what CI does)                                        |
-| `pnpm test:live`                                                     | opt-in contract test against the real Metsäkeskus WFS                                              |
-| `pnpm jobs:run`                                                      | run the sync workflow once against the dev DB                                                      |
-| `pnpm fixtures:record -- --bbox …`                                   | record a fresh WFS sample into `tests/fixtures/wfs`                                                |
-| `pnpm lint` / `format` / `typecheck` / `knip`                        | quality gates (also run by Husky on commit and in CI)                                              |
-| `pnpm check` / `check:full`                                          | L1 verification (lint, typecheck, knip, format:check, unit); `check:full` adds integration + build |
-| `pnpm harness:check`                                                 | validate `feature_list.json` (WIP=1, evidence, layer labels)                                       |
-| `pnpm harness:feature` / `harness:verify` / `harness:clean-state`    | feature state transitions, the verification gate, the clock-out gate                               |
-| `pnpm harness:loop` / `harness:report` / `harness:import-tickets`    | unattended feature loop, its run log, ticket → feature import                                      |
+| Script                                                               | What it does                                                                                            |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `pnpm dev` / `build` / `start`                                       | Next.js with Turbopack                                                                                  |
+| `pnpm db:up` / `db:down`                                             | start / stop `db`, `db_test`, `mailpit`                                                                 |
+| `pnpm db:migrate` / `db:migrate:create <name>` / `db:migrate:status` | Payload migrations (dev DB)                                                                             |
+| `pnpm db:seed`                                                       | admin user, sample watch area and the four placeholder legal documents in the dev DB (refuses test DBs) |
+| `pnpm db:reset`                                                      | drop volumes, recreate containers, migrate                                                              |
+| `pnpm test`                                                          | unit + integration                                                                                      |
+| `pnpm test:unit` / `test:watch`                                      | Vitest unit project (no DB, no network)                                                                 |
+| `pnpm test:integration`                                              | Vitest integration project (Testcontainers PostGIS + Mailpit)                                           |
+| `pnpm test:coverage`                                                 | both projects with v8 coverage (80 % line threshold on `src/lib/geo`, `src/lib/wfs`)                    |
+| `pnpm test:e2e` / `test:e2e:ui`                                      | Playwright against `next dev -p 3100` + `db_test` + WFS mock                                            |
+| `pnpm test:e2e:ci`                                                   | same, but builds first and runs `next start` (what CI does)                                             |
+| `pnpm test:live`                                                     | opt-in contract test against the real Metsäkeskus WFS                                                   |
+| `pnpm jobs:run`                                                      | run the sync workflow once against the dev DB                                                           |
+| `pnpm fixtures:record -- --bbox …`                                   | record a fresh WFS sample into `tests/fixtures/wfs`                                                     |
+| `pnpm lint` / `format` / `typecheck` / `knip`                        | quality gates (also run by Husky on commit and in CI)                                                   |
+| `pnpm check` / `check:full`                                          | L1 verification (lint, typecheck, knip, format:check, unit); `check:full` adds integration + build      |
+| `pnpm harness:check`                                                 | validate `feature_list.json` (WIP=1, evidence, layer labels)                                            |
+| `pnpm harness:feature` / `harness:verify` / `harness:clean-state`    | feature state transitions, the verification gate, the clock-out gate                                    |
+| `pnpm harness:loop` / `harness:report` / `harness:import-tickets`    | unattended feature loop, its run log, ticket → feature import                                           |
 
 ## Working with coding agents
 
@@ -155,7 +155,7 @@ src/
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)
   payload.config.ts       Payload config (postgres adapter, email, jobs)
-  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog, ConsentEvents, DataExportRequests, JobRuns, Exports (upload)
+  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog, ConsentEvents, DataExportRequests, JobRuns, LegalDocuments, Exports (upload)
   payload/access          access-control helpers
   payload/jobs            task + workflow definitions, cron access
   payload/schema          afterSchemaInit hook registering PostGIS columns
@@ -164,6 +164,7 @@ src/
   lib/env.ts              validated environment (t3-env + Zod)
   lib/errors.ts           typed AppError subclasses, actionResult() for Server Actions, toErrorResponse()
   lib/geo                 crs.ts, buffer.ts, bbox.ts, hash.ts, spatial-queries.ts
+  lib/legal/documents.ts  legal document slugs, latest-published resolver, placeholder seed
   lib/wfs                 client.ts, schemas.ts, parse.ts, hakkuutapa.ts
   lib/jobs                fetch-declarations, match-watch-areas, send-alerts
   lib/notifications       React Email alert template, provider.ts (which email adapter is active)

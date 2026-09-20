@@ -4,6 +4,7 @@ import * as migration_20260920_141524_watch_areas_fields from './20260920_141524
 import * as migration_20260920_143554_declarations_geom from './20260920_143554_declarations_geom';
 import * as migration_20260920_145929_watch_area_declarations_alerts from './20260920_145929_watch_area_declarations_alerts';
 import * as migration_20260920_153151_logs_consents_exports_job_runs from './20260920_153151_logs_consents_exports_job_runs';
+import * as migration_20260920_162232_legal_documents from './20260920_162232_legal_documents';
 
 export const migrations = [
   {
@@ -35,5 +36,10 @@ export const migrations = [
     up: migration_20260920_153151_logs_consents_exports_job_runs.up,
     down: migration_20260920_153151_logs_consents_exports_job_runs.down,
     name: '20260920_153151_logs_consents_exports_job_runs',
+  },
+  {
+    up: migration_20260920_162232_legal_documents.up,
+    down: migration_20260920_162232_legal_documents.down,
+    name: '20260920_162232_legal_documents'
   },
 ];

@@ -5,6 +5,7 @@ export { DeclarationRevisions } from '@/payload/collections/DeclarationRevisions
 export { Declarations } from '@/payload/collections/Declarations'
 export { Exports } from '@/payload/collections/Exports'
 export { JobRuns } from '@/payload/collections/JobRuns'
+export { LegalDocuments } from '@/payload/collections/LegalDocuments'
 export { NotificationLog } from '@/payload/collections/NotificationLog'
 export { Users } from '@/payload/collections/Users'
 export { WatchAreaDeclarations } from '@/payload/collections/WatchAreaDeclarations'
