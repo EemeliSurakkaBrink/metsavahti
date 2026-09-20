@@ -96,7 +96,7 @@ export function EmailLayout({
             style={{
               backgroundColor: colors.paper.raised,
               border: `1px solid ${colors.line.DEFAULT}`,
-              borderRadius: radius['2xl'],
+              borderRadius: radius.xl,
             }}
           >
             <Section

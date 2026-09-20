@@ -747,7 +747,10 @@
       "evidence": [
         "2026-09-20 pnpm check → pass (working tree on 5610fc9)",
         "2026-09-20 pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts → pass (working tree on 5610fc9)",
-        "2026-09-20 pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts → pass (working tree on 5610fc9, Docker available)"
+        "2026-09-20 pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts → pass (working tree on 5610fc9, Docker available)",
+        "2026-09-20 pnpm check → pass (working tree on 5809d8c)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts → pass (working tree on 5809d8c)",
+        "2026-09-20 pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts → pass (working tree on 5809d8c, Docker available)"
       ],
       "attempts": 1,
       "notes": "Tests (ticket): unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit (Mailpit API assertion). Attempt 1 failed 2026-09-20: evaluator: Revise"
