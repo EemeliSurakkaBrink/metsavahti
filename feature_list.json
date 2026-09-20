@@ -806,8 +806,8 @@
         "2026-09-20 pnpm test:integration -- tests/integration/registration.int.test.ts → pass (working tree on 49f61d3, Docker available)",
         "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 49f61d3, Docker available)"
       ],
-      "attempts": 0,
-      "notes": "Was F-002 (sign-up page); route is /rekisteroidy, not /signup (00-deviations R1). Tests (ticket): unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow."
+      "attempts": 1,
+      "notes": "Was F-002 (sign-up page); route is /rekisteroidy, not /signup (00-deviations R1). Tests (ticket): unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow. Attempt 1 failed 2026-09-20: evaluator: Revise"
     },
     {
       "id": "F-043",
