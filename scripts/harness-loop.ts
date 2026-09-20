@@ -770,8 +770,6 @@ function publish(
     verdictMarkdown(verdict),
     '',
     `Generator: ${stats.turns} turns, $${stats.cost.toFixed(2)} · trace \`${path.relative(ROOT, stats.trace)}\``,
-    '',
-    '🤖 Generated with [Claude Code](https://claude.com/claude-code) by the Metsävahti loop driver',
   ].join('\n')
   const bodyFile = path.join(ROOT, config.traceDir, `${id}-pr-body.md`)
   writeFileSync(bodyFile, body)
