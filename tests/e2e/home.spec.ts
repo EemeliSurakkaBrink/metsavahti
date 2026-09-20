@@ -17,18 +17,4 @@ test.describe('landing page', () => {
     await page.goto('/')
     await expectNoA11yViolations(page)
   })
-
-  test('login page validates input and rejects bad credentials', async ({ page }) => {
-    await page.goto('/login')
-    await page.getByRole('button', { name: 'Kirjaudu' }).click()
-    await expect(page.getByText('Anna kelvollinen sähköpostiosoite')).toBeVisible()
-    await page.getByLabel('Sähköposti').fill('nobody@metsavahti.test')
-    await page.getByLabel('Salasana', { exact: true }).fill('wrong')
-    await page.getByRole('button', { name: 'Kirjaudu' }).click()
-    // Next.js adds its own role=alert route announcer, so scope to our message.
-    await expect(page.getByRole('alert').filter({ hasText: 'Kirjautuminen' })).toContainText(
-      'Kirjautuminen epäonnistui',
-    )
-    await expectNoA11yViolations(page)
-  })
 })

@@ -6,13 +6,13 @@ import { BrandMark } from '@/components/brand-mark'
  * Marketing header (docs/design/Landing.dc.html#header-footer): logo, section links, login
  * and the "Luo tili" pill. The app variant with the account menu arrives with MV-050.
  *
- * "Kirjaudu" points at the existing `/login` route until MV-044 renames it to `/kirjaudu`;
- * the other targets are the spec routes their tickets create (03-pages.md).
+ * "Kirjaudu" points at `/kirjaudu` (MV-044); the other targets are the spec routes their
+ * tickets create (03-pages.md).
  */
 const navLinks = [
   { href: '/miten-se-toimii', label: 'Miten se toimii' },
   { href: '/hinnoittelu', label: 'Hinnoittelu' },
-  { href: '/login', label: 'Kirjaudu' },
+  { href: '/kirjaudu', label: 'Kirjaudu' },
 ] as const
 
 export function SiteHeader() {

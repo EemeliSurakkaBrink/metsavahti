@@ -4,8 +4,10 @@ import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
+import { LogoutButton } from '@/components/auth/logout-button'
 import { WatchAreaMapClient } from '@/components/map/map-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { loginPath } from '@/lib/auth/login-schema'
 
 export const metadata: Metadata = { title: 'Vahtialueet' }
 export const dynamic = 'force-dynamic'
@@ -13,7 +15,7 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: await getHeaders() })
-  if (!user) redirect('/login')
+  if (!user) redirect(loginPath('/dashboard'))
 
   const [{ docs: areas }, { totalDocs: pendingAlerts }] = await Promise.all([
     payload.find({
@@ -40,11 +42,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-baseline justify-between">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <h1 className="text-2xl font-semibold">Vahtialueesi</h1>
-        <p className="text-sm text-muted-foreground">
-          Kirjautunut: {user.email} · odottavia hälytyksiä: {pendingAlerts}
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="min-w-0 text-sm break-words text-muted-foreground">
+            Kirjautunut: {user.email} · odottavia hälytyksiä: {pendingAlerts}
+          </p>
+          <LogoutButton />
+        </div>
       </div>
 
       <WatchAreaMapClient areas={mapAreas} />

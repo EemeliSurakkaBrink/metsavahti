@@ -1,76 +1,16 @@
-import { randomInt } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
+import type { Page } from '@playwright/test'
 
-import { type APIRequestContext, type Page, request as playwrightRequest } from '@playwright/test'
-
-import { AUTH_STATE } from '../../playwright.config'
-import { createMailpitClient } from '../helpers/mailpit'
+import {
+  ACCOUNT_PASSWORD as PASSWORD,
+  adminApi,
+  registerAccount as register,
+  useOwnAddress,
+  verificationLinks,
+} from './accounts'
 import { expectNoA11yViolations } from './a11y'
 import { expect, test } from './fixtures'
 
-const PASSWORD = 'kuusi-metsa-jarvi-2026'
 const HOUR = 60 * 60 * 1000
-const mailpit = createMailpitClient(process.env.MAILPIT_API_URL ?? 'http://localhost:8025')
-
-/** Own client address per test (`2001:db8::/32`): the auth actions rate-limit by `x-forwarded-for`. */
-async function useOwnAddress(page: Page): Promise<void> {
-  const ip = `2001:db8:${randomInt(0x10000).toString(16)}:${randomInt(0x10000).toString(16)}::1`
-  await page.setExtraHTTPHeaders({ 'x-forwarded-for': ip })
-}
-
-/** `/rekisteroidy` → `/vahvista-sahkoposti?email=`; returns the address. */
-async function register(page: Page, browserName: string, tag: string): Promise<string> {
-  const email = `${tag}-${browserName}-${Date.now()}@metsavahti.test`
-  await page.goto('/rekisteroidy')
-  await page.getByLabel('Sähköposti').fill(email)
-  await page.getByLabel('Salasana', { exact: true }).fill(PASSWORD)
-  await page.getByLabel('Salasana uudelleen').fill(PASSWORD)
-  await page.getByLabel(/Olen lukenut/).check()
-  await page.getByRole('button', { name: 'Luo tili' }).click()
-  await expect(page).toHaveURL(/\/vahvista-sahkoposti\?email=/)
-  return email
-}
-
-/** The `/vahvista?token=` links sent to `email`, newest first, once `count` have arrived. */
-async function verificationLinks(email: string, count: number): Promise<string[]> {
-  const messagesFor = async () =>
-    (await mailpit.listMessages()).filter((m) => m.To[0]?.Address === email)
-  await expect.poll(async () => (await messagesFor()).length, { timeout: 15_000 }).toBe(count)
-  const messages = (await messagesFor()).sort((a, b) => b.Created.localeCompare(a.Created))
-  const links: string[] = []
-  for (const message of messages) {
-    const full = await mailpit.getMessage(message.ID)
-    links.push(mailpit.extractFirstLink(full.HTML, '/vahvista?token=')!)
-  }
-  return links
-}
-
-/**
- * An API context with the seeded admin's session from `auth.setup.ts` (its cookie stays out
- * of the browser). It does not log in again: concurrent logins of one account from the three
- * browser projects can lose a session in Payload's `sessions` array.
- */
-async function adminApi(): Promise<{ api: APIRequestContext; patchUser: PatchUser }> {
-  // The cookie is sent as a JWT header: Payload only honours cookies from browser navigations.
-  const { cookies } = JSON.parse(await readFile(AUTH_STATE, 'utf8')) as {
-    cookies: Array<{ name: string; value: string }>
-  }
-  const token = cookies.find((c) => c.name === 'payload-token')?.value
-  expect(token, 'auth.setup.ts must have stored the admin session').toBeTruthy()
-  const api = await playwrightRequest.newContext({
-    extraHTTPHeaders: { authorization: `JWT ${token}` },
-  })
-  const patchUser: PatchUser = async (email, data) => {
-    const found = await api.get(`/api/users?where[email][equals]=${encodeURIComponent(email)}`)
-    expect(found.ok(), await found.text()).toBeTruthy()
-    const { docs } = (await found.json()) as { docs: Array<{ id: number }> }
-    expect(docs).toHaveLength(1)
-    const res = await api.patch(`/api/users/${docs[0]!.id}`, { data })
-    expect(res.ok(), await res.text()).toBeTruthy()
-  }
-  return { api, patchUser }
-}
-type PatchUser = (email: string, data: Record<string, unknown>) => Promise<void>
 
 const outcome = (page: Page) => page.getByTestId('verify-outcome')
 const resendButton = (page: Page) => page.getByRole('button', { name: /Lähetä uudelleen/ })
@@ -125,7 +65,7 @@ test.describe('email verification pages', () => {
     await page.goto(newest!)
     await expect(outcome(page)).toHaveAttribute('data-state', 'invalid')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Linkki on jo käytetty')
-    await expect(page.getByRole('link', { name: 'Kirjaudu' })).toHaveAttribute('href', '/login')
+    await expect(page.getByRole('link', { name: 'Kirjaudu' })).toHaveAttribute('href', '/kirjaudu')
     await expectNoA11yViolations(page)
   })
 
