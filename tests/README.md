@@ -30,6 +30,9 @@ database or points at port 5432.
   migrations applied (generated `geom_3067`, GIST indexes), access
   control, the `users` collection (self-only read/update, admin-only `role`/`plan`/`deletedAt`,
   `01 §3.1` defaults, derived `marketingConsentAt`, IANA `timezone`, auth options),
+  the `watch-areas` collection (generated `geom_3067` area ≈ πr², geometry follows a radius
+  update, `01 §3.2` fields and the `notify_by_email` rename, radius bounds, free-plan limit of 2
+  areas on create and on ownership change),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry, emails asserted through the Mailpit API), and the cron endpoint.
 

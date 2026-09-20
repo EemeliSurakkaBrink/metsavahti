@@ -196,9 +196,18 @@ export interface WatchArea {
    * @maxItems 2
    */
   center: [number, number];
+  /**
+   * 100–5000 m.
+   */
   radiusM: number;
   owner: number | User;
-  notifyByEmail?: boolean | null;
+  notificationsEnabled?: boolean | null;
+  /**
+   * Geokoodattu osoite tai paikannimi keskipisteelle.
+   */
+  addressLabel?: string | null;
+  lastCheckedAt?: string | null;
+  lastDeclarationCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -492,7 +501,10 @@ export interface WatchAreasSelect<T extends boolean = true> {
   center?: T;
   radiusM?: T;
   owner?: T;
-  notifyByEmail?: T;
+  notificationsEnabled?: T;
+  addressLabel?: T;
+  lastCheckedAt?: T;
+  lastDeclarationCount?: T;
   updatedAt?: T;
   createdAt?: T;
 }
