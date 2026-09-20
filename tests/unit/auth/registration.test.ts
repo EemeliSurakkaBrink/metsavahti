@@ -1,11 +1,27 @@
-import { describe, expect, it } from 'vitest'
+import { headers } from 'next/headers'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { register } from '@/app/(frontend)/(auth)/rekisteroidy/actions'
+import type * as Registration from '@/lib/auth/registration'
 import { VERIFY_EMAIL_SUBJECT, renderVerifyEmail, verifyEmailUrl } from '@/emails/VerifyEmail'
-import { validateRegistration, verifyEmailPath } from '@/lib/auth/registration'
+import { fi } from '@/i18n/fi'
+import { registerUser, validateRegistration, verifyEmailPath } from '@/lib/auth/registration'
 import { passwordUserInputs, registrationFormSchema } from '@/lib/auth/registration-schema'
-import { RateLimited } from '@/lib/errors'
+import { env } from '@/lib/env'
+import { RateLimited, publicMessages } from '@/lib/errors'
 import { clientIp } from '@/lib/privacy/ip'
-import { createRateLimiter } from '@/lib/rate-limit'
+import { authRateLimiter, createRateLimiter } from '@/lib/rate-limit'
+
+// The `register` action is exercised without a request context: `headers()` is stubbed per
+// test, Payload is never booted and `registerUser` is a spy; `redirect()` is the real one
+// (it throws the `NEXT_REDIRECT` digest that carries the target path).
+vi.mock('next/headers', () => ({ headers: vi.fn() }))
+vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({})) }))
+vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('@/lib/auth/registration', async (importOriginal) => ({
+  ...(await importOriginal<typeof Registration>()),
+  registerUser: vi.fn(),
+}))
 
 const valid = {
   email: 'Anna.K@Example.fi',
@@ -141,6 +157,74 @@ describe('rate limiter', () => {
     expect(thrown?.toActionError()).toMatchObject({ code: 'rate_limited', retryAfterSeconds: 30 })
     limiter.reset()
     expect(() => limiter.assert('k')).not.toThrow()
+  })
+})
+
+describe('register action', () => {
+  const VERIFY_PATH = '/vahvista-sahkoposti?email=anna.k%40example.fi'
+
+  function requestFrom(ip: string) {
+    vi.mocked(headers).mockResolvedValue(
+      new Headers({ 'x-forwarded-for': ip, 'user-agent': 'vitest' }) as never,
+    )
+  }
+
+  beforeEach(() => {
+    authRateLimiter.reset()
+    vi.mocked(registerUser).mockReset()
+    requestFrom('203.0.113.9')
+  })
+
+  it('refuses the sixth call from one address within the hour (5/h/IP) and keeps other addresses open', async () => {
+    // `.env.test` runs the suite at the production default so every layer observes the real limit.
+    expect(env.AUTH_RATE_LIMIT_PER_HOUR).toBe(5)
+    for (let i = 0; i < 5; i += 1) {
+      // Invalid input still counts: the limit is applied before validation.
+      await expect(register({})).resolves.toMatchObject({ ok: false, fieldErrors: {} })
+    }
+    await expect(register(valid)).resolves.toEqual({
+      ok: false,
+      error: {
+        code: 'rate_limited',
+        message: publicMessages.rate_limited,
+        retryAfterSeconds: 3600,
+      },
+    })
+    expect(registerUser).not.toHaveBeenCalled()
+
+    requestFrom('203.0.113.10')
+    vi.mocked(registerUser).mockResolvedValue({ status: 'created', user: {} as never })
+    await expect(register(valid)).rejects.toMatchObject({
+      digest: expect.stringContaining(VERIFY_PATH),
+    })
+    expect(registerUser).toHaveBeenCalledTimes(1)
+  })
+
+  it('redirects a duplicate address exactly like a new account', async () => {
+    vi.mocked(registerUser).mockResolvedValue({ status: 'duplicate' })
+    await expect(register(valid)).rejects.toMatchObject({
+      digest: expect.stringContaining(VERIFY_PATH),
+    })
+    vi.mocked(registerUser).mockResolvedValue({ status: 'created', user: {} as never })
+    await expect(register(valid)).rejects.toMatchObject({
+      digest: expect.stringContaining(VERIFY_PATH),
+    })
+    expect(registerUser).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(registerUser).mock.calls[0]![1]).toMatchObject({ email: 'anna.k@example.fi' })
+    expect(vi.mocked(registerUser).mock.calls[0]![2]).toEqual({
+      ip: '203.0.113.9',
+      userAgent: 'vitest',
+    })
+  })
+
+  it('re-validates on the server: a weak password never reaches registerUser', async () => {
+    await expect(
+      register({ ...valid, password: 'salasana123', confirmPassword: 'salasana123' }),
+    ).resolves.toEqual({
+      ok: false,
+      fieldErrors: { password: fi.auth.register.errors.passwordTooWeak },
+    })
+    expect(registerUser).not.toHaveBeenCalled()
   })
 })
 

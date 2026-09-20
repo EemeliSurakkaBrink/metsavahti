@@ -20,7 +20,10 @@ database or points at port 5432.
   toggle + zxcvbn meter, `FormError`, `FormSuccess`, `scorePassword` thresholds), registration
   (`auth/registration.test.ts`: form schema per field, `validateRegistration` with the zxcvbn
   requirement and the email local part as a penalised input, the sliding-window rate limiter,
-  `clientIp`, the `VerifyEmail` template), the DB guard.
+  the `register` action itself with `headers()` stubbed and `registerUser` spied: the sixth
+  call from one address is `rate_limited` while another address passes, a duplicate address
+  redirects exactly like a new account, a weak password is refused on the server; `clientIp`,
+  the `VerifyEmail` template), the DB guard.
 
 ## Integration — `pnpm test:integration`
 
@@ -76,8 +79,10 @@ database or points at port 5432.
   watch area and the four placeholder legal documents through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
 - Specs: landing page + attribution + axe, login validation, registration (`registration.spec.ts`,
-  runs as a guest: inline validation + meter + axe; `@smoke` register → `/vahvista-sahkoposti?email=` →
-  verify email in Mailpit → login still refused while unverified), dashboard
+  runs as a guest with its own `x-forwarded-for` per test: inline validation + meter + axe; `@smoke`
+  register → `/vahvista-sahkoposti?email=` → verify email in Mailpit → the same address again
+  gets the same redirect and no second email → login still refused while unverified; five
+  weak-password submissions from one address, the sixth shows `Liikaa pyyntöjä`), dashboard
   redirect/auth/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
   `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
   jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets

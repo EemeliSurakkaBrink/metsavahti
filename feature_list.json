@@ -804,7 +804,11 @@
         "2026-09-20 pnpm check → pass (working tree on 49f61d3)",
         "2026-09-20 pnpm test:unit -- tests/unit/auth/registration.test.ts → pass (working tree on 49f61d3)",
         "2026-09-20 pnpm test:integration -- tests/integration/registration.int.test.ts → pass (working tree on 49f61d3, Docker available)",
-        "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 49f61d3, Docker available)"
+        "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 49f61d3, Docker available)",
+        "2026-09-20 pnpm check → pass (working tree on 57ba13c)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/registration.test.ts → pass (working tree on 57ba13c)",
+        "2026-09-20 pnpm test:integration -- tests/integration/registration.int.test.ts → pass (working tree on 57ba13c, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 57ba13c, Docker available)"
       ],
       "attempts": 1,
       "notes": "Was F-002 (sign-up page); route is /rekisteroidy, not /signup (00-deviations R1). Tests (ticket): unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow. Attempt 1 failed 2026-09-20: evaluator: Revise"

@@ -80,8 +80,7 @@ export function createRateLimiter({
 
 /**
  * Limiter for the auth Server Actions (`01 §8`: registration 5/h/IP). The window is one hour;
- * the count comes from `AUTH_RATE_LIMIT_PER_HOUR` so the e2e suite can register from one
- * address more than five times.
+ * the count comes from `AUTH_RATE_LIMIT_PER_HOUR` (default 5, which the test suites keep).
  */
 export const authRateLimiter = createRateLimiter({
   limit: env.AUTH_RATE_LIMIT_PER_HOUR,
