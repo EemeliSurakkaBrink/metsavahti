@@ -670,7 +670,7 @@
       "area": "data-model",
       "title": "notification_log, consent_events, data_export_requests, job_runs, exports upload collection",
       "user_visible_behavior": "Per `01 §3.6–3.9`; `exports` uses local disk in dev/test and S3-compatible storage in prod (adapter behind env). `consent_events` append-only (no update/delete access).",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-031"],
       "ticket": "MV-035",
       "epic": "E02",
@@ -679,7 +679,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/notification-log-consent-events-data-exp.int.test.ts (integration: consent event cannot be updated.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 2dfafbb)",
+        "2026-09-20 pnpm test:integration -- tests/integration/notification-log-consent-events-data-exp.int.test.ts → pass (working tree on 2dfafbb, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: consent event cannot be updated."
     },
@@ -689,7 +692,7 @@
       "area": "data-model",
       "title": "legal_documents collection + seed",
       "user_visible_behavior": "Per `01 §3.10`; versioned; `publishedAt`; `requiresReacceptance`. Seed 4 placeholder docs (`privacy`, `terms`, `cookies`, `accessibility`) with version `2026-09-draft`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-012", "F-031"],
       "ticket": "MV-036",
       "epic": "E02",
@@ -698,7 +701,10 @@
         "L1: pnpm check",
         "L2: pnpm test:integration -- tests/integration/legal-documents-collection-seed.int.test.ts (integration: latest published resolves.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 4659f4b)",
+        "2026-09-20 pnpm test:integration -- tests/integration/legal-documents-collection-seed.int.test.ts → pass (working tree on 4659f4b, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: latest published resolves."
     },
@@ -727,7 +733,7 @@
       "area": "auth",
       "title": "Email transport and React Email base",
       "user_visible_behavior": "Payload email adapter: nodemailer → Mailpit in dev/test, Resend in prod (env-switched); `src/emails/EmailLayout.tsx` (logo, footer with settings link + attribution); `renderEmail()` util.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-003", "F-031"],
       "ticket": "MV-040",
       "epic": "E03",
@@ -738,9 +744,16 @@
         "L1: pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts (unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit Mailpit API assertion.)",
         "L2: pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts (unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit Mailpit API assertion.)"
       ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit (Mailpit API assertion)."
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 5610fc9)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts → pass (working tree on 5610fc9)",
+        "2026-09-20 pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts → pass (working tree on 5610fc9, Docker available)",
+        "2026-09-20 pnpm check → pass (working tree on 5809d8c)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/email-transport-and-react-email-base.test.ts → pass (working tree on 5809d8c)",
+        "2026-09-20 pnpm test:integration -- tests/integration/email-transport-and-react-email-base.int.test.ts → pass (working tree on 5809d8c, Docker available)"
+      ],
+      "attempts": 1,
+      "notes": "Tests (ticket): unit snapshot of layout; integration: `payload.sendEmail` reaches Mailpit (Mailpit API assertion). Attempt 1 failed 2026-09-20: evaluator: Revise"
     },
     {
       "id": "F-041",
@@ -748,7 +761,7 @@
       "area": "auth",
       "title": "Auth layout and shared form components",
       "user_visible_behavior": "`(auth)` layout (centered card), `PasswordInput` with show/hide + zxcvbn strength meter, `FormError`, `FormSuccess`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-016", "F-006"],
       "ticket": "MV-041",
       "epic": "E03",
@@ -756,9 +769,12 @@
       "design": ["docs/design/App.dc.html#route=kirjaudu"],
       "verification": [
         "L1: pnpm check",
-        "L1: pnpm test:unit -- tests/unit/auth/auth-layout-and-shared-form-components.test.ts (unit component tests.)"
+        "L1: pnpm test:unit -- tests/unit/auth/auth-layout-and-shared-form-components.test.tsx (unit component tests.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 9598319)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/auth-layout-and-shared-form-components.test.tsx → pass (working tree on 9598319)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): unit component tests."
     },
@@ -768,7 +784,7 @@
       "area": "auth",
       "title": "Registration",
       "user_visible_behavior": "`/rekisteroidy` + Server Action `register`: Zod schema (email, password ≥ 10 chars & zxcvbn ≥ 3, confirm, `acceptTerms` required, `marketing` optional); creates user, writes `consent_events` (terms, privacy, marketing if ticked) with current legal versions; sends `VerifyEmail`; redirects to `/vahvista-sahkoposti?email=`; rate limit 5/h/IP.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-035", "F-036", "F-040", "F-041"],
       "ticket": "MV-042",
       "epic": "E03",
@@ -784,9 +800,18 @@
         "L2: pnpm test:integration -- tests/integration/registration.int.test.ts (unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow.)",
         "L3: pnpm test:e2e -- tests/e2e/registration.spec.ts (unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow.)"
       ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Was F-002 (sign-up page); route is /rekisteroidy, not /signup (00-deviations R1). Tests (ticket): unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow."
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 49f61d3)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/registration.test.ts → pass (working tree on 49f61d3)",
+        "2026-09-20 pnpm test:integration -- tests/integration/registration.int.test.ts → pass (working tree on 49f61d3, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 49f61d3, Docker available)",
+        "2026-09-20 pnpm check → pass (working tree on 57ba13c)",
+        "2026-09-20 pnpm test:unit -- tests/unit/auth/registration.test.ts → pass (working tree on 57ba13c)",
+        "2026-09-20 pnpm test:integration -- tests/integration/registration.int.test.ts → pass (working tree on 57ba13c, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/registration.spec.ts → pass (working tree on 57ba13c, Docker available)"
+      ],
+      "attempts": 1,
+      "notes": "Was F-002 (sign-up page); route is /rekisteroidy, not /signup (00-deviations R1). Tests (ticket): unit schema; integration: user + 2–3 consent rows + email; duplicate email returns neutral message; E2E `@smoke` register flow. Attempt 1 failed 2026-09-20: evaluator: Revise"
     },
     {
       "id": "F-043",
@@ -794,7 +819,7 @@
       "area": "auth",
       "title": "Email verification pages",
       "user_visible_behavior": "`/vahvista-sahkoposti` (resend with 60 s cooldown), `/vahvista?token=` (success/expired/used states). Middleware sends unverified users to `/vahvista-sahkoposti`.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-042"],
       "ticket": "MV-043",
       "epic": "E03",
@@ -809,7 +834,11 @@
         "L2: pnpm test:integration -- tests/integration/email-verification-pages.int.test.ts (integration token states; E2E: register → Mailpit link → verified → `/aloita`.)",
         "L3: pnpm test:e2e -- tests/e2e/email-verification-pages.spec.ts (integration token states; E2E: register → Mailpit link → verified → `/aloita`.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on fc3e5e4)",
+        "2026-09-20 pnpm test:integration -- tests/integration/email-verification-pages.int.test.ts → pass (working tree on fc3e5e4, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/email-verification-pages.spec.ts → pass (working tree on fc3e5e4, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Was F-003 (verification link activates the account). Tests (ticket): integration token states; E2E: register → Mailpit link → verified → `/aloita`."
     },
@@ -819,7 +848,7 @@
       "area": "auth",
       "title": "Login / logout",
       "user_visible_behavior": "`/kirjaudu` with remember-me (session length 30 d vs 1 d), `?next=` handling (same-origin only), errors: invalid, locked, unverified (+resend button). `/kirjaudu-ulos` POST action.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-031", "F-041"],
       "ticket": "MV-044",
       "epic": "E03",
@@ -833,7 +862,11 @@
         "L2: pnpm test:integration -- tests/integration/login-logout.int.test.ts (integration: lockout after 5 failures; E2E `@smoke` login + logout.)",
         "L3: pnpm test:e2e -- tests/e2e/login-logout.spec.ts (integration: lockout after 5 failures; E2E `@smoke` login + logout.)"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-09-20 pnpm check → pass (working tree on 6d6ba13)",
+        "2026-09-20 pnpm test:integration -- tests/integration/login-logout.int.test.ts → pass (working tree on 6d6ba13, Docker available)",
+        "2026-09-20 pnpm test:e2e -- tests/e2e/login-logout.spec.ts → pass (working tree on 6d6ba13, Docker available)"
+      ],
       "attempts": 0,
       "notes": "Tests (ticket): integration: lockout after 5 failures; E2E `@smoke` login + logout."
     },

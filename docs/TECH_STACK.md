@@ -16,15 +16,14 @@
 > Planned by the product spec ([product/](./product/)) but not installed yet — add the row's
 > reason here when the owning ticket lands:
 >
-> | Planned                                                                                       | Owning ticket                | Notes                               |
-> | --------------------------------------------------------------------------------------------- | ---------------------------- | ----------------------------------- |
-> | Postgres rate limiter (`rate_limit_buckets`)                                                  | MV-048                       | No Upstash (00-deviations S4).      |
-> | Geocoder (MML) behind `Geocoder` interface                                                    | MV-062                       | Needs `MML_API_KEY`; mock in tests. |
-> | `MAP_TILE_URL` + MML taustakartta                                                             | MV-060, F-017                | OSM raster until the key exists.    |
-> | S3-compatible export storage                                                                  | MV-035                       | Local disk in dev/test.             |
-> | Resend bounce webhook                                                                         | MV-123                       | `POST /api/webhooks/resend`.        |
-> | Consent-gated analytics (Plausible/Umami)                                                     | MV-126                       | Optional.                           |
-> | `fast-xml-parser`, `jose`, `zxcvbn`, `@resvg/resvg-js`, `@lhci/cli`, `@testing-library/react` | first ticket that needs each | 00-deviations S14.                  |
+> | Planned                                                   | Owning ticket                | Notes                                                                                        |
+> | --------------------------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- |
+> | Postgres rate limiter (`rate_limit_buckets`)              | MV-048                       | No Upstash (00-deviations S4).                                                               |
+> | Geocoder (MML) behind `Geocoder` interface                | MV-062                       | Needs `MML_API_KEY`; mock in tests.                                                          |
+> | `MAP_TILE_URL` + MML taustakartta                         | MV-060, F-017                | OSM raster until the key exists.                                                             |
+> | Resend bounce webhook                                     | MV-123                       | `POST /api/webhooks/resend`.                                                                 |
+> | Consent-gated analytics (Plausible/Umami)                 | MV-126                       | Optional.                                                                                    |
+> | `fast-xml-parser`, `jose`, `@resvg/resvg-js`, `@lhci/cli` | first ticket that needs each | 00-deviations S14; `zxcvbn` and `@testing-library/react` + `user-event` arrived with MV-041. |
 >
 > The original spec follows unchanged. Ongoing decisions live in [DECISIONS.md](./DECISIONS.md);
 > the deviations between the product spec and this repository are listed in
@@ -58,7 +57,10 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 | Background jobs                   | Payload Jobs Queue (`payload.jobs`)                                                                                             | Tasks: `fetch-declarations`, `match-watch-areas`, `send-alerts`. Triggered by cron endpoint `POST /api/jobs/run` secured with `CRON_SECRET`.                         |
 | Scheduling                        | Vercel Cron (or DigitalOcean cron on the droplet)                                                                               | Run 2×/day ~30 min after Metsäkeskus updates (09:30, 21:30 EET/EEST)                                                                                                 |
 | Email                             | Resend + `@payloadcms/email-resend`, templates with React Email                                                                 | Local dev: Mailpit (SMTP capture) via nodemailer adapter                                                                                                             |
+| Rich text (MV-036)                | `@payloadcms/richtext-lexical` as the single Payload editor (`legal_documents.body`)                                            | Stored as Lexical JSON in `jsonb`; MV-091 renders it with the package's React renderer                                                                               |
+| File storage (MV-035)             | `@payloadcms/storage-s3` for the `exports` upload collection when `S3_BUCKET` is set                                            | Dev/test: local disk under `EXPORTS_DIR` (D-013)                                                                                                                     |
 | Auth                              | Payload local auth (email + password), email verification enabled                                                               | Magic link / passkeys later                                                                                                                                          |
+| Password strength (MV-041)        | `zxcvbn` 4 behind `src/lib/auth/password-strength.ts`                                                                           | Score ≥ 3 and ≥ 10 characters (E03); the client loads it lazily from `PasswordInput`                                                                                 |
 | Logging                           | pino + pino-pretty (dev)                                                                                                        | Structured logs with job run ids                                                                                                                                     |
 | Error tracking                    | Sentry (`@sentry/nextjs`)                                                                                                       |                                                                                                                                                                      |
 | Rate limiting                     | `@upstash/ratelimit` or simple Postgres-based limiter                                                                           | Protect public geocoding/search endpoints                                                                                                                            |
@@ -119,7 +121,7 @@ Data source: Suomen metsäkeskus open data, WFS 2.0.0 at `https://avoin.metsakes
 ## 5. Local development
 
 - `docker-compose.yml`: `db` (postgis/postgis:16-3.4, port 5432), `db_test` (same image, port 5433), `mailpit` (ports 1025/8025).
-- `.env.example` with: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `WFS_BASE_URL`, `CRON_SECRET`, `RESEND_API_KEY`, `SMTP_HOST/PORT` (dev), `MML_API_KEY`, `SENTRY_DSN`, `ENABLE_ERROR_TEST_ROUTE` (test hook: `1` enables the throwing `/virhe` route, set in `.env.test` only).
+- `.env.example` with: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `WFS_BASE_URL`, `CRON_SECRET`, `RESEND_API_KEY`, `SMTP_HOST/PORT` (dev), `MML_API_KEY`, `SENTRY_DSN`, `AUTH_RATE_LIMIT_PER_HOUR` (auth Server Actions per IP per hour, default 5, kept in `.env.test`; e2e tests set their own `x-forwarded-for`), `ENABLE_ERROR_TEST_ROUTE` (test hook: `1` enables the throwing `/virhe` route, set in `.env.test` only).
 - Scripts:
   - `dev`, `build`, `start`
   - `db:up`, `db:migrate`, `db:seed`, `db:reset`

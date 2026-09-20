@@ -74,6 +74,11 @@ export interface Config {
     'watch-area-declarations': WatchAreaDeclaration;
     alerts: Alert;
     'notification-log': NotificationLog;
+    'consent-events': ConsentEvent;
+    'data-export-requests': DataExportRequest;
+    exports: Export;
+    'job-runs': JobRun;
+    'legal-documents': LegalDocument;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +94,11 @@ export interface Config {
     'watch-area-declarations': WatchAreaDeclarationsSelect<false> | WatchAreaDeclarationsSelect<true>;
     alerts: AlertsSelect<false> | AlertsSelect<true>;
     'notification-log': NotificationLogSelect<false> | NotificationLogSelect<true>;
+    'consent-events': ConsentEventsSelect<false> | ConsentEventsSelect<true>;
+    'data-export-requests': DataExportRequestsSelect<false> | DataExportRequestsSelect<true>;
+    exports: ExportsSelect<false> | ExportsSelect<true>;
+    'job-runs': JobRunsSelect<false> | JobRunsSelect<true>;
+    'legal-documents': LegalDocumentsSelect<false> | LegalDocumentsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -163,6 +173,10 @@ export interface User {
     dailyHour?: number | null;
   };
   plan?: 'free' | null;
+  /**
+   * Viimeisin vahvistuslinkki; linkki on voimassa 24 tuntia lähetyksestä.
+   */
+  verificationSentAt?: string | null;
   /**
    * Poistotyön merkki; rivi poistetaan pysyvästi työn lopussa.
    */
@@ -339,13 +353,129 @@ export interface Alert {
  */
 export interface NotificationLog {
   id: number;
-  alerts?: (number | Alert)[] | null;
   user?: (number | null) | User;
+  type:
+    | 'alert_immediate'
+    | 'alert_digest'
+    | 'verify_email'
+    | 'password_reset'
+    | 'email_change'
+    | 'data_export'
+    | 'account_deleted';
+  alerts?: (number | Alert)[] | null;
   recipient?: string | null;
-  channel: 'email';
-  status: 'sent' | 'failed';
+  provider: string;
+  providerMessageId?: string | null;
+  status: 'queued' | 'sent' | 'failed';
   error?: string | null;
+  sentAt?: string | null;
   jobRunId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consent-events".
+ */
+export interface ConsentEvent {
+  id: number;
+  user?: (number | null) | User;
+  kind: 'terms' | 'privacy' | 'marketing' | 'cookies';
+  version: string;
+  granted: boolean;
+  ip?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "data-export-requests".
+ */
+export interface DataExportRequest {
+  id: number;
+  user: number | User;
+  status: 'pending' | 'ready' | 'expired' | 'failed';
+  file?: (number | null) | Export;
+  expiresAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exports".
+ */
+export interface Export {
+  id: number;
+  user: number | User;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "job-runs".
+ */
+export interface JobRun {
+  id: number;
+  task: 'fetch-declarations' | 'match-watch-areas' | 'send-alerts' | 'cleanup' | 'export' | 'delete-account';
+  startedAt: string;
+  finishedAt?: string | null;
+  status: 'running' | 'succeeded' | 'failed';
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  error?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-documents".
+ */
+export interface LegalDocument {
+  id: number;
+  title: string;
+  slug: 'privacy' | 'terms' | 'cookies' | 'accessibility';
+  /**
+   * Esim. 2026-09. Uusi versio on aina uusi asiakirja.
+   */
+  version: string;
+  /**
+   * Tyhjä = luonnos. Sivut näyttävät uusimman julkaistun version.
+   */
+  publishedAt?: string | null;
+  requiresReacceptance: boolean;
+  changeSummary?: string | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -493,6 +623,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'notification-log';
         value: number | NotificationLog;
+      } | null)
+    | ({
+        relationTo: 'consent-events';
+        value: number | ConsentEvent;
+      } | null)
+    | ({
+        relationTo: 'data-export-requests';
+        value: number | DataExportRequest;
+      } | null)
+    | ({
+        relationTo: 'exports';
+        value: number | Export;
+      } | null)
+    | ({
+        relationTo: 'job-runs';
+        value: number | JobRun;
+      } | null)
+    | ({
+        relationTo: 'legal-documents';
+        value: number | LegalDocument;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -555,6 +705,7 @@ export interface UsersSelect<T extends boolean = true> {
         dailyHour?: T;
       };
   plan?: T;
+  verificationSentAt?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -662,13 +813,89 @@ export interface AlertsSelect<T extends boolean = true> {
  * via the `definition` "notification-log_select".
  */
 export interface NotificationLogSelect<T extends boolean = true> {
-  alerts?: T;
   user?: T;
+  type?: T;
+  alerts?: T;
   recipient?: T;
-  channel?: T;
+  provider?: T;
+  providerMessageId?: T;
   status?: T;
   error?: T;
+  sentAt?: T;
   jobRunId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consent-events_select".
+ */
+export interface ConsentEventsSelect<T extends boolean = true> {
+  user?: T;
+  kind?: T;
+  version?: T;
+  granted?: T;
+  ip?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "data-export-requests_select".
+ */
+export interface DataExportRequestsSelect<T extends boolean = true> {
+  user?: T;
+  status?: T;
+  file?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exports_select".
+ */
+export interface ExportsSelect<T extends boolean = true> {
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "job-runs_select".
+ */
+export interface JobRunsSelect<T extends boolean = true> {
+  task?: T;
+  startedAt?: T;
+  finishedAt?: T;
+  status?: T;
+  stats?: T;
+  error?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-documents_select".
+ */
+export interface LegalDocumentsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  version?: T;
+  publishedAt?: T;
+  requiresReacceptance?: T;
+  changeSummary?: T;
+  body?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -47,6 +47,11 @@ describe('payload boot + migrations', () => {
         'watch-area-declarations',
         'alerts',
         'notification-log',
+        'consent-events',
+        'data-export-requests',
+        'exports',
+        'job-runs',
+        'legal-documents',
         'payload-jobs',
       ]),
     )

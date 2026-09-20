@@ -33,18 +33,19 @@ time; `notifiedAt` marks delivery and owners can only set `readAt`.
 
 ## Tech stack
 
-| Layer             | Choice                                                                                                                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                    |
-| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                        |
-| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`; Payload Jobs Queue for the pipeline |
-| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                 |
-| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                     |
-| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                         |
-| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                        |
-| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                          |
-| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                       |
-| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                         |
+| Layer             | Choice                                                                                                                                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Runtime / tooling | Node.js 22, pnpm 10, TypeScript 5.9 (`strict`, `noUncheckedIndexedAccess`)                                                                                                                                                                                                                                                     |
+| App               | Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS 4 with the design tokens from [docs/design/](docs/design/) as the theme, shadcn/ui, Figtree                                                                                                                                                                         |
+| Backend / CMS     | Payload CMS 3 embedded in Next.js — collections `users`, `watch-areas`, `declarations`, `declaration-revisions`, `watch-area-declarations`, `alerts`, `notification-log`, `consent-events`, `data-export-requests`, `job-runs`, `legal-documents` (Lexical rich text), `exports` (upload); Payload Jobs Queue for the pipeline |
+| Database          | PostgreSQL 16 + PostGIS 3.4 via `@payloadcms/db-postgres` (Drizzle); spatial SQL isolated in `src/lib/geo/spatial-queries.ts`                                                                                                                                                                                                  |
+| Validation        | Zod 4 everywhere (WFS responses, env via `@t3-oss/env-nextjs`, forms via react-hook-form)                                                                                                                                                                                                                                      |
+| Geo               | proj4 (EPSG:3067 ↔ 4326), @turf/turf, MapLibre GL + react-map-gl (OSM raster for now)                                                                                                                                                                                                                                          |
+| Email             | Payload email adapters: nodemailer → Mailpit locally, Resend in production; templates with React Email                                                                                                                                                                                                                         |
+| File storage      | `exports` upload collection: local disk (`EXPORTS_DIR`) in dev/test, S3-compatible bucket via `@payloadcms/storage-s3` when `S3_BUCKET` is set (D-013)                                                                                                                                                                         |
+| Observability     | pino (pretty in dev), Sentry (enabled only when `SENTRY_DSN` is set)                                                                                                                                                                                                                                                           |
+| Tests             | Vitest 5 (unit + integration with Testcontainers), Playwright 1.63 (E2E), msw, axe-core                                                                                                                                                                                                                                        |
+| Quality           | ESLint 9 flat config, Prettier, Husky + lint-staged, commitlint, knip                                                                                                                                                                                                                                                          |
 
 The full spec, including deviations from the original plan, is in
 [docs/TECH_STACK.md](docs/TECH_STACK.md).
@@ -65,7 +66,7 @@ pnpm db:migrate                 # applies src/payload/migrations to the dev DB
 pnpm dev                        # http://localhost:3000
 ```
 
-- `/` — landing page, `/login` — sign in, `/dashboard` — your watch areas on a map
+- `/` — landing page, `/rekisteroidy` — create an account (verification email → `/vahvista-sahkoposti`, resend with a 60 s cooldown), `/vahvista?token=` — the link from the email (verified / expired / used), `/kirjaudu` — sign in (remember-me, `?next=`), `/kirjaudu-ulos` — log out (POST) → `/kirjauduttu-ulos`, `/dashboard` — your watch areas on a map
 - `/admin` — Payload admin. The **first account created becomes admin**; use
   `/admin/create-first-user` or `pnpm db:seed` (creates `admin@metsavahti.local`).
 - Mailpit UI: http://localhost:8025 — every email sent locally ends up here.
@@ -96,27 +97,27 @@ Safeguards:
 
 ## Scripts
 
-| Script                                                               | What it does                                                                                       |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `pnpm dev` / `build` / `start`                                       | Next.js with Turbopack                                                                             |
-| `pnpm db:up` / `db:down`                                             | start / stop `db`, `db_test`, `mailpit`                                                            |
-| `pnpm db:migrate` / `db:migrate:create <name>` / `db:migrate:status` | Payload migrations (dev DB)                                                                        |
-| `pnpm db:seed`                                                       | admin user + sample watch area in the dev DB (refuses test DBs)                                    |
-| `pnpm db:reset`                                                      | drop volumes, recreate containers, migrate                                                         |
-| `pnpm test`                                                          | unit + integration                                                                                 |
-| `pnpm test:unit` / `test:watch`                                      | Vitest unit project (no DB, no network)                                                            |
-| `pnpm test:integration`                                              | Vitest integration project (Testcontainers PostGIS + Mailpit)                                      |
-| `pnpm test:coverage`                                                 | both projects with v8 coverage (80 % line threshold on `src/lib/geo`, `src/lib/wfs`)               |
-| `pnpm test:e2e` / `test:e2e:ui`                                      | Playwright against `next dev -p 3100` + `db_test` + WFS mock                                       |
-| `pnpm test:e2e:ci`                                                   | same, but builds first and runs `next start` (what CI does)                                        |
-| `pnpm test:live`                                                     | opt-in contract test against the real Metsäkeskus WFS                                              |
-| `pnpm jobs:run`                                                      | run the sync workflow once against the dev DB                                                      |
-| `pnpm fixtures:record -- --bbox …`                                   | record a fresh WFS sample into `tests/fixtures/wfs`                                                |
-| `pnpm lint` / `format` / `typecheck` / `knip`                        | quality gates (also run by Husky on commit and in CI)                                              |
-| `pnpm check` / `check:full`                                          | L1 verification (lint, typecheck, knip, format:check, unit); `check:full` adds integration + build |
-| `pnpm harness:check`                                                 | validate `feature_list.json` (WIP=1, evidence, layer labels)                                       |
-| `pnpm harness:feature` / `harness:verify` / `harness:clean-state`    | feature state transitions, the verification gate, the clock-out gate                               |
-| `pnpm harness:loop` / `harness:report` / `harness:import-tickets`    | unattended feature loop, its run log, ticket → feature import                                      |
+| Script                                                               | What it does                                                                                            |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `pnpm dev` / `build` / `start`                                       | Next.js with Turbopack                                                                                  |
+| `pnpm db:up` / `db:down`                                             | start / stop `db`, `db_test`, `mailpit`                                                                 |
+| `pnpm db:migrate` / `db:migrate:create <name>` / `db:migrate:status` | Payload migrations (dev DB)                                                                             |
+| `pnpm db:seed`                                                       | admin user, sample watch area and the four placeholder legal documents in the dev DB (refuses test DBs) |
+| `pnpm db:reset`                                                      | drop volumes, recreate containers, migrate                                                              |
+| `pnpm test`                                                          | unit + integration                                                                                      |
+| `pnpm test:unit` / `test:watch`                                      | Vitest unit project (no DB, no network)                                                                 |
+| `pnpm test:integration`                                              | Vitest integration project (Testcontainers PostGIS + Mailpit)                                           |
+| `pnpm test:coverage`                                                 | both projects with v8 coverage (80 % line threshold on `src/lib/geo`, `src/lib/wfs`)                    |
+| `pnpm test:e2e` / `test:e2e:ui`                                      | Playwright against `next dev -p 3100` + `db_test` + WFS mock                                            |
+| `pnpm test:e2e:ci`                                                   | same, but builds first and runs `next start` (what CI does)                                             |
+| `pnpm test:live`                                                     | opt-in contract test against the real Metsäkeskus WFS                                                   |
+| `pnpm jobs:run`                                                      | run the sync workflow once against the dev DB                                                           |
+| `pnpm fixtures:record -- --bbox …`                                   | record a fresh WFS sample into `tests/fixtures/wfs`                                                     |
+| `pnpm lint` / `format` / `typecheck` / `knip`                        | quality gates (also run by Husky on commit and in CI)                                                   |
+| `pnpm check` / `check:full`                                          | L1 verification (lint, typecheck, knip, format:check, unit); `check:full` adds integration + build      |
+| `pnpm harness:check`                                                 | validate `feature_list.json` (WIP=1, evidence, layer labels)                                            |
+| `pnpm harness:feature` / `harness:verify` / `harness:clean-state`    | feature state transitions, the verification gate, the clock-out gate                                    |
+| `pnpm harness:loop` / `harness:report` / `harness:import-tickets`    | unattended feature loop, its run log, ticket → feature import                                           |
 
 ## Working with coding agents
 
@@ -149,12 +150,12 @@ See [tests/README.md](tests/README.md) for details. In short:
 
 ```
 src/
-  app/(frontend)/         root document + error boundaries; (marketing)/ landing, login, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); (app)/dashboard
+  app/(frontend)/         root document + error boundaries; (auth)/ kirjaudu (+ login action), kirjauduttu-ulos, rekisteroidy (+ register action), vahvista-sahkoposti (+ resend action, button), vahvista; (marketing)/ landing, 404, /huolto, /liikaa-pyyntoja, /virhe (test hook); kirjaudu-ulos/route.ts (POST logout); (app)/dashboard
   app/(payload)/          generated Payload admin + REST/GraphQL routes
   app/api/health          liveness + PostGIS check
   app/api/jobs/run        cron entrypoint (Bearer CRON_SECRET)
   payload.config.ts       Payload config (postgres adapter, email, jobs)
-  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog
+  payload/collections     Users, WatchAreas, Declarations, DeclarationRevisions, WatchAreaDeclarations, Alerts, NotificationLog, ConsentEvents, DataExportRequests, JobRuns, LegalDocuments, Exports (upload)
   payload/access          access-control helpers
   payload/jobs            task + workflow definitions, cron access
   payload/schema          afterSchemaInit hook registering PostGIS columns
@@ -163,10 +164,15 @@ src/
   lib/env.ts              validated environment (t3-env + Zod)
   lib/errors.ts           typed AppError subclasses, actionResult() for Server Actions, toErrorResponse()
   lib/geo                 crs.ts, buffer.ts, bbox.ts, hash.ts, spatial-queries.ts
+  lib/legal/documents.ts  legal document slugs, latest-published resolver, placeholder seed
   lib/wfs                 client.ts, schemas.ts, parse.ts, hakkuutapa.ts
   lib/jobs                fetch-declarations, match-watch-areas, send-alerts
-  lib/notifications       React Email alert template
-  components/             site header/footer/frame, system pages, attribution, map (MapLibre), shadcn ui/
+  emails                  React Email templates: EmailLayout (shared frame), AlertEmail, renderEmail()
+  lib/notifications       provider.ts (which email adapter is active)
+  lib/privacy             ip.ts (IP → network prefix before storage)
+  components/             site header/footer/frame, brand mark, system pages, attribution, map (MapLibre), forms/ (PasswordInput, FormError, FormSuccess), shadcn ui/
+  i18n/fi.ts              Finnish UI copy (new strings go here)
+  lib/auth                password-strength.ts (zxcvbn score + E03 thresholds)
 tests/
   unit/  integration/  e2e/  live/  helpers/  fixtures/wfs/
 scripts/                  seed.ts, run-jobs.ts, record-fixtures.ts
@@ -178,7 +184,8 @@ docker-compose.yml        db (5432), db_test (5433), mailpit (1025/8025)
 
 - Any host that runs Next.js 16 + a Postgres with PostGIS (Neon, Supabase,
   DigitalOcean Managed Postgres, or a droplet). Set the variables from
-  `.env.example`; `RESEND_API_KEY` without `SMTP_HOST` selects Resend.
+  `.env.example`; `RESEND_API_KEY` without `SMTP_HOST` selects Resend. `S3_BUCKET` (+ key, secret, optional
+  `S3_ENDPOINT` for non-AWS providers) moves account-export archives from `EXPORTS_DIR` to object storage.
 - Schedule `POST /api/jobs/run` with `Authorization: Bearer $CRON_SECRET` at
   09:30 and 21:30 Europe/Helsinki (≈30 min after Metsäkeskus updates).
 - Migrations run automatically on boot in production (`prodMigrations`).
@@ -193,7 +200,7 @@ into `feature_list.json`); routes will move to their Finnish names (`/kirjaudu`,
 - Attribute-level change detection (currently geometry only) and hakkuutapa
   label verification against the Metsäkeskus code list.
 - Geocoding (MML), rate limiting for public endpoints, MML background map.
-- Component tests (`@testing-library/react`) once UI components warrant them.
+- More component tests (`@testing-library/react`, started with the auth form components).
 
 ## Licence and data
 

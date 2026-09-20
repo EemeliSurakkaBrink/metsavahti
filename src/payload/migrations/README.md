@@ -74,5 +74,6 @@ old one, then remove the old one — and merge them by hand into one file whose 
 `*.json` snapshot and delete the intermediate one (`20260920_141524_watch_areas_fields`,
 `20260920_143554_declarations_geom`, which renames six columns and adds a table, and
 `20260920_145929_watch_area_declarations_alerts`, which converts the alert columns with `UPDATE`s and
-seeds a new table from existing rows, are the examples). Without a `.env` in the loop, run it as `pnpm exec dotenv -e .env.test -- pnpm db:migrate:create <name>`;
+seeds a new table from existing rows, and `20260920_153151_logs_consents_exports_job_runs`, which adds
+NOT NULL columns as nullable, backfills them and only then tightens them, are the examples). Without a `.env` in the loop, run it as `pnpm exec dotenv -e .env.test -- pnpm db:migrate:create <name>`;
 it only diffs the snapshot.

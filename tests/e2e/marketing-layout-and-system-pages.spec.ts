@@ -22,7 +22,7 @@ test.describe('marketing layout', () => {
     )
     await expect(nav.getByRole('link', { name: 'Kirjaudu', exact: true })).toHaveAttribute(
       'href',
-      '/login',
+      '/kirjaudu',
     )
     await expect(nav.getByRole('link', { name: 'Luo tili' })).toHaveAttribute(
       'href',

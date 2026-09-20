@@ -9,11 +9,27 @@ database or points at port 5432.
 
 - Config: `vitest.unit.config.ts` (project `unit`, `environment: node`).
 - Location: `tests/unit/**/*.test.{ts,tsx}`. Component/email tests opt into
-  jsdom with `// @vitest-environment jsdom` at the top of the file.
+  jsdom with `// @vitest-environment jsdom` at the top of the file and use
+  `@testing-library/react` + `user-event` (`auth/auth-layout-and-shared-form-components.test.tsx`
+  is the pattern: `render`, `screen`, `waitFor` for the lazily loaded scorer, `cleanup` in `afterEach`).
 - No database, no network: `helpers/msw.ts` errors on any unhandled request.
 - Covers CRS transforms (5 control points, round-trip < 1 mm) and GeoJSON reprojection, buffers/bboxes, WFS URL building + retry policy, Zod
   schema against the recorded fixture (snapshot), geometry hashing, hakkuutapa
-  labels, attribution text, cron-secret comparison, email rendering, the DB guard.
+  labels, attribution text, cron-secret comparison, email rendering (`EmailLayout` snapshot, alert
+  template, adapter selection by env), the auth layout and form components (`PasswordInput`
+  toggle + zxcvbn meter, `FormError`, `FormSuccess`, `scorePassword` thresholds), registration
+  (`auth/registration.test.ts`: form schema per field, `validateRegistration` with the zxcvbn
+  requirement and the email local part as a penalised input, the sliding-window rate limiter,
+  the `register` action itself with `headers()` stubbed and `registerUser` spied: the sixth
+  call from one address is `rate_limited` while another address passes, a duplicate address
+  redirects exactly like a new account, a weak password is refused on the server; `clientIp`,
+  the `VerifyEmail` template), the DB guard.
+  email verification (`auth/email-verification-pages.test.ts`: the 24 h expiry boundary, the
+  `resendVerification` action with `resendVerificationEmail` spied: one send per address per 60 s
+  with the remaining seconds, neutral for unknown addresses, every call counted against the IP
+  limit; `readSessionToken` against tokens signed with Payload's `jwtSign`, the cookie parser and
+  `findUnverifiedSessionUser` with `findByID` stubbed; `email-verification-pages.resend-button.test.tsx`:
+  the button's countdown under fake timers and how a short server refusal becomes the countdown),
 
 ## Integration — `pnpm test:integration`
 
@@ -40,6 +56,26 @@ database or points at port 5432.
   (watch_area, declaration), cascading FKs, `(user, created_at DESC)` / `(user, notified_at)` indexes,
   admin read-only join rows, owner-only alert read, `readAt`-only owner update, no owner create/delete,
   and a `down` → `up` round-trip of the MV-034 migration converting pre-MV-034 alerts),
+  the `notification-log` + `consent-events` + `data-export-requests` + `job-runs` + `exports`
+  collections (`01 §3.6–3.9` columns and indexes, consent events rejecting update/delete through
+  access control and through the hooks even with `overrideAccess`, IP stored as a /24 prefix, owner-only
+  reads, zip-only uploads written under `EXPORTS_DIR`, admin-only job runs and log, and a `down` → `up`
+  round-trip of the MV-035 migration backfilling `type` / `provider` / `sent_at`),
+  the `legal-documents` collection (`01 §3.10` columns, unique (slug, version), the idempotent
+  placeholder seed, `findLatestLegalDocument()` ignoring drafts and future `publishedAt`, public read of
+  published versions only, admin-only writes, and a `down` → `up` round-trip of the MV-036 migration),
+  the email transport (`payload.email` is the nodemailer adapter; a layout-rendered
+  `payload.sendEmail` reaches Mailpit with the settings link and attribution),
+  registration (`registration.int.test.ts`: `registerUser()` creates an unverified user with
+  `marketingConsent`, the `terms` / `privacy` / `marketing` consent rows at the seeded legal
+  version with the IP reduced to /24, and the verify email in Mailpit whose link carries the
+  user's `_verificationToken`; two rows without marketing; a duplicate address writes and sends nothing),
+  email verification (`email-verification-pages.int.test.ts`: `verifyEmailToken` verifies once and
+  then reports `invalid`, refuses a token past 24 h as `expired` without touching the account, treats
+  unknown tokens as `invalid`; `resendVerificationEmail` issues a fresh dated token, the new link in
+  Mailpit works and the old one does not, unknown/verified addresses send nothing; the session guard
+  names a logged-in account whose `_verified` was reset while `payload.auth()` already returns no
+  user; a `down` → `up` round-trip of the MV-043 migration),
   the full `sync-declarations` pipeline (new → idempotent → changed
   geometry with a `declaration-revisions` row and an in-place `watch-area-declarations` update,
   emails asserted through the Mailpit API), and the cron endpoint.
@@ -51,11 +87,25 @@ database or points at port 5432.
 - Playwright starts two servers: the WFS mock (`e2e/mocks/wfs-server.ts`, Hono on 3200) and the app on **3100** (`next dev` locally, `next start` in CI, both with
   `NEXT_DIST_DIR=.next-e2e`). `reuseExistingServer` is on locally, so keep them
   running between iterations for fast reruns.
-- Project order: `db-setup` (guard → migrate → truncate → seed first user + a
-  watch area through the REST API) → `auth-setup` (logs in once, stores cookies
+- Project order: `db-setup` (guard → migrate → truncate → seed first user, a
+  watch area and the four placeholder legal documents through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
-- Specs: landing page + attribution + axe, login validation, dashboard
-  redirect/auth/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
+- Specs: landing page + attribution + axe, login and logout (`login-logout.spec.ts`, guest, an own
+  verified account per test through `e2e/accounts.ts`: `@smoke` `/kirjaudu` → `/dashboard` (1-day cookie) →
+  `Kirjaudu ulos` → `/kirjauduttu-ulos` → the session is gone server-side; remember-me gives a 30-day cookie and
+  `?next=` follows same-origin paths only; invalid, unverified (+ inline resend → second Mailpit link) and locked
+  after five wrong passwords; `/kirjaudu-ulos` is 405 on GET and a 303 for a guest; axe), registration (`registration.spec.ts`,
+  runs as a guest with its own `x-forwarded-for` per test: inline validation + meter + axe; `@smoke`
+  register → `/vahvista-sahkoposti?email=` → verify email in Mailpit → the same address again
+  gets the same redirect and no second email → login still refused while unverified; five
+  weak-password submissions from one address, the sixth shows `Liikaa pyyntöjä`), email verification
+  (`email-verification-pages.spec.ts`, guest, own address per test: `@smoke` register → resend with the
+  cooldown → the newest Mailpit link verifies and the older one is `invalid` → `Luo ensimmäinen
+vahtialue` points at `/aloita` → login succeeds → the same link is `used`; an admin backdates
+  `verificationSentAt` 25 h so the link is `expired` and its resend button issues a working one;
+  `/vahvista` without or with an unknown token; an admin resets `_verified` on a logged-in account and
+  `/dashboard` redirects to `/vahvista-sahkoposti?email=…&required=1` with the `VAHVISTUS` interstitial; axe on every state), dashboard
+  redirect (`/kirjaudu?next=%2Fdashboard`)/map/pending-alert count, marketing layout + system pages (header/footer, 404 status,
   `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
   jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets
   `ENABLE_ERROR_TEST_ROUTE=1`; the unit test `infra/error-test-route.test.ts` checks that

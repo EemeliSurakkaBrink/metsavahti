@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { VERIFY_EMAIL_SUBJECT, renderVerifyEmail } from '@/emails/VerifyEmail'
+import { env } from '@/lib/env'
 import { isAdmin, isAdminField, isAdminOrSelf, isAdminUser } from '@/payload/access'
 
 export const DEFAULT_TIMEZONE = 'Europe/Helsinki'
@@ -33,8 +35,14 @@ export const Users: CollectionConfig = {
     group: 'Käyttäjät',
   },
   auth: {
-    // Email verification is required before login (link is sent via the email adapter).
-    verify: true,
+    // Email verification is required before login. Payload sends the link on `create`
+    // (and on resend, MV-043) with the React Email template; only the HTML part is sent
+    // because Payload's verify hook has no text-part slot.
+    verify: {
+      generateEmailHTML: async ({ token }) =>
+        (await renderVerifyEmail({ token, baseUrl: env.NEXT_PUBLIC_SERVER_URL })).html,
+      generateEmailSubject: () => VERIFY_EMAIL_SUBJECT,
+    },
     // Reset links (`/uusi-salasana?token=`, MV-045) are valid for one hour.
     forgotPassword: { expiration: 60 * 60 * 1000 },
     tokenExpiration: 60 * 60 * 24 * 7, // 7 days
@@ -60,6 +68,15 @@ export const Users: CollectionConfig = {
         if (totalDocs === 0) return { ...data, role: 'admin' }
         // Never allow self-assigned admin role through the public API.
         return isAdminUser(req.user) ? data : { ...data, role: 'user' }
+      },
+      // `verificationSentAt` dates the pending verification link (MV-043: links are valid for
+      // `VERIFICATION_LINK_TTL_MS`). Payload issues the token inside `create`; the resend
+      // helper refreshes both together.
+      ({ data, operation }) => {
+        if (operation === 'create' && !data._verified) {
+          return { ...data, verificationSentAt: new Date().toISOString() }
+        }
+        return data
       },
       // `marketingConsentAt` records when consent was last given; nobody sets it directly.
       ({ data, operation, originalDoc }) => {
@@ -167,6 +184,20 @@ export const Users: CollectionConfig = {
         update: isAdminField,
       },
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'verificationSentAt',
+      type: 'date',
+      label: 'Vahvistuslinkki lähetetty',
+      access: {
+        create: isAdminField,
+        update: isAdminField,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Viimeisin vahvistuslinkki; linkki on voimassa 24 tuntia lähetyksestä.',
+      },
     },
     {
       name: 'deletedAt',
