@@ -26,6 +26,8 @@ export const env = createEnv({
     MML_API_KEY: z.string().min(1).optional(),
     SENTRY_DSN: z.string().min(1).optional(),
     LOG_LEVEL: z.enum(logLevels).default('info'),
+    /** `1` exposes `/virhe`, a route that throws so the e2e suite can test `error.tsx`. */
+    ENABLE_ERROR_TEST_ROUTE: z.enum(['0', '1']).default('0'),
   },
   client: {
     NEXT_PUBLIC_SERVER_URL: z.url(),

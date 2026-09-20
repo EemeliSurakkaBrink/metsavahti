@@ -201,7 +201,7 @@
       "area": "infra",
       "title": "Marketing layout and system pages",
       "user_visible_behavior": "`(marketing)` layout with `SiteHeader` / `SiteFooter` (legal links, attribution, cookie-settings button), root `not-found.tsx` (\"Sivua ei löytynyt\"), `error.tsx` / `global-error.tsx` (\"Jotain meni pieleen\" + Sentry event id), `/huolto` and `/liikaa-pyyntoja` pages per `03-pages.md` → System routes, styled from the design tokens.",
-      "status": "not_started",
+      "status": "passing",
       "depends_on": ["F-016", "F-006"],
       "ticket": "MV-011",
       "epic": "E00",
@@ -217,9 +217,14 @@
         "L1: pnpm check",
         "L3: pnpm test:e2e -- tests/e2e/marketing-layout-and-system-pages.spec.ts (E2E smoke for 404 and the layout; axe.)"
       ],
-      "evidence": [],
-      "attempts": 0,
-      "notes": "Tests (ticket): E2E smoke for 404 and the layout; axe."
+      "evidence": [
+        "2026-09-06 pnpm check → pass (working tree on 5e5fa86)",
+        "2026-09-06 pnpm test:e2e -- tests/e2e/marketing-layout-and-system-pages.spec.ts → pass (working tree on 5e5fa86, Docker available)",
+        "2026-09-06 pnpm check → pass (working tree on ad1ab64)",
+        "2026-09-06 pnpm test:e2e -- tests/e2e/marketing-layout-and-system-pages.spec.ts → pass (working tree on ad1ab64, Docker available)"
+      ],
+      "attempts": 1,
+      "notes": "Tests (ticket): E2E smoke for 404 and the layout; axe. Attempt 1 failed 2026-09-06: evaluator: Revise"
     },
     {
       "id": "F-012",

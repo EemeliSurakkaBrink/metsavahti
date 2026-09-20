@@ -41,7 +41,11 @@ database or points at port 5432.
   watch area through the REST API) → `auth-setup` (logs in once, stores cookies
   in `e2e/.auth/user.json`) → `chromium`, `webkit`, `mobile-chrome` in parallel.
 - Specs: landing page + attribution + axe, login validation, dashboard
-  redirect/auth/map, health and jobs API (runs the sync against the mock).
+  redirect/auth/map, marketing layout + system pages (header/footer, 404 status,
+  `/huolto`, `/liikaa-pyyntoja`, the error boundary through `/virhe`, axe), health and
+  jobs API (runs the sync against the mock). `/virhe` throws only because `.env.test` sets
+  `ENABLE_ERROR_TEST_ROUTE=1`; the unit test `infra/error-test-route.test.ts` checks that
+  it is a 404 otherwise.
 
 ## Live contract — `pnpm test:live`
 
