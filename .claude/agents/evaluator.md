@@ -2,7 +2,7 @@
 name: evaluator
 description: Fresh-context reviewer that scores the working-tree diff (or a named commit) against docs/harness/evaluator-rubric.md — correctness, verification, scope discipline, reliability, maintainability, handoff readiness — and returns Accept / Revise / Block. Use at clock-out, before a feature is marked passing, or when asked to evaluate or review a feature. Read-only.
 tools: Read, Glob, Grep, Bash
-model: opus
+model: claude-opus-5-5
 maxTurns: 60
 ---
 

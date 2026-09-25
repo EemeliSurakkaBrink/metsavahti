@@ -23,6 +23,7 @@ import {
   readFileSync,
   writeFileSync,
 } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
@@ -56,6 +57,7 @@ const configSchema = z.object({
   }),
   evaluator: z.object({
     model: z.string().min(1),
+    effort: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).optional(),
     maxTurns: z.number().int().positive(),
     maxBudgetUsd: z.number().positive(),
     wallClockMin: z.number().positive().default(15),
@@ -513,7 +515,7 @@ async function runFeature(
         `would then: post-check (feature status, clean-state --require-terminal, commits ahead of main)`,
       )
       console.log(
-        `  claude -p "<evaluator prompt>" --agent evaluator --permission-mode ${config.generator.permissionMode} --permission-prompts none --max-turns ${config.evaluator.maxTurns} --max-budget-usd ${config.evaluator.maxBudgetUsd} --model ${config.evaluator.model} --output-format json --json-schema <docs/harness/prompts/evaluator-schema.json>`,
+        `  claude -p "<evaluator prompt>" --agent evaluator --permission-mode ${config.generator.permissionMode} --permission-prompts none --max-turns ${config.evaluator.maxTurns} --max-budget-usd ${config.evaluator.maxBudgetUsd} --model ${config.evaluator.model}${config.evaluator.effort ? ` --effort ${config.evaluator.effort}` : ''} --output-format json --json-schema <docs/harness/prompts/evaluator-schema.json>`,
       )
       log(
         `would then: git push -u origin ${branchFor(id)} && gh pr create --base main --head ${branchFor(id)} …; merge policy ${opts.autoMerge ? 'auto' : config.merge}`,
@@ -586,7 +588,7 @@ async function runFeature(
       continue
     }
 
-    // Evaluator: fresh context, different model, read-only.
+    // Evaluator: fresh context, read-only.
     log(`=== ${id}: evaluator session (${config.evaluator.model})`)
     const evalArgs = [
       '-p',
@@ -603,6 +605,7 @@ async function runFeature(
       String(config.evaluator.maxBudgetUsd),
       '--model',
       config.evaluator.model,
+      ...(config.evaluator.effort ? ['--effort', config.evaluator.effort] : []),
       '--output-format',
       'json',
       '--json-schema',
@@ -846,6 +849,25 @@ function preflight(config: HarnessConfig, opts: Options) {
   must('pnpm', ['--silent', 'harness:check'], 'pnpm harness:check')
   if (sh('claude', ['--version'], { quiet: true }).code !== 0)
     throw new Error('claude CLI not found')
+  // A CLI too old for a pinned model fails every session with a 400, which would burn
+  // attempts and auto-block features; one tiny request per model catches it up front.
+  if (!opts.dryRun) {
+    for (const model of new Set([config.generator.model, config.evaluator.model])) {
+      const probe = sh(
+        'claude',
+        ['-p', 'Reply with: ok', '--model', model, '--max-turns', '1', '--output-format', 'json'],
+        { quiet: true, cwd: tmpdir() },
+      )
+      let result: { is_error?: boolean; result?: string } = {}
+      try {
+        result = JSON.parse(probe.out) as typeof result
+      } catch {
+        result = { is_error: true, result: probe.err || probe.out }
+      }
+      if (probe.code !== 0 || result.is_error)
+        throw new Error(`claude cannot run model ${model}: ${result.result ?? probe.err}`)
+    }
+  }
   if (!ghAvailable())
     log(
       'warning: gh is not installed or not logged in — branches will be pushed but PRs must be opened by hand',

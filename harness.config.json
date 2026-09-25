@@ -8,12 +8,13 @@
     "maxConsecutiveFailures": 2
   },
   "generator": {
-    "model": "fable",
+    "model": "claude-opus-5-5",
     "permissionMode": "auto",
     "effort": "high"
   },
   "evaluator": {
-    "model": "opus",
+    "model": "claude-opus-5-5",
+    "effort": "high",
     "maxTurns": 60,
     "maxBudgetUsd": 4,
     "wallClockMin": 15

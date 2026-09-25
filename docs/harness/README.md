@@ -43,7 +43,7 @@ sequenceDiagram
     participant E as Evaluator session (claude -p --agent evaluator)
     participant GH as GitHub (gh)
 
-    D->>D: preflight: main clean & in sync, harness:check, Docker, db:up, gh, claude
+    D->>D: preflight: main clean & in sync, harness:check, Docker, db:up, gh, claude + one probe request per configured model
     D->>S: harness-feature next (skip in-flight branches)
     S-->>D: F-042
     D->>D: git worktree add ../metsavahti-worktrees/F-042 -b feat/F-042 main; FAST=1 ./init.sh
@@ -55,7 +55,7 @@ sequenceDiagram
     alt post-check fails
         D->>S: harness-feature attempt (auto-blocks at max_attempts) → retry once with the failure appended
     end
-    D->>E: evaluate F-042 (rubric, JSON schema), different model, fresh context
+    D->>E: evaluate F-042 (rubric, JSON schema), fresh context, read-only
     E-->>D: verdict Accept | Revise | Block + scores + findings
     alt Revise
         D->>G: retry once with the findings appended
@@ -86,21 +86,21 @@ stateDiagram-v2
 
 ## 3. What each safeguard catches
 
-| Safeguard                                             | Catches                                                                                                                                                                                          | Where                                                       |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| Permission allow rules (`--allowedTools`, settings)   | The known-good pnpm/git path runs without prompts or classifier round-trips                                                                                                                      | `harness.config.json`, `.claude/settings.json`              |
-| Auto-mode classifier                                  | Anything not on the allowlist is reviewed by a second model; `--permission-prompts none` denies what would have prompted                                                                         | Claude Code                                                 |
-| Deny rules                                            | `.env`, generated files, `db:reset`, `compose down -v`, force push, `reset --hard` — in every mode                                                                                               | `.claude/settings.json`                                     |
-| `guard.sh` (PreToolUse)                               | Bare `vitest`/`playwright`, npm/yarn/npx, destructive git, `rm -rf`; invalid `feature_list.json` before a commit; in loop mode also `db:up/down`, `git push`, `checkout main`, worktree commands | `.claude/hooks/guard.sh`                                    |
-| `harness:check` (validator)                           | Two `in_progress`, `passing` without evidence, unknown or cyclic `depends_on`, `in_progress` with unmet deps                                                                                     | runs from unit tests, lint-staged, the guard and the driver |
-| `harness:verify`                                      | A layer skipped or run out of order; Docker missing for L2/L3; `manual:` steps waived unattended                                                                                                 | the only way a feature becomes `passing`                    |
-| `clean-state-check.sh`                                | Dirty tree, `.only`/`.skip`, lowered thresholds, `console.log`, missing PROGRESS.md update, staged `.env`, broken AGENTS.md marker, broken `init.sh`                                             | clock-out, Stop hook, driver post-check                     |
-| Stop hook (`stop-guard.sh`, loop only)                | A session ending with an unverified or uncommitted feature (max 3 blocks, respects `stop_hook_active`)                                                                                           | `.claude/hooks/stop-guard.sh`                               |
-| Driver post-check                                     | A transcript that claims success while the branch says otherwise (status, clean-state, no commits)                                                                                               | `scripts/harness-loop.ts`                                   |
-| Evaluator (fresh context, different model, read-only) | Work that passes its own tests but misses the behaviour, scope creep, stale evidence, bad handoff                                                                                                | `.claude/agents/evaluator.md`, `evaluator-rubric.md`        |
-| Caps                                                  | Runaway sessions: turns, budget, wall clock, attempts, consecutive failures                                                                                                                      | `harness.config.json`                                       |
-| CI on the PR                                          | Everything again on a clean runner (lint → typecheck → unit → integration → build → e2e)                                                                                                         | `.github/workflows/ci.yml`                                  |
-| Design-system lint                                    | Arbitrary Tailwind values, raw palette colours, unknown classes, inline styles                                                                                                                   | `eslint.config.mjs`, part of L1                             |
+| Safeguard                                           | Catches                                                                                                                                                                                          | Where                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| Permission allow rules (`--allowedTools`, settings) | The known-good pnpm/git path runs without prompts or classifier round-trips                                                                                                                      | `harness.config.json`, `.claude/settings.json`              |
+| Auto-mode classifier                                | Anything not on the allowlist is reviewed by a second model; `--permission-prompts none` denies what would have prompted                                                                         | Claude Code                                                 |
+| Deny rules                                          | `.env`, generated files, `db:reset`, `compose down -v`, force push, `reset --hard` — in every mode                                                                                               | `.claude/settings.json`                                     |
+| `guard.sh` (PreToolUse)                             | Bare `vitest`/`playwright`, npm/yarn/npx, destructive git, `rm -rf`; invalid `feature_list.json` before a commit; in loop mode also `db:up/down`, `git push`, `checkout main`, worktree commands | `.claude/hooks/guard.sh`                                    |
+| `harness:check` (validator)                         | Two `in_progress`, `passing` without evidence, unknown or cyclic `depends_on`, `in_progress` with unmet deps                                                                                     | runs from unit tests, lint-staged, the guard and the driver |
+| `harness:verify`                                    | A layer skipped or run out of order; Docker missing for L2/L3; `manual:` steps waived unattended                                                                                                 | the only way a feature becomes `passing`                    |
+| `clean-state-check.sh`                              | Dirty tree, `.only`/`.skip`, lowered thresholds, `console.log`, missing PROGRESS.md update, staged `.env`, broken AGENTS.md marker, broken `init.sh`                                             | clock-out, Stop hook, driver post-check                     |
+| Stop hook (`stop-guard.sh`, loop only)              | A session ending with an unverified or uncommitted feature (max 3 blocks, respects `stop_hook_active`)                                                                                           | `.claude/hooks/stop-guard.sh`                               |
+| Driver post-check                                   | A transcript that claims success while the branch says otherwise (status, clean-state, no commits)                                                                                               | `scripts/harness-loop.ts`                                   |
+| Evaluator (fresh context, read-only)                | Work that passes its own tests but misses the behaviour, scope creep, stale evidence, bad handoff                                                                                                | `.claude/agents/evaluator.md`, `evaluator-rubric.md`        |
+| Caps                                                | Runaway sessions: turns, budget, wall clock, attempts, consecutive failures                                                                                                                      | `harness.config.json`                                       |
+| CI on the PR                                        | Everything again on a clean runner (lint → typecheck → unit → integration → build → e2e)                                                                                                         | `.github/workflows/ci.yml`                                  |
+| Design-system lint                                  | Arbitrary Tailwind values, raw palette colours, unknown classes, inline styles                                                                                                                   | `eslint.config.mjs`, part of L1                             |
 
 ## 4. Operating the loop
 
